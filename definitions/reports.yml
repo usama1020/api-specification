@@ -1,6 +1,6 @@
 openapi: "3.0.0"
 info:
-  version: 2.0.2
+  version: 2.0.3
   title: Nexmo Reports API
   description: >
     Nexmo's Reports API allows you to request a report of activity on your Nexmo account.<br>
@@ -43,12 +43,12 @@ paths:
                 - $ref: '#/components/schemas/VERIFY-API'
                 - $ref: '#/components/schemas/NUMBER-INSIGHT'
                 - $ref: '#/components/schemas/MESSAGES'
-                - $ref: '#/components/schemas/IP-VOICE'
+                - $ref: '#/components/schemas/CONVERSATIONS'
               discriminator:
                 propertyName: product
       responses:
         '200':
-          $ref: '#/components/responses/report_responses'
+          $ref: '#/components/responses/report_responses_create_report'
         '400':
           $ref: '#/components/responses/400_json'
         '401':
@@ -189,12 +189,24 @@ components:
         application/json:
           schema:
             oneOf:
-              - $ref: '#/components/schemas/sms_response'
-              - $ref: '#/components/schemas/voice_call_response'
-              - $ref: '#/components/schemas/verify_api_response'
-              - $ref: '#/components/schemas/number_insight_response'
-              - $ref: '#/components/schemas/messages_response'
-              - $ref: '#/components/schemas/ip_voice_leg_response'
+              - $ref: '#/components/schemas/sms_response_get_report'
+              - $ref: '#/components/schemas/voice_call_response_get_report'
+              - $ref: '#/components/schemas/verify_api_response_get_report'
+              - $ref: '#/components/schemas/number_insight_response_get_report'
+              - $ref: '#/components/schemas/messages_response_get_report'
+              - $ref: '#/components/schemas/conversations_response_get_report'
+    report_responses_create_report:
+      description: OK
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/sms_response_create_report'
+              - $ref: '#/components/schemas/voice_call_response_create_report'
+              - $ref: '#/components/schemas/verify_api_response_create_report'
+              - $ref: '#/components/schemas/number_insight_response_create_report'
+              - $ref: '#/components/schemas/messages_response_create_report'
+              - $ref: '#/components/schemas/conversations_response_create_report'
 
     list_report_response:
       description: OK
@@ -217,12 +229,12 @@ components:
                 items:
                   type: object
                   anyOf:
-                    - $ref: '#/components/schemas/sms_response'
-                    - $ref: '#/components/schemas/voice_call_response'
-                    - $ref: '#/components/schemas/verify_api_response'
-                    - $ref: '#/components/schemas/number_insight_response'
-                    - $ref: '#/components/schemas/messages_response'
-                    - $ref: '#/components/schemas/ip_voice_leg_response'
+                    - $ref: '#/components/schemas/sms_response_get_report'
+                    - $ref: '#/components/schemas/voice_call_response_get_report'
+                    - $ref: '#/components/schemas/verify_api_response_get_report'
+                    - $ref: '#/components/schemas/number_insight_response_get_report'
+                    - $ref: '#/components/schemas/messages_response_get_report'
+                    - $ref: '#/components/schemas/conversations_response_get_report'
 
     csv_report_response:
       description: OK
@@ -244,7 +256,7 @@ components:
                     - $ref: '#/components/schemas/csv_ni'
                     - $ref: '#/components/schemas/csv_messages_outbound'
                     - $ref: '#/components/schemas/csv_messages_inbound'
-                    - $ref: '#/components/schemas/csv_ip_voice_leg'
+                    - $ref: '#/components/schemas/csv_conversations_ip_voice'
 
     400_json:
       description: Bad Request
@@ -367,7 +379,7 @@ components:
         - VERIFY-API
         - NUMBER-INSIGHT
         - MESSAGES
-        - IP-VOICE
+        - CONVERSATIONS
     product_sms:
       type: string
       example: "SMS"
@@ -383,9 +395,9 @@ components:
     product_messages:
       type: string
       example: "MESSAGES"
-    product_ip_voice:
+    product_conversations:
       type: string
-      example: "IP-VOICE"
+      example: "CONVERSATIONS"
     direction:
       type: string
       description: Direction of the request, either inbound or outbound.
@@ -479,20 +491,23 @@ components:
     application_id:
       type: string
       description: Search only for requests attached to a particular Application ID.
+    conversation_type:
+      type: string
+      description: Type of conversation request.
+      example: ip-voice
+      enum:
+        - ip-voice
     conversation_id:
       type: string
       example: CON-abc123
       description: Search only for Voice calls attached to this particular Conversation. This should include the "CON-" prefix.
-    trace_id:
-      type: string
-      description: Search only for Voice calls corresponding to this particular trace id.
     termination_status:
       type: string
       description: Search only for Voice calls with the specified termination status.
       example: "0"
-    msisdn:
+    number:
       type: string
-      description: Search only request for the target msisdn.
+      description: Search only request for the target number.
       example: "441234567890"
     uuid:
       type: string
@@ -514,15 +529,21 @@ components:
         - FAILED
         - TRUNCATED
       example: SUCCESS
+    request_status_create_report:
+      type: string
+      description: Status of the request.
+      enum:
+        - PENDING
+        - PROCESSING
+        - SUCCESS
+        - ABORTED
+        - FAILED
+        - TRUNCATED
+      example: PENDING
     file_id:
       type: string
       description: Id of the generated report file.
       example: "aaaaaaaa-bbbb-cccc-dddd-0123456789ab"
-    url:
-      type: string
-      description: URL pointing to the generated report.
-      format: uri
-      example: "https://api.nexmo.com/v3/media/aaaaaaaa-bbbb-cccc-dddd-0123456789ab"
     receive_time:
       type: string
       format: date
@@ -533,7 +554,7 @@ components:
       format: date
       description: Time at which the report processing of the report has started.
       example: "2019-06-28T15:30:00+0000"
-    self_link_object:
+    _links:
       type: object
       properties:
         self:
@@ -544,16 +565,28 @@ components:
               format: uri
               description: URI of this document.
               example: "https://api.nexmo.com/v2/reports/aaaaaaaa-bbbb-cccc-dddd-0123456789ab"
-    _links:
-      $ref: '#/components/schemas/self_link_object'
+        download_report:
+          type: object
+          properties:
+            href:
+              type: string
+              format: uri
+              description: URL pointing to the generated report.
+              example: "https://api.nexmo.com/v3/media/aaaaaaaa-bbbb-cccc-dddd-0123456789ab"
+    _links_create_report:
+      type: object
+      properties:
+        self:
+          type: object
+          properties:
+            href:
+              type: string
+              format: uri
+              description: URI of this document.
+              example: "https://api.nexmo.com/v2/reports/aaaaaaaa-bbbb-cccc-dddd-0123456789ab"
     items_count:
       type: integer
       description: The number of rows in the resulting file (when report has been completed).
-    self_link:
-      type: string
-      format: uri
-      description: URI of this document.
-      example: "https://api.nexmo.com/v2/reports/aaaaaaaa-bbbb-cccc-dddd-0123456789ab"
     # csv fields
     message_id:
       type: string
@@ -737,7 +770,7 @@ components:
       type: string
       description: Error code of the message.
       example: "1300"
-    ip_voice_user_id:
+    conversations_user_id:
       type: string
       description: User ID of the caller.
       example: "aaaaaaaa-bbbb-cccc-dddd-0123456789ab"
@@ -828,20 +861,20 @@ components:
       properties:
         product:
           $ref: '#/components/schemas/product_ni'
-        msisdn:
-          $ref: '#/components/schemas/msisdn'
+        number:
+          $ref: '#/components/schemas/number'
         network:
           $ref: '#/components/schemas/network'
 
-    ip_voice_leg_fields:
+    conversations_fields:
       type: object
       properties:
         product:
-          $ref: '#/components/schemas/product_ip_voice'
+          $ref: '#/components/schemas/product_conversations'
+        type:
+          $ref: '#/components/schemas/conversation_type'
         conversation_id:
           $ref: '#/components/schemas/conversation_id'
-        trace_id:
-          $ref: '#/components/schemas/trace_id'
         termination_status:
           $ref: '#/components/schemas/termination_status'
 
@@ -889,12 +922,12 @@ components:
         - $ref: '#/components/schemas/report_request'
         - $ref: '#/components/schemas/number_insight_fields'
 
-    IP-VOICE:
-      description: IP Voice
-      x-tab-id: ip-voice-call
+    CONVERSATIONS:
+      description: Conversations
+      x-tab-id: conversations
       allOf:
         - $ref: '#/components/schemas/report_request'
-        - $ref: '#/components/schemas/ip_voice_leg_fields'
+        - $ref: '#/components/schemas/conversations_fields'
 
     MESSAGES:
       description: Messages
@@ -922,10 +955,6 @@ components:
           $ref: '#/components/schemas/include_subaccounts'
         callback_url:
           $ref: '#/components/schemas/callback_url'
-        file_id:
-          $ref: '#/components/schemas/file_id'
-        url:
-          $ref: '#/components/schemas/url'
         receive_time:
           $ref: '#/components/schemas/receive_time'
         start_time:
@@ -934,49 +963,115 @@ components:
           $ref: '#/components/schemas/_links'
         items_count:
           $ref: '#/components/schemas/items_count'
-        self_link:
-          $ref: '#/components/schemas/self_link'
 
-    sms_response:
+    report_response_create_report:
+      type: object
+      properties:
+        request_id:
+          $ref: '#/components/schemas/request_id'
+        request_status:
+          $ref: '#/components/schemas/request_status_create_report'
+        product:
+          $ref: '#/components/schemas/product'
+        account_id:
+          $ref: '#/components/schemas/account_id'
+        date_start:
+          $ref: '#/components/schemas/date_start'
+        date_end:
+          $ref: '#/components/schemas/date_end'
+        include_subaccounts:
+          $ref: '#/components/schemas/include_subaccounts'
+        callback_url:
+          $ref: '#/components/schemas/callback_url'
+        receive_time:
+          $ref: '#/components/schemas/receive_time'
+        start_time:
+          $ref: '#/components/schemas/start_time'
+        _links:
+          $ref: '#/components/schemas/_links_create_report'
+
+    sms_response_get_report:
       description: SMS
       x-tab-id: SMS
       allOf:
         - $ref: '#/components/schemas/report_response'
         - $ref: '#/components/schemas/sms_fields'
 
-    voice_call_response:
+    sms_response_create_report:
+      description: SMS
+      x-tab-id: SMS
+      allOf:
+        - $ref: '#/components/schemas/report_response_create_report'
+        - $ref: '#/components/schemas/sms_fields'
+
+    voice_call_response_get_report:
       description: Voice Call
       x-tab-id: voice-call
       allOf:
         - $ref: '#/components/schemas/report_response'
         - $ref: '#/components/schemas/voice_call_fields'
 
-    number_insight_response:
+    voice_call_response_create_report:
+      description: Voice Call
+      x-tab-id: voice-call
+      allOf:
+        - $ref: '#/components/schemas/report_response_create_report'
+        - $ref: '#/components/schemas/voice_call_fields'
+
+    number_insight_response_get_report:
       description: Number Insight
       x-tab-id: number-insight
       allOf:
         - $ref: '#/components/schemas/report_response'
         - $ref: '#/components/schemas/number_insight_fields'
 
-    verify_api_response:
+    number_insight_response_create_report:
+      description: Number Insight
+      x-tab-id: number-insight
+      allOf:
+        - $ref: '#/components/schemas/report_response_create_report'
+        - $ref: '#/components/schemas/number_insight_fields'
+
+    verify_api_response_get_report:
       description: Verify
       x-tab-id: verify
       allOf:
         - $ref: '#/components/schemas/report_response'
         - $ref: '#/components/schemas/verify_api_fields'
 
-    ip_voice_leg_response:
-      description: IP Voice Call
-      x-tab-id: ip-voice-call
+    verify_api_response_create_report:
+      description: Verify
+      x-tab-id: verify
+      allOf:
+        - $ref: '#/components/schemas/report_response_create_report'
+        - $ref: '#/components/schemas/verify_api_fields'
+
+    conversations_response_get_report:
+      description: Conversations
+      x-tab-id: conversations
       allOf:
         - $ref: '#/components/schemas/report_response'
-        - $ref: '#/components/schemas/ip_voice_leg_fields'
+        - $ref: '#/components/schemas/conversations_fields'
 
-    messages_response:
+    conversations_response_create_report:
+      description: Conversations
+      x-tab-id: conversations
+      allOf:
+        - $ref: '#/components/schemas/report_response_create_report'
+        - $ref: '#/components/schemas/conversations_fields'
+
+    messages_response_get_report:
       description: Messages
       x-tab-id: messages
       allOf:
         - $ref: '#/components/schemas/report_response'
+        - $ref: '#/components/schemas/messages_fields'
+
+    messages_response_create_report:
+      description: Messages
+      x-tab-id: messages
+      allOf:
+        - $ref: '#/components/schemas/report_response_create_report'
         - $ref: '#/components/schemas/messages_fields'
 
     csv_sms_outbound:
@@ -1253,9 +1348,9 @@ components:
         total_price:
           $ref: '#/components/schemas/total_price'
 
-    csv_ip_voice_leg:
-      description: IP Voice
-      x-tab-id: ip-voice-call
+    csv_conversations_ip_voice:
+      description: IP Voice Conversations
+      x-tab-id: conversations-ip-voice
       type: object
       properties:
         account_id:
@@ -1267,7 +1362,7 @@ components:
         conversation_id:
           $ref: '#/components/schemas/conversation_id'
         user_id:
-          $ref: '#/components/schemas/ip_voice_user_id'
+          $ref: '#/components/schemas/conversations_user_id'
         leg_id:
           $ref: '#/components/schemas/ip_voice_leg_id'
         date_start:
