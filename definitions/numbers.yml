@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Numbers API
-  version: 1.0.11
+  version: 1.0.12
   description: >-
     The Numbers API enables you to manage your existing numbers and buy new virtual numbers for
     use with Nexmo's APIs. Further information is here: <https://developer.nexmo.com/numbers/overview>
@@ -393,8 +393,9 @@ components:
           type: string
           example: inbound
         voiceCallbackType:
-          description:
-            Specify the [application capability](/application/overview#structure) of the webhook that inbound voice calls to this number call back on.
+          description: >-
+            Specify whether inbound voice calls on your number are handled by 
+            your Application configuration, or forwarded to a SIP or a telephone number.
             This must be used with the `voiceCallbackValue` parameter.
           type: string
           enum:
