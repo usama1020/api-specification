@@ -4,7 +4,7 @@ info:
   title: Nexmo Reports API
   description: >
     Nexmo's Reports API allows you to request a report of activity on your Nexmo account.<br>
-    On average the Reports API takes 5 - 10 minutes to generate 1 million records. We recommend to request reports up to a maximum of 20 million records by setting the start and end dates accordingly.<br>
+    On average the Reports API takes 5 - 10 minutes to generate 1 million records. Nexmo recommends requesting only reports of up to a maximum of 20 million records, by setting the start and end dates accordingly.<br>
     Reports are generated as CSV files compressed in zip archives.
   contact:
     name: Nexmo.com
@@ -419,7 +419,7 @@ components:
       default: false
     callback_url:
       type: string
-      description: URL to send a callback upon completion of the report.
+      description: URL to send a callback upon completion of the report. This POST callback contains the same information as the response to [Get status of report](/api/reports#get-report).
       format: uri
       example: "https://requestb.in/12345"
     date_start:
