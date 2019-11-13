@@ -1029,13 +1029,15 @@ components:
     user:
       allOf:
         - $ref: "#/components/schemas/user_list"
-        - properties:
-          type: object
+        - type: object
           properties:
-            custom_data:
+            properties:
               type: object
-              x-nexmo-developer-collection-description-shown: true
-              description: Any custom data that is attached to the user
+              properties:
+                custom_data:
+                  type: object
+                  x-nexmo-developer-collection-description-shown: true
+                  description: Any custom data that is attached to the user
 
     user_id:
       type: string
