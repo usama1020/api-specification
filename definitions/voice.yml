@@ -1,7 +1,7 @@
 ---
 openapi: 3.0.0
 info:
-  version: 1.2.2
+  version: 1.2.3
   title: Voice API
   description: The Voice API lets you create outbound calls, control in-progress calls
     and get information about historical calls. More information about the Voice API
@@ -55,7 +55,7 @@ paths:
                         }
                       ]
                   items:
-                    type: string
+                    type: object
                 answer_url:
                   description: |
                     **Required** unless `ncco` is provided.
@@ -374,7 +374,7 @@ paths:
                       example: '[{"action": "talk", "text": "hello world"}]'
                       type: array
                       items:
-                        type: string
+                        type: object
                       description: Can be used instead of `url` for the `transfer` action only.
                       x-nexmo-developer-collection-description-shown: true
       responses:
