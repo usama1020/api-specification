@@ -654,8 +654,7 @@ components:
               type: string
               example: custom:stripe_payment
               description: The event type. Must start with `custom:`, may only contain `-` or alphanumeric characters and can have up to 100 characters as your custom name
-              enum:
-                - ^custom:[\w\-:]{1,100}
+              pattern: ^custom:[\w\-:]{1,100}
             body:
               type: object
               x-nexmo-developer-collection-description-shown: true
