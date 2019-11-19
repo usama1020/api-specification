@@ -1,6 +1,6 @@
 openapi: "3.0.0"
 info:
-  version: 2.0.4
+  version: 2.0.5
   title: Nexmo Reports API
   description: >
     Nexmo's Reports API allows you to request a report of activity on your Nexmo account.<br>
@@ -407,7 +407,7 @@ components:
       example: "outbound"
     account_id:
       type: string
-      description: The account ID you wish to search for.
+      description: The account ID (API key) you wish to search for. This can differ from the API key in the authorization header because some accounts can request reports for other accounts, e.g. a primary account owner wants to create a report for one of its subaccounts.
       example: "abcdef01"
     include_subaccounts:
       type: boolean
