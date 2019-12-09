@@ -1,0 +1,427 @@
+openapi: 3.0.2
+info:
+  title: Nexmo Verify API (v2)
+  version: 0.0.1
+  description: Verify API provides a choice of routes for sending a PIN code to a user. You can use this to confirm a user's contact information, as a second factor when authenticating users, or for step-up authentication.
+  contact:
+    name: Nexmo DevRel
+    email: devrel@nexmo.com
+    url: 'https://developer.nexmo.com/'
+servers:
+  - url: https://api.nexmo.com/verify/v2
+security:
+  - basicAuth: []
+
+paths:
+
+  /requests:
+    post:
+      operationId: NewRequest
+      summary: Verify a user
+      description: Start verifying that we can reach this user given a set of contact details
+      requestBody:
+        content: 
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/VerifyRequest'
+      responses:
+        "201":
+          description: The request was started
+          content:
+            application/json:
+              schema:
+                required:
+                  - request_id
+                type: object
+                properties:
+                  request_id:
+                    $ref: '#/components/schemas/RequestId'
+        "400":
+          description: An error occured. Check the response for more information
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missing-param:
+                  summary: A required parameter was missing
+                  value:
+                    type: 'https://www.nexmo.com/messages/Errors#InvalidParam'
+                    title: 'The `company_name` parameter is missing or invalid'
+                    detail: 'You must supply a `company_name` parameter as a string'
+                throttled:
+                  summary: You have exceeded the API rate limit for your account
+                  value:
+                    type: 'https://www.nexmo.com/messages/Errors#Throttled'
+                    title: You have exceeded the API rate limit for your account
+                    detail: For more advice on rate limits and your current account settings, please contact support.
+
+  /requests/{request_id}/status:
+    post:
+      operationId: CheckRequest
+      summary: Confirm if this PIN is correct for this request
+      description: Use this endpoint to make sure that the PIN code the user supplied is the one that was sent by Nexmo.
+      parameters:
+      - $ref: '#/components/parameters/request_id'
+      requestBody:
+        description: Supply a PIN to be checked
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PinStatus'
+      responses:
+        "200":
+          description: Request found and PIN checked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PinResponse'
+              examples:
+                success:
+                  summary: PIN accepted
+                  value:
+                    status: OK
+                bad-pin:
+                  summary: Incorrect PIN
+                  value:
+                    status: Incorrect PIN
+        "404":
+          description: The request could not be found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not-found:
+                  summary: The request could not be found
+                  value:
+                    type: 'https://www.nexmo.com/messages/Errors#NotFound'
+                    title: 'The supplied `request_id` could not be found'
+                    detail: 'The `request_id` may be invalid, or the request may have already been completed (successfully or otherwise)'
+
+  /requests/{request_id}:
+    parameters:
+    - $ref: '#/components/parameters/request_id'
+    get:
+      operationId: RequestStatus
+      summary: Fetch full information about a specific request by ID
+      description: Returns detailed information about the original request, its current status, and any events that have already taken place.
+      responses:
+        "200":
+          description: Good
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyResource'
+        "404":
+          description: The request could not be found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not-found:
+                  summary: The request could not be found
+                  value:
+                    type: 'https://www.nexmo.com/messages/Errors#NotFound'
+                    title: 'The supplied `request_id` could not be found'
+
+    delete:
+      operationId: CancelRequest
+      summary: Cancel an in-progress verify request
+      description: Stops any events yet to occur in a verify request workflow, and ends the request.
+      responses:
+        "204":
+          description: The request will be cancelled
+        "404":
+          description: The request could not be found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not-found:
+                  summary: The request could not be found
+                  value:
+                    type: 'https://www.nexmo.com/messages/Errors#NotFound'
+                    title: 'The supplied `request_id` could not be found'
+
+components:
+
+  parameters:
+    request_id:
+      name: request_id
+      in: path
+      required: true
+      description: ID of the verify request
+      schema:
+        type: string
+
+  schemas:
+    VerifyRequest:
+      required:
+        - contact
+        - company_name
+      properties:
+        events:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/ToMessages'
+              - $ref: '#/components/schemas/ToMessenger'
+              - $ref: '#/components/schemas/ToVoice'
+        company_name:
+          $ref: '#/components/schemas/CompanyName'
+        language:
+          type: string
+          description: The language to contact the user with.
+          example: en-us
+          enum:
+            - ar-xa
+            - cs-cz
+            - cy-cy
+            - cy-gb
+            - da-dk
+            - de-de
+            - el-gr
+            - en-au
+            - en-gb
+            - en-in
+            - en-us
+            - es-es
+            - es-mx
+            - es-us
+            - fi-fi
+            - fil-ph
+            - fr-ca
+            - fr-fr
+            - hi-in
+            - hu-hu
+            - id-id
+            - is-is
+            - it-it
+            - ja-jp
+            - ko-kr
+            - nb-no
+            - nl-nl
+            - pl-pl
+            - pt-br
+            - pt-pt
+            - ro-ro
+            - ru-ru
+            - sv-se
+            - tr-tr
+            - vi-vn
+            - zh-cn
+            - zh-tw
+
+    ToMessages:
+      type: object
+      required:
+        - type
+        - number
+      properties:
+        type:
+          type: string
+          description: The type of message that you want to send.
+          example: 'sms'
+          enum:
+            - sms
+            - viber_service_msg
+            - whatsapp
+        number:
+          $ref: '#/components/schemas/Number'
+        interval:
+          $ref: '#/components/schemas/Interval'
+
+    ToMessenger:
+      type: object
+      required:
+        - type
+        - id
+      properties:
+        type:
+          type: string
+          description: The Facebook messenger message type.
+          example: 'messenger'
+          enum:
+            - messenger
+        id:
+          $ref: '#/components/schemas/Id'
+        interval:
+          $ref: '#/components/schemas/Interval'
+
+    ToVoice:
+      type: object
+      required:
+        - type
+        - number
+      properties:
+        type:
+          type: string
+          description: Specify voice call
+          example: 'voice'
+          enum:
+            - voice
+        number:
+          $ref: '#/components/schemas/Number'
+        interval:
+          $ref: '#/components/schemas/Interval'
+
+    CompanyName:
+      type: string
+      minLength: 2
+      maxLength: 16
+      example: 'ACME, Inc'
+
+    Interval:
+      type: number
+      description: Time (in seconds) for this event. After this interval, the next event (if any) will take place.
+      minimum: 60
+      maximum: 300
+      example: 90
+      default: 120
+
+    Number:
+      type: string
+      minLength: 1
+      maxLength: 50
+      example: '447700900000'
+      description: The phone number to contact, in the [E.164](https://en.wikipedia.org/wiki/E.164) format. Don't use a leading + or 00 when entering a phone number, start with the country code, for example, 447700900000.
+
+    Id:
+      description: The ID of the message recipient. This value should be the `from.id` value you received in the inbound messenger event.
+      type: string
+      minLength: 1
+      maxLength: 50
+      example: '0123456789012345'
+
+    RequestId:
+      type: string
+      description: 'The ID of the request'
+      example: '0123456789abcdef0123456789abcdef'
+
+    PinStatus:
+      required:
+        - pin
+      properties:
+        pin:
+          type: string
+          description: The PIN the user supplied
+          example: 1234
+
+    PinResponse:
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          description: Whether this pin is valid for this request ID.
+          example: OK
+          enum:
+            - OK
+            - Incorrect PIN
+
+    VerifyResource:
+      required:
+        - request_id
+      properties:
+        request_id:
+          $ref: '#/components/schemas/RequestId'
+        status:
+          type: string
+          description: Current status of this request
+          example: in_progress
+          enum:
+            - in_progress
+            - completed
+            - failed
+            - expired
+            - cancelled
+        account_key:
+          type: string
+          description: The API key that made this Verify Request (may include subaccounts)
+          example: "acbd1234"
+        request_cost:
+          type: number
+          description: The one-off cost for this request, in EUR
+          example: "0.05"
+        messages_cost:
+          type: number
+          description: The per-message/call costs for this request so far, in EUR. This number may update as the request progresses.
+        date_submitted:
+          type: string
+          description: >-
+            The date and time the verification request was submitted, in the following format YYYY-MM-DD HH:MM:SS.
+          example: "2020-01-01 12:00:00"
+        date_finalized:
+          type: string
+          description: >-
+            The date and time the verification request was completed. This
+            response parameter is in the following format YYYY-MM-DD HH:MM:SS.
+          example: "2020-01-01 12:00:00"
+        first_event_date:
+          type: string
+          description: >-
+            The time the first verification attempt was made, in the
+            following format YYYY-MM-DD HH:MM:SS.
+          example: "2020-01-01 12:00:00"
+        last_event_date:
+          type: string
+          description: >-
+            The time the last verification attempt was made, in the
+            following format YYYY-MM-DD HH:MM:SS.
+          example: "2020-01-01 12:00:00"
+        events:
+          type: array
+          description: The events that have already taken place
+          items:
+            type: object
+            required:
+              - type
+              - timestamp
+            properties:
+              type:
+                type: string
+                description: The communication type
+                example: "sms"
+                enum:
+                  - sms
+                  - voice
+                  - whatsapp
+                  - viber_service_msg
+                  - messenger
+              timestamp:
+                type: string
+                example: "2020-01-01 12:00:00"
+
+    Error:
+      description: 'Information about what went wrong, with a description of the problem and a link to more information'
+      required:
+        - type
+        - title
+        - instance
+      type: object
+      properties:
+        type:
+          type: string
+          description: URL to more information about this type of error
+          example: 'https://www.nexmo.com/messages/Errors#InvalidParams'
+        title:
+          type: string
+          description: Information about the error
+          example: 'Missing `to` parameter'
+        detail:
+          type: string
+          description: Further information, if available
+          example: 'The `to` parameter is required and must be an array'
+        instance:
+          type: string
+          description: An internal identifier, we may request this to assist with debugging
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+
