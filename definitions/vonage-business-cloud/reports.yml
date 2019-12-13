@@ -3,9 +3,12 @@ openapi: 3.0.0
 info:
   version: 1.0.0
   title: Reports API
-  description: Retrieve call logs for your account.
+  description: |
+    The Vonage Business Cloud Reports API enables you to retrieve call logs for your account.
+
+    Your application must subscribe to the Reports API suite to use this API.
   contact:
-    name: "Report API"
+    name: "Vonage Business Cloud Support"
     url: "https://businesssupport.vonage.com/contactus"
   termsOfService: "https://www.vonage.com/business/legal-policy-center/business-cloud/tos"
 
@@ -122,8 +125,8 @@ components:
       required: true
       schema:
         type: string
-      description: The account ID
-      example: 123456
+      description: The Vonage Business Cloud account ID
+      example: 913874
 
   schemas:
     FirstHref:

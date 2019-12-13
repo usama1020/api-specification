@@ -3,9 +3,12 @@ openapi: 3.0.0
 info:
   version: 1.11.8
   title: User API
-  description: Retrieve information about users.
+  description: |
+    The Vonage Business Cloud User API enables you to retrieve information about users.
+
+    Your application must subscribe to the Provisioning API suite to use this API.
   contact:
-    name: "User API"
+    name: "Vonage Business Cloud Support"
     url: "https://businesssupport.vonage.com/contactus"
   termsOfService: "https://www.vonage.com/business/legal-policy-center/business-cloud/tos"
 
@@ -86,7 +89,7 @@ paths:
           required: true
           schema:
             type: number
-          description: The ID of the user
+          description: The Vonage Business Cloud user ID
       responses:
         "200":
           description: Success
@@ -117,8 +120,8 @@ components:
       required: true
       schema:
         type: string
-      description: The account ID
-      example: 123456
+      description: The Vonage Business Cloud account ID
+      example: 451496
 
   schemas:
     FirstHref:
@@ -211,7 +214,7 @@ components:
         id:
           type: number
           description: Unique identifier of the user
-          example: 1234567
+          example: 869048
         contact_numbers:
           items:
             $ref: "#/components/schemas/Contact"

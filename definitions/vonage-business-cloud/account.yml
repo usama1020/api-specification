@@ -3,9 +3,12 @@ openapi: 3.0.0
 info:
   version: 1.11.8
   title: Account API
-  description: Retrieve information about accounts.
+  description: |
+    The Vonage Business Cloud Account API enables you to retrieve information about accounts.
+    
+    Your application must subscribe to the Provisioning API suite to use this API.
   contact:
-    name: "Account API"
+    name: "Vonage Business Cloud Support"
     url: "https://businesssupport.vonage.com/contactus"
   termsOfService: "https://www.vonage.com/business/legal-policy-center/business-cloud/tos"
 
@@ -56,8 +59,8 @@ paths:
           required: true
           schema:
             type: number
-          description: The location ID
-          example: 123456
+          description: The Vonage Business Cloud location ID
+          example: 327910
       responses:
         "200":
           description: Success
@@ -85,8 +88,8 @@ components:
       required: true
       schema:
         type: number
-      description: The account ID
-      example: 123456
+      description: The Vonage Business Cloud account ID
+      example: 571700
 
   schemas:
     FirstHref:
@@ -165,7 +168,7 @@ components:
       properties:
         id:
           type: number
-          example: 123456
+          example: 571700
           description: Unique identifier of the account
         name:
           type: string
@@ -223,7 +226,7 @@ components:
       properties:
         id:
           type: number
-          example: 123456
+          example: 327910
           description: Unique identifier of the location
         name:
           type: string
