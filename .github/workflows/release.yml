@@ -1,4 +1,6 @@
-on: release
+on:
+  release:
+    types: [published, edited, prereleased]
 name: New release
 jobs:
   addChangelog:
