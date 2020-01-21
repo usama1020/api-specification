@@ -1,7 +1,7 @@
 ---
 openapi: 3.0.0
 info:
-  version: "1.0"
+  version: "1.0.1"
   title: Call Recording API
   description: |
     The Vonage Business Cloud Call Recording API enables you to manage your company and on-demand call recordings.
@@ -771,7 +771,7 @@ components:
           type: string
           format: date-time
           description: Expiration time for the complete export job contents
-          example: 2019-01-01 00:00:00
+          example: "2019-01-01T00:00:00+0000"
     ExportJobsHalResponse:
       type: object
       properties:
@@ -871,9 +871,9 @@ components:
           type: string
         start:gte:
           description: Filter recordings by start date (greater than or equal to)
-          example: "2019-01-01 00:00:00"
+          example: "2019-01-01T00:00:00+0000"
           type: string
         start:lte:
           description: Filter recordings by start date (less than or equal to)
-          example: "2019-01-01 00:00:00"
+          example: "2019-01-01T00:00:00+0000"
           type: string
