@@ -350,29 +350,27 @@ components:
         messages_cost:
           type: number
           description: The per-message/call costs for this request so far, in EUR. This number may update as the request progresses.
-        date_submitted:
+        submitted_at:
           type: string
           description: >-
-            The date and time the verification request was submitted, in the following format YYYY-MM-DD HH:MM:SS.
-          example: "2020-01-01 12:00:00"
-        date_finalized:
+            The date and time the verification request was submitted, in ISO 8601 format.
+          example: "2020-01-01T14:00:00.000Z"
+        finalized_at:
           type: string
           description: >-
             The date and time the verification request was completed. This
-            response parameter is in the following format YYYY-MM-DD HH:MM:SS.
-          example: "2020-01-01 12:00:00"
-        first_event_date:
+            response parameter is in ISO 8601 format.
+          example: "2020-01-01T14:00:00.000Z"
+        first_event_at:
           type: string
           description: >-
-            The time the first verification attempt was made, in the
-            following format YYYY-MM-DD HH:MM:SS.
-          example: "2020-01-01 12:00:00"
-        last_event_date:
+            The date and time the first verification attempt was made, in ISO 8601 format.
+          example: "2020-01-01T14:00:00.000Z"
+        last_event_at:
           type: string
           description: >-
-            The time the last verification attempt was made, in the
-            following format YYYY-MM-DD HH:MM:SS.
-          example: "2020-01-01 12:00:00"
+            The date and time the last verification attempt was made, in ISO 8601 format.
+          example: "2020-01-01T14:00:00.000Z"
         events:
           type: array
           description: The events that have already taken place
@@ -380,7 +378,7 @@ components:
             type: object
             required:
               - type
-              - timestamp
+              - created_at
             properties:
               type:
                 type: string
@@ -392,9 +390,10 @@ components:
                   - whatsapp
                   - viber_service_msg
                   - messenger
-              timestamp:
+              created_at:
                 type: string
-                example: "2020-01-01 12:00:00"
+                description: The date and time that the event was started, in ISO 8601 format.
+                example: "2020-01-01T14:00:00.000Z"
 
     Error:
       description: 'Information about what went wrong, with a description of the problem and a link to more information'
