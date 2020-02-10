@@ -1,7 +1,7 @@
 openapi: 3.0.2
 info:
   title: Nexmo Verify API (v2)
-  version: 0.0.1
+  version: 0.0.2
   description: Verify API provides a choice of routes for sending a PIN code to a user. You can use this to confirm a user's contact information, as a second factor when authenticating users, or for step-up authentication.
   contact:
     name: Nexmo DevRel
@@ -161,22 +161,18 @@ components:
   schemas:
     VerifyRequest:
       required:
-        - contact
-        - company_name
+        - events
       properties:
         events:
           type: array
           items:
             oneOf:
               - $ref: '#/components/schemas/ToMessages'
-              - $ref: '#/components/schemas/ToMessenger'
-              - $ref: '#/components/schemas/ToVoice'
-        company_name:
-          $ref: '#/components/schemas/CompanyName'
         language:
           type: string
           description: The language to contact the user with.
-          example: en-us
+          example: es-es
+          default: en-us
           enum:
             - ar-xa
             - cs-cz
@@ -232,45 +228,14 @@ components:
             - whatsapp
         number:
           $ref: '#/components/schemas/Number'
+        sender:
+          $ref: '#/components/schemas/Sender'
         interval:
           $ref: '#/components/schemas/Interval'
 
-    ToMessenger:
-      type: object
-      required:
-        - type
-        - id
-      properties:
-        type:
-          type: string
-          description: The Facebook messenger message type.
-          example: 'messenger'
-          enum:
-            - messenger
-        id:
-          $ref: '#/components/schemas/Id'
-        interval:
-          $ref: '#/components/schemas/Interval'
-
-    ToVoice:
-      type: object
-      required:
-        - type
-        - number
-      properties:
-        type:
-          type: string
-          description: Specify voice call
-          example: 'voice'
-          enum:
-            - voice
-        number:
-          $ref: '#/components/schemas/Number'
-        interval:
-          $ref: '#/components/schemas/Interval'
-
-    CompanyName:
+    Sender:
       type: string
+      description: Identify the originator of this message to the message recipient. Restrictions may apply.
       minLength: 2
       maxLength: 16
       example: 'ACME, Inc'
@@ -289,13 +254,6 @@ components:
       maxLength: 50
       example: '447700900000'
       description: The phone number to contact, in the [E.164](https://en.wikipedia.org/wiki/E.164) format. Don't use a leading + or 00 when entering a phone number, start with the country code, for example, 447700900000.
-
-    Id:
-      description: The ID of the message recipient. This value should be the `from.id` value you received in the inbound messenger event.
-      type: string
-      minLength: 1
-      maxLength: 50
-      example: '0123456789012345'
 
     RequestId:
       type: string
