@@ -21,16 +21,173 @@ paths:
       requestBody:
         description: Send a Message.
         required: true
+        x-show-example-request: true
         content:
           application/json:
             schema:
               oneOf:
-                - $ref: '#/components/requestBodies/Text'
-                - $ref: '#/components/requestBodies/Image'
-                - $ref: '#/components/requestBodies/Audio'
-                - $ref: '#/components/requestBodies/Video'
-                - $ref: '#/components/requestBodies/File'
-                - $ref: '#/components/requestBodies/Template'
+                - title: SMS
+                  x-tab-id: SMS
+                  oneOf:
+                    - allOf:
+                      - $ref: '#/components/requestBodies/Text'
+                      - properties:
+                          text:
+                            description: |
+                                Limited to 1000 characters. The Messages API automatically detects unicode characters when sending SMS and sends the message as a unicode SMS. For more information on how concatenation and encoding please visit: [developer.nexmo.com/messaging/sms/guides/concatenation-and-encoding](https://developer.nexmo.com/messaging/sms/guides/concatenation-and-encoding).
+                      - type: object
+                        properties:
+                          to:
+                            $ref: "#/components/schemas/ToNumber"
+                          from:
+                            $ref: "#/components/schemas/FromNumber"
+                          channel:
+                            description: The channel to send to. You must provide `sms` in this field
+                            type: string
+                            example: sms
+                            enum:
+                              - sms
+                - title: MMS
+                  x-tab-id: MMS
+                  oneOf:
+                    - allOf:
+                      - $ref: '#/components/requestBodies/Text'
+                      - $ref: '#/components/schemas/channelOptionsMms'
+                    - allOf:
+                      - $ref: '#/components/requestBodies/Image'
+                      - properties:
+                          image:
+                            properties:
+                              url:
+                                type: string
+                                description: |
+                                  The URL of the image attachment.
+
+                                  Supports `.jpg`, `.jpeg`, `.png` and `.gif`.
+                                example: 'https://example.com/image.jpg'
+                              caption:
+                                type: string
+                                description: 'Additional text to accompany the image.'
+                                minLength: 1
+                                maxLength: 3000
+                                example: 'Additional text to accompany the image.'
+                      - $ref: '#/components/schemas/channelOptionsMms'
+                - title: WhatsApp
+                  x-tab-id: Whatsapp
+                  oneOf:
+                    - allOf:
+                      - $ref: '#/components/requestBodies/Text'
+                      - properties:
+                          text:
+                            description: |
+                                Limited to 4096 characters, including unicode.
+                      - $ref: '#/components/schemas/channelOptionsWhatsapp'
+                    - allOf:
+                      - $ref: '#/components/requestBodies/Image'
+                      - properties:
+                          image:
+                            properties:
+                              url:
+                                type: string
+                                description: |
+                                  The URL of the image attachment.
+
+                                  Supports `.jpg`, `.jpeg`, and `.png`.
+                                example: 'https://example.com/image.jpg'
+                              caption:
+                                type: string
+                                description: 'Additional text to accompany the image.'
+                                minLength: 1
+                                maxLength: 3000
+                                example: 'Additional text to accompany the image.'
+                      - $ref: '#/components/schemas/channelOptionsWhatsapp'
+                    - allOf:
+                      - $ref: '#/components/requestBodies/Audio'
+                      - properties:
+                          audio:
+                            properties:
+                              url:
+                                description: |
+                                  The URL of the audio attachment.
+
+                                  Supports `.aac`, `.m4a`, `.amr`, `.mp3` and `.opus`.
+                      - $ref: '#/components/schemas/channelOptionsWhatsapp'
+                    - allOf:
+                      - $ref: '#/components/requestBodies/Video'
+                      - $ref: '#/components/schemas/channelOptionsWhatsapp'
+                    - allOf:
+                      - $ref: '#/components/requestBodies/File'
+                      - $ref: '#/components/schemas/channelOptionsWhatsapp'
+                    - allOf:
+                      - $ref: '#/components/requestBodies/Template'
+                      - $ref: '#/components/schemas/channelOptionsWhatsapp'
+                - title: Messenger
+                  x-tab-id: Messenger
+                  oneOf:
+                    - allOf:
+                      - $ref: '#/components/requestBodies/Text'
+                      - properties:
+                          text:
+                            description: |
+                              Limited to 640 characters, including unicode.
+                      - $ref: '#/components/schemas/channelOptionsMessenger'
+                    - allOf:
+                      - $ref: '#/components/requestBodies/Image'
+                      - properties:
+                          image:
+                            properties:
+                              url:
+                                type: string
+                                description: |
+                                  The URL of the image attachment.
+
+                                  Supports `.jpg`, `.jpeg`, `.png` and `.gif`.
+                                example: 'https://example.com/image.jpg'
+                      - $ref: '#/components/schemas/channelOptionsMessenger'
+                    - allOf:
+                      - $ref: '#/components/requestBodies/Audio'
+                      - properties:
+                          audio:
+                            properties:
+                              url:
+                                description: |
+                                    The URL of the audio attachment.
+
+                                    Only supports `.mp3` files
+                      - $ref: '#/components/schemas/channelOptionsMessenger'
+                    - allOf:
+                      - $ref: '#/components/requestBodies/Video'
+                      - $ref: '#/components/schemas/channelOptionsMessenger'
+                    - allOf:
+                      - $ref: '#/components/requestBodies/File'
+                      - $ref: '#/components/schemas/channelOptionsMessenger'
+                    - allOf:
+                      - $ref: '#/components/requestBodies/Template'
+                      - $ref: '#/components/schemas/channelOptionsMessenger'
+
+                - title: Viber
+                  x-tab-id: Viber
+                  oneOf:
+                    - allOf:
+                      - $ref: '#/components/requestBodies/Text'
+                      - properties:
+                          text:
+                            description: |
+                              Limited to 1000 characters, including unicode.
+                      - $ref: '#/components/schemas/channelOptionsViber'
+                    - allOf:
+                      - $ref: '#/components/requestBodies/Image'
+                      - properties:
+                          image:
+                            properties:
+                              url:
+                                type: string
+                                description: |
+                                  The URL of the image attachment.
+
+                                  Supports `.jpg`, `.jpeg`, and `.png`.
+                                example: 'https://example.com/image.jpg'
+                      - $ref: '#/components/schemas/channelOptionsViber'
       responses:
         '202':
           description: Accepted.
@@ -50,20 +207,34 @@ components:
       type: http
       scheme: basic
   schemas:
-    to:
+    ToNumber:
       type: string
-      example: 123456
-    from:
+      minLength: 1
+      maxLength: 50
+      example: '447700900000'
+      description: |
+           The phone number of the message **recipient** in the [E.164](https://en.wikipedia.org/wiki/E.164) format. Don't use a leading + or 00 when entering a phone number, start with the country code, for example, 447700900000.
+    FromNumber:
       type: string
-      example: 789012
-    channel:
+      minLength: 1
+      maxLength: 50
+      example: '447700900001'
+      description: |
+           The phone number of the message **sender** in the [E.164](https://en.wikipedia.org/wiki/E.164) format. Don't use a leading + or 00 when entering a phone number, start with the country code, for example, 447700900000.
+    ToId:
       type: string
-      enum:
-        - sms
-        - messenger
-        - viber_service
-        - whatsapp
-        - mms
+      minLength: 1
+      maxLength: 50
+      example: '0123456789012345'
+      description: |
+          The ID of the message recipient
+    FromId:
+      type: string
+      minLength: 1
+      maxLength: 50
+      example: '9876543210'
+      description: |
+          The ID of the message sender
 
     baseMessageType:
       type: object
@@ -71,19 +242,40 @@ components:
         - to
         - from
         - message
+        - type
+        - channel
       properties:
-        to:
-          $ref: "#/components/schemas/to"
-        from:
-          $ref: "#/components/schemas/from"
-        channel:
-          $ref: "#/components/schemas/channel"
         client_ref:
           type: string
+          description: Client reference of up to 40 characters. The reference will be present in every message status.
+
+    channelOptionsMms:
+      type: object
+      properties:
+        to:
+          $ref: "#/components/schemas/ToNumber"
+        from:
+          $ref: "#/components/schemas/FromNumber"
+        channel:
+          type: string
+          description: The channel to send to. You must provide `mms` in this field
+          example: mms
+          enum:
+            - mms
 
     channelOptionsMessenger:
       type: object
       properties:
+        to:
+          $ref: "#/components/schemas/ToId"
+        from:
+          $ref: "#/components/schemas/FromId"
+        channel:
+          description: The channel to send to. You must provide `messenger` in this field
+          type: string
+          example: messenger
+          enum:
+            - messenger
         messenger:
           type: object
           properties:
@@ -99,6 +291,16 @@ components:
     channelOptionsViber:
       type: object
       properties:
+        to:
+          $ref: "#/components/schemas/ToNumber"
+        from:
+          $ref: "#/components/schemas/FromId"
+        channel:
+          description: The channel to send to. You must provide `viber_service` in this field
+          type: string
+          example: viber_service
+          enum:
+            - viber_service
         viber_service:
           type: object
           properties:
@@ -115,147 +317,154 @@ components:
     channelOptionsWhatsapp:
       type: object
       properties:
+        to:
+          $ref: "#/components/schemas/ToNumber"
+        from:
+          $ref: "#/components/schemas/FromNumber"
+        channel:
+          description: The channel to send to. You must provide `whatsapp` in this field
+          type: string
+          example: whatsapp
+          enum:
+            - whatsapp
         whatsapp:
           type: object
           properties:
             policy:
               type: string
+              example: deterministic
               enum:
                 - fallback
                 - deterministic
+              description: 'Please note that WhatsApp will deprecate `fallback` policy in January 2020. There are two policies that you can specify when sending a Message Template: `deterministic` and `fallback`. `deterministic` — Deliver the Message Template in exactly the language and locale asked for. `fallback` — Deliver the Message Template in the language that matches users language/locale setting on device. If one can not be found, deliver using the specified fallback language.'
             locale:
               type: string
-              enum:
-                - en-GB
-                - en-US
-    channelOptionsAll:
-      allOf:
-        - $ref: "#/components/schemas/channelOptionsMessenger"
-        - $ref: "#/components/schemas/channelOptionsViber"
-        - $ref: "#/components/schemas/channelOptionsWhatsapp"
+              example: en-US
+              description: 'We are using the industry standard, BCP 47, for locales. So in your API call to the /messages API you will need to put `en-GB` and this will refer to the `en_GB` template for WhatsApp. A full list of the possible locales is available on [developers.facebook.com](https://developers.facebook.com/docs/whatsapp/message-templates/creation#translations).'
 
   requestBodies:
     Text:
       allOf:
         - $ref: "#/components/schemas/baseMessageType"
-        - description: Text
+        - title: Text
           x-tab-id: Text
+          required:
+            - text
           properties:
             type:
               type: string
               enum:
                 - text
               example: text
+              description: The type of message to send. You must provide `text` in this field
             text:
               type: string
-        - $ref: "#/components/schemas/channelOptionsAll"
+              example: 'Nexmo Verification code: 64873.<br />Valid for 10 minutes.'
 
     Image:
       allOf:
         - $ref: "#/components/schemas/baseMessageType"
-        - description: Image
+        - title: Image
           x-tab-id: Image
           type: object
+          required:
+            - image
           properties:
             type:
               type: string
               enum:
                 - image
               example: image
+              description: The type of message to send. You must provide `image` in this field
             image:
               type: object
               properties:
                 url:
                   type: string
-                caption:
-                  type: string
-        - $ref: "#/components/schemas/channelOptionsAll"
 
     Audio:
       allOf:
         - $ref: "#/components/schemas/baseMessageType"
-        - description: Audio
+        - title: Audio
           x-tab-id: Audio
           type: object
+          required:
+            - audio
           properties:
-            channel:
-              type: string
-              enum:
-                - messenger
-                - whatsapp
             type:
               type: string
               enum:
                 - audio
               example: audio
+              description: The type of message to send. You must provide `audio` in this field
             audio:
               type: object
               properties:
                 url:
                   type: string
-                  description: |
-                    The URL of the audio attachment.
-
-                    **messenger** supports .mp3.
-
-                    **whatsapp** supports .aac, .m4a, .amr, .mp3 and .opus.
                   minLength: 10
                   maxLength: 2000
                   example: 'https://example.com/audio.mp3'
-        - $ref: "#/components/schemas/channelOptionsAll"
 
     Video:
       allOf:
         - $ref: "#/components/schemas/baseMessageType"
-        - description: Video
+        - title: Video
           x-tab-id: Video
           type: object
+          required:
+            - video
           properties:
             type:
               type: string
               enum:
                 - video
               example: video
-            audio:
+              description: The type of message to send. You must provide `video` in this field
+            video:
               type: object
               properties:
                 url:
                   type: string
-        - $ref: "#/components/schemas/channelOptionsAll"
 
     File:
       allOf:
         - $ref: "#/components/schemas/baseMessageType"
-        - description: File
+        - title: File
           x-tab-id: File
           type: object
+          required:
+            - file
           properties:
             type:
               type: string
               enum:
                 - file
               example: file
-            audio:
+              description: The type of message to send. You must provide `file` in this field
+            file:
               type: object
               properties:
                 url:
                   type: string
                 caption:
                   type: string
-        - $ref: "#/components/schemas/channelOptionsAll"
 
     Template:
       allOf:
         - $ref: "#/components/schemas/baseMessageType"
-        - description: Template
+        - title: Template
           x-tab-id: Template
           type: object
+          required:
+            - template
           properties:
             type:
               type: string
               enum:
                 - template
               example: template
+              description: The type of message to send. You must provide `template` in this field
             template:
               type: object
               properties:
@@ -265,7 +474,6 @@ components:
                   type: array
                   items:
                     type: object
-        - $ref: "#/components/schemas/channelOptionsAll"
 
   responses:
     Error:
