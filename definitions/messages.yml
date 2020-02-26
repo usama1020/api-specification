@@ -226,37 +226,77 @@ paths:
                     type: object
                     properties:
                       message_uuid:
-                        $ref: '#/components/responses/message_uuid'
+                        $ref: '#/components/responses/MessageUuid'
                   - description: MMS
                     x-tab-id: MMS
                     type: object
                     properties:
                       message_uuid:
-                        $ref: '#/components/responses/message_uuid'
+                        $ref: '#/components/responses/MessageUuid'
                   - description: WhatsApp
                     x-tab-id: WhatsApp
                     type: object
                     properties:
                       message_uuid:
-                        $ref: '#/components/responses/message_uuid'
+                        $ref: '#/components/responses/MessageUuid'
                   - description: Messenger
                     x-tab-id: Messenger
                     type: object
                     properties:
                       message_uuid:
-                        $ref: '#/components/responses/message_uuid'
+                        $ref: '#/components/responses/MessageUuid'
                   - description: Viber
                     x-tab-id: Viber
                     type: object
                     properties:
                       message_uuid:
-                        $ref: '#/components/responses/message_uuid'
+                        $ref: '#/components/responses/MessageUuid'
         '400':
           description: Bad Request.
           content:
             application/json:
               schema:
                 $ref: '#/components/responses/Error'
+      callbacks:
+        message-status:
+          '{$request.body#/callback}':
+            post:
+              summary: Message Status
+              operationId: message-status
+              x-example-path: '/webhooks/message-status'
+              description: 'Webhooks to inform about events happening to the message at communication level (has it been delivered, rejected by the provider...).'
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      oneOf:
+                        - $ref: '#/components/schemas/messageStatusSMS'
+                        - $ref: '#/components/schemas/messageStatusMMS'
+                        - $ref: '#/components/schemas/messageStatusWhatsApp'
+                        - $ref: '#/components/schemas/messageStatusMessenger'
+                        - $ref: '#/components/schemas/messageStatusViber'
+              responses:
+                  '200':
+                    description: Your server returns this code if it accepts the callback.
+        inbound-message:
+          '{$request.body#/callback}':
+            post:
+              summary: Inbound Message
+              operationId: inbound-message
+              x-example-path: '/webhooks/inbound-message'
+              description: An inbound message from a customer to you.
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/InboundMessage'
+              responses:
+                  '200':
+                    description: Your server returns this code if it accepts the callback.
+
+
 components:
   securitySchemes:
     bearerAuth:
@@ -266,6 +306,7 @@ components:
     basicAuth:
       type: http
       scheme: basic
+
   schemas:
     ToNumber:
       type: string
@@ -416,6 +457,153 @@ components:
               example: en-US
               description: 'We are using the industry standard, BCP 47, for locales. So in your API call to the /messages API you will need to put `en-GB` and this will refer to the `en_GB` template for WhatsApp. A full list of the possible locales is available on [developers.facebook.com](https://developers.facebook.com/docs/whatsapp/message-templates/creation#translations).'
 
+
+    messageStatusBase:
+      type: object
+      properties:
+        message_uuid:
+          $ref: "#/components/responses/MessageUuid"
+        to:
+          $ref: "#/components/schemas/ToNumber"
+        from:
+          $ref: "#/components/schemas/FromNumber"
+        timestamp:
+          type: string
+          description: The datetime of when the event occurred, in `ISO 8601` format.
+          example: 2020-01-01T14:00:00.000Z
+        status:
+          type: string
+          description: The status of the message.
+          example: submitted
+          enum:
+            - submitted
+            - delivered
+            - rejected
+            - undeliverable
+      required:
+        - message_uuid
+        - channel
+        - to
+        - from
+        - timestamp
+        - status
+    messageStatusSMS:
+      allOf:
+        - $ref: "#/components/schemas/messageStatusBase"
+        - title: SMS
+          x-tab-id: status_SMS
+          description: SMS
+          properties:
+            channel:
+              type: string
+              description: The channel sending to.
+              example: sms
+              enum:
+                - sms
+    messageStatusMMS:
+      allOf:
+        - $ref: "#/components/schemas/messageStatusBase"
+        - title: MMS
+          x-tab-id: status_MMS
+          description: MMS
+          properties:
+            channel:
+              type: string
+              description: The channel sending to.
+              example: mms
+              enum:
+                - mms
+    messageStatusWhatsApp:
+      allOf:
+        - $ref: "#/components/schemas/messageStatusBase"
+        - title: WhatsApp
+          x-tab-id: status_WhatsApp
+          description: WhatsApp
+          properties:
+            channel:
+              type: string
+              description: The channel sending to.
+              example: whatsapp
+              enum:
+                - whatsapp
+            status:
+              example: read
+              enum:
+                - submitted
+                - delivered
+                - rejected
+                - undeliverable
+                - read
+    messageStatusMessenger:
+      allOf:
+        - $ref: "#/components/schemas/messageStatusBase"
+        - title: Messenger
+          x-tab-id: status_Messenger
+          description: Messenger
+          properties:
+            channel:
+              type: string
+              description: The channel sending to.
+              example: messenger
+              enum:
+                - messenger
+            status:
+              example: read
+              enum:
+                - submitted
+                - delivered
+                - rejected
+                - undeliverable
+                - read
+            to:
+              $ref: "#/components/schemas/ToId"
+              description: |
+                The ID of the message recipient. 
+                
+                This value should be the `from.id` value you received in the inbound messenger event.
+            from:
+              $ref: "#/components/schemas/FromId"
+              description: |
+                Your ID for the platform that you are sending from.
+
+                This value should be the `to.id` value you received in the inbound messenger event.
+
+    messageStatusViber:
+      allOf:
+        - $ref: "#/components/schemas/messageStatusBase"
+        - title: Viber
+          x-tab-id: status_Viber
+          description: Viber
+          properties:
+            channel:
+              type: string
+              description: The channel sending to.
+              example: viber_service
+              enum:
+                - viber_service
+            status:
+              example: read
+              enum:
+                - submitted
+                - delivered
+                - rejected
+                - undeliverable
+                - read
+    
+
+    InboundMessage:
+      type: object
+      properties:
+        message_uuid:
+          type: string
+          example: 'aaaaaaaa-bbbb-cccc-dddd-0123456789ab'
+          description: The UUID of the message.
+      required:
+        - message_uuid
+        - to
+        - from
+        - timestamp
+
   requestBodies:
     Text:
       allOf:
@@ -551,11 +739,10 @@ components:
                     type: object
 
   responses:
-    message_uuid:
+    MessageUuid:
       type: string
       example: aaaaaaaa-bbbb-cccc-dddd-0123456789ab
-      enum:
-        - text
+      description: The UUID of the message
     Error:
       description: 'The error format is standardized to the 4xx/5xx range with a code and a human readable explanation.'
       required:
