@@ -2,7 +2,7 @@ openapi: 3.0.0
 servers:
   - url: 'https://api.nexmo.com/beta'
 info:
-  version: 1.7.5
+  version: 1.7.6
   title: Nexmo Conversation API
   description: 'The Nexmo Conversation API enables you to build conversation features where communication can take place across multiple mediums including IP Messaging, PSTN Voice, SMS and WebRTC Audio and Video. The context of the conversations is maintained though each communication event taking place within a conversation, no matter the medium.'
   contact:
@@ -464,10 +464,8 @@ paths:
               schema:
                 type: object
                 properties:
-                  name:
-                    $ref: '#/components/schemas/name_user'
-                  display_name:
-                    $ref: '#/components/schemas/display_name_user'
+                  user_id:
+                    $ref: '#/components/schemas/user_id'
                   href:
                     $ref: '#/components/schemas/href_user'
       requestBody:
@@ -813,7 +811,7 @@ components:
     href_user:
       type: string
       format: url
-      example: 'https://api.nexmo.com/beta/converations/USR-63f61863-4a51-4f6b-86e1-46edebio0391'
+      example: 'https://api.nexmo.com/beta/users/USR-63f61863-4a51-4f6b-86e1-46edebio0391'
       description: A link towards a user included in Conversation API
     href_event:
       type: string
