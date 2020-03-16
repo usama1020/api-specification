@@ -3,7 +3,7 @@ servers:
   - url: "https://api.nexmo.com/verify"
 info:
   title: Nexmo Verify API
-  version: 1.0.11
+  version: 1.0.12
   description: >-
     The Verify API helps you to implement 2FA (two-factor authentication) in your applications.
     This is useful for:
@@ -347,7 +347,7 @@ paths:
                   value:
                     request_id: abcdef0123456789abcdef0123456789
                     event_id: "0A00000012345678"
-                    status: 0
+                    status: "0"
                     price: "0.10000000"
                     currency: EUR
                     estimated_price_messages_sent: "0.03330000"
@@ -458,17 +458,17 @@ paths:
                   value:
                     request_id: abcdef0123456789abcdef0123456789
                     account_id: abcdef01
-                    number: 447700900000
+                    number: "447700900000"
                     sender_id: verify
                     date_submitted: "2020-01-01 12:00:00"
                     date_finalized: "2020-01-01 12:00:00"
-                    checks: [{date_received: "2020-01-01 12:00:00", code: 1111, status: INVALID, ip_address: ""},{date_received: "2020-01-01 12:02:00", code: 1234, status: VALID, ip_address: ""}]
+                    checks: [{date_received: "2020-01-01 12:00:00", code: "1111", status: INVALID, ip_address: ""},{date_received: "2020-01-01 12:02:00", code: "1234", status: VALID, ip_address: ""}]
                     first_event_date: "2020-01-01 12:00:00"
                     last_event_date: "2020-01-01 12:00:00"
-                    price: 0.1000000
+                    price: "0.1000000"
                     currency: EUR
                     status: SUCCESS
-                    estimated_price_messages_sent: 0.06660000
+                    estimated_price_messages_sent: "0.06660000"
                     events: [{id: 0A00000012345678, type: sms}, {id: 0A00000012345679, type: sms}]
 
                 throttled:
@@ -898,7 +898,7 @@ components:
               code:
                 type: string
                 description: The code supplied with this check request
-                example: 987654
+                example: "987654"
               status:
                 type: string
                 enum:
