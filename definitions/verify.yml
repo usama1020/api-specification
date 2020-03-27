@@ -569,13 +569,13 @@ paths:
                 success-cancel:
                   summary: The request has been cancelled
                   value:
-                    status: 0
+                    status: "0"
                     command: cancel
 
                 success-trigger:
                   summary: The next event has been triggered
                   value:
-                    status: 0
+                    status: "0"
                     command: trigger_next_event
 
                 throttled:
@@ -978,9 +978,9 @@ components:
           type: string
           description: The `cmd` you sent in the request.
           enum:
-            - cancel
-            - trigger_next_event
-          example: cancel
+            - "cancel"
+            - "trigger_next_event"
+          example: "cancel"
     controlErrorResponse:
       type: object
       description: Error
@@ -991,6 +991,7 @@ components:
           type: string
           example: "6"
           enum:
+            - "0"
             - "1"
             - "2"
             - "3"
@@ -1018,7 +1019,7 @@ components:
         error_text:
           type: string
           description: If the `status` is non-zero, this explains the error encountered.
-          example: The requestId 'abcdef0123456789abcdef' does not exist or its no longer active.
+          example: "The requestId 'abcdef0123456789abcdef' does not exist or its no longer active."
   securitySchemes:
     apiKey:
       type: apiKey
