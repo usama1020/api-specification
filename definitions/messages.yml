@@ -276,7 +276,55 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/responses/Error'
+                type: object
+                oneOf:
+                  - title: SMS
+                    description: SMS
+                    x-tab-id: SMS
+                    oneOf:
+                      - allOf:
+                        - title: Text
+                          description: Text
+                          type: object
+                          properties:
+                            message_uuid:
+                              $ref: '#/components/responses/Error'
+                  - description: MMS
+                    x-tab-id: MMS
+                    type: object
+                    oneOf:
+                      - allOf:
+                        - title: Text
+                          description: Text
+                          type: object
+                          properties:
+                            message_uuid:
+                              $ref: '#/components/responses/Error'
+                      - allOf:
+                        - title: Image
+                          description: Image
+                          type: object
+                          properties:
+                            message_uuid:
+                              $ref: '#/components/responses/Error'
+                  - description: WhatsApp
+                    x-tab-id: WhatsApp
+                    type: object
+                    properties:
+                      message_uuid:
+                        $ref: '#/components/responses/Error'
+                  - description: Messenger
+                    x-tab-id: Messenger
+                    type: object
+                    properties:
+                      message_uuid:
+                        $ref: '#/components/responses/Error'
+                  - description: Viber
+                    x-tab-id: Viber
+                    type: object
+                    properties:
+                      message_uuid:
+                        $ref: '#/components/responses/Error'
       callbacks:
         message-status:
           '{$request.body#/callback}':
