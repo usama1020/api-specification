@@ -34,7 +34,7 @@ paths:
                       - properties:
                           text:
                             description: |
-                                Limited to 1000 characters. The Messages API automatically detects unicode characters when sending SMS and sends the message as a unicode SMS. For more information on how concatenation and encoding please visit: [developer.nexmo.com/messaging/sms/guides/concatenation-and-encoding](https://developer.nexmo.com/messaging/sms/guides/concatenation-and-encoding).
+                                The text of message to send; limited to 1000 characters. The Messages API automatically detects unicode characters when sending SMS and sends the message as a unicode SMS. For more information on how concatenation and encoding please visit: [developer.nexmo.com/messaging/sms/guides/concatenation-and-encoding](https://developer.nexmo.com/messaging/sms/guides/concatenation-and-encoding).
                       - $ref: '#/components/schemas/channelOptionsSms'
                 - title: MMS
                   x-tab-id: MMS
@@ -69,7 +69,7 @@ paths:
                       - properties:
                           text:
                             description: |
-                                Limited to 4096 characters, including unicode.
+                                The text of message to send; limited to 4096 characters, including unicode.
                       - $ref: '#/components/schemas/channelOptionsWhatsapp'
                     - allOf:
                       - $ref: '#/components/requestBodies/Image'
@@ -111,6 +111,10 @@ paths:
                                   The URL of the video attachment.
 
                                   Supports `.mp4` and `.3gpp`. Note, only `H.264` video codec and `AAC` audio codec is supported.
+                              caption:
+                                type: string
+                                description: Additional text to accompany the file.
+                                example: Additional text.
                       - $ref: '#/components/schemas/channelOptionsWhatsapp'
                     - allOf:
                       - $ref: '#/components/requestBodies/File'
@@ -131,6 +135,25 @@ paths:
                     - allOf:
                       - $ref: '#/components/requestBodies/Template'
                       - $ref: '#/components/schemas/channelOptionsWhatsapp'
+                      - properties:
+                          template:
+                            properties:
+                              name:
+                                description: 'WhatsApp template'
+                          whatsapp:
+                            type: object
+                            properties:
+                              policy:
+                                type: string
+                                example: deterministic
+                                enum:
+                                  - fallback
+                                  - deterministic
+                                description: 'Please note that WhatsApp will deprecate `fallback` policy in January 2020. There are two policies that you can specify when sending a Message Template: `deterministic` and `fallback`. `deterministic` — Deliver the Message Template in exactly the language and locale asked for. `fallback` — Deliver the Message Template in the language that matches users language/locale setting on device. If one can not be found, deliver using the specified fallback language.'
+                              locale:
+                                type: string
+                                example: en-US
+                                description: 'We are using the industry standard, BCP 47, for locales. So in your API call to the /messages API you will need to put `en-GB` and this will refer to the `en_GB` template for WhatsApp. A full list of the possible locales is available on [developers.facebook.com](https://developers.facebook.com/docs/whatsapp/message-templates/creation#translations).'
                 - title: Messenger
                   x-tab-id: Messenger
                   oneOf:
@@ -139,7 +162,7 @@ paths:
                       - properties:
                           text:
                             description: |
-                              Limited to 640 characters, including unicode.
+                              The text of message to send; limited to 640 characters, including unicode.
                       - $ref: '#/components/schemas/channelOptionsMessenger'
                     - allOf:
                       - $ref: '#/components/requestBodies/Image'
@@ -185,10 +208,7 @@ paths:
                                 description: |
                                   The URL of the file attachment.
 
-                                  Supports supports a wide range of attachments including `.pdf`, `.doc`, `.ppt(x)` and `.xls`.
-                      - $ref: '#/components/schemas/channelOptionsMessenger'
-                    - allOf:
-                      - $ref: '#/components/requestBodies/Template'
+                                  Supports a wide range of attachments including `.zip`, `.csv` and `.pdf`.
                       - $ref: '#/components/schemas/channelOptionsMessenger'
                 - title: Viber
                   x-tab-id: Viber
@@ -198,7 +218,7 @@ paths:
                       - properties:
                           text:
                             description: |
-                              Limited to 1000 characters, including unicode.
+                              The text of message to send; limited to 1000 characters, including unicode.
                       - $ref: '#/components/schemas/channelOptionsViber'
                     - allOf:
                       - $ref: '#/components/requestBodies/Image'
@@ -326,7 +346,7 @@ components:
       type: string
       minLength: 1
       maxLength: 50
-      example: '0123456789012345'
+      example: '0123456789'
       description: |
           The ID of the message recipient
     FromId:
@@ -442,21 +462,6 @@ components:
           example: whatsapp
           enum:
             - whatsapp
-        whatsapp:
-          type: object
-          properties:
-            policy:
-              type: string
-              example: deterministic
-              enum:
-                - fallback
-                - deterministic
-              description: 'Please note that WhatsApp will deprecate `fallback` policy in January 2020. There are two policies that you can specify when sending a Message Template: `deterministic` and `fallback`. `deterministic` — Deliver the Message Template in exactly the language and locale asked for. `fallback` — Deliver the Message Template in the language that matches users language/locale setting on device. If one can not be found, deliver using the specified fallback language.'
-            locale:
-              type: string
-              example: en-US
-              description: 'We are using the industry standard, BCP 47, for locales. So in your API call to the /messages API you will need to put `en-GB` and this will refer to the `en_GB` template for WhatsApp. A full list of the possible locales is available on [developers.facebook.com](https://developers.facebook.com/docs/whatsapp/message-templates/creation#translations).'
-
 
     messageStatusBase:
       type: object
@@ -610,7 +615,7 @@ components:
         - $ref: "#/components/schemas/baseMessageType"
         - title: Text
           x-tab-id: Text
-          description: Text
+          description: The text of message to send.
           required:
             - text
           properties:
@@ -622,7 +627,7 @@ components:
               description: The type of message to send. You must provide `text` in this field
             text:
               type: string
-              example: 'Nexmo Verification code: 64873.<br />Valid for 10 minutes.'
+              example: 'Nexmo Verification code: 12345.<br />Valid for 10 minutes.'
 
     Image:
       allOf:
