@@ -1,6 +1,6 @@
-openapi: "3.0.0"
+openapi: "3.1.0"
 info:
-  version: 1.0.9
+  version: 1.0.10
   title: SMS API
   description: With the SMS API you can send SMS from your account and lookup messages both messages that you've sent as well as messages sent to your virtual numbers. Numbers are specified in E.164 format. More SMS API documentation is at <https://developer.nexmo.com/messaging/sms/overview>
   contact:
@@ -64,26 +64,26 @@ paths:
               responses:
                 "200":
                   description: Your server returns this code if it accepts the callback
-x-webhooks:
+
+webhooks:
   inbound-sms:
-    "{$request.body#/callback}":
-      post:
-        summary: Inbound SMS
-        operationId: inbound-sms
-        x-example-path: "/webhooks/inbound-sms"
-        description: |
+    post:
+      summary: Inbound SMS
+      operationId: inbound-sms
+      x-example-path: "/webhooks/inbound-sms"
+      description: |
           If you rent one or more virtual numbers from Vonage, inbound messages to that number are sent to your [webhook endpoint](/concepts/guides/webhooks).
 
           When you receive an inbound message, you must send a 2xx response. If you do not send a 2xx response Vonage will resend the inbound message for the next 24 hours.
-        requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InboundMessage"
-        responses:
-          "200":
-            description: Your server returns this code if it accepts the callback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboundMessage'
+      responses:
+        '200':
+          description: Your server returns this code if it accepts the callback
 
 components:
   schemas:
