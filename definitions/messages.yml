@@ -309,6 +309,43 @@ paths:
                     properties:
                       message_uuid:
                         $ref: '#/components/responses/Error'
+        '401':
+          description: "Authentication failure"
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/responses/ErrorUnauthorizedMissingCredentials"
+                  - $ref: "#/components/responses/ErrorUnauthorizedInvalidCredentials"
+                  - $ref: "#/components/responses/ErrorUnauthorizedInvalidApplication"
+        
+        '402':
+          description: "Payment Required"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/responses/ErrorPaymentRequired"
+
+        '422':
+          description: "Payment Required"
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/responses/ErrorInvalidJson"
+                  - $ref: "#/components/responses/ErrorChannelNotSupported"
+                  - $ref: "#/components/responses/ErrorInvalidChannelParams"
+                  - $ref: "#/components/responses/ErrorInvalidSender"
+                  - $ref: "#/components/responses/ErrorInvalidRecipient"
+                  - $ref: "#/components/responses/ErrorInvalidMessageParams"
+
+        '429':
+          description: "Authentication failure"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/responses/ErrorThrottled"
+
       callbacks:
         message-status:
           '{$request.body#/callback}':
@@ -802,10 +839,12 @@ components:
                     type: object
 
   responses:
+
     MessageUuid:
       type: string
       example: aaaaaaaa-bbbb-cccc-dddd-0123456789ab
       description: The UUID of the message
+
     Error:
       description: 'The error format is standardized to the 4xx/5xx range with a code and a human readable explanation.'
       required:
@@ -826,3 +865,275 @@ components:
         instance:
           type: string
           example: f94b4e56604e07e5e5ad5a7228618f81
+      
+    ErrorUnauthorizedMissingCredentials:
+      description: Missing Credentials
+      type: object
+      required:
+        - type
+        - error_title
+      properties:
+        type:
+          type: string
+          description: Machine readable error type
+          example: UNAUTHORIZED
+        error_title:
+          type: string
+          description: Error title
+          example: Missing credentials
+
+    ErrorUnauthorizedInvalidCredentials:
+      description: Invalid Credentials
+      type: object
+      required:
+        - type
+        - error_title
+      properties:
+        type:
+          type: string
+          description: Machine readable error type
+          example: UNAUTHORIZED
+        error_title:
+          type: string
+          description: Error title
+          example: Unauthorized
+
+    ErrorUnauthorizedInvalidApplication:
+      description: Invalid Application Type
+      type: object
+      required:
+        - type
+        - error_title
+      properties:
+        type:
+          type: string
+          description: Machine readable error type
+          example: UNAUTHORIZED
+        error_title:
+          type: string
+          description: Error title
+          example: Invalid application type
+
+    ErrorInvalidJson:
+      description: Invalid JSON
+      type: object
+      required:
+        - type
+        - title
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors#invalid-json
+        title:
+          type: string
+          description: Generic error message
+          example: Invalid JSON
+        detail:
+          type: string
+          description: Additional information about the error
+          example: 'Unexpected character (''"'' (code 34)): was expecting comma to separate Object entries'
+        instance:
+          type: string
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
+
+    ErrorChannelNotSupported:
+      description: Channel not supported
+      type: object
+      required:
+        - type
+        - title
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors/messages-olympus#1140
+        title:
+          type: string
+          description: Generic error message
+          example: Facility not allowed
+        detail:
+          type: string
+          description: Additional information about the error
+          example: Your request makes use of a facility that is not enabled on your account.
+        instance:
+          type: string
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
+
+    ErrorInvalidChannelParams:
+      description: Channel not supported
+      type: object
+      required:
+        - type
+        - title
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors/messages-olympus#1140
+        title:
+          type: string
+          description: Generic error message
+          example: Facility not allowed
+        detail:
+          type: string
+          description: Additional information about the error
+          example: Your request makes use of a facility that is not enabled on your account.
+        instance:
+          type: string
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
+
+    ErrorInvalidSender:
+      description: Invalid sender
+      type: object
+      required:
+        - type
+        - title
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors/messages-olympus#1120
+        title:
+          type: string
+          description: Generic error message
+          example: Illegal Sender Address
+        detail:
+          type: string
+          description: Additional information about the error
+          example: Due to local regulations, the sender you set in from in the request was not accepted. Please check the Global messaging section.
+        instance:
+          type: string
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
+
+
+    ErrorInvalidRecipient:
+      description: Invalid recipient
+      type: object
+      required:
+        - type
+        - title
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors/messages-olympus#1020
+        title:
+          type: string
+          description: Generic error message
+          example: Invalid params
+        detail:
+          type: string
+          description: Additional information about the error
+          example: The value of one or more parameters is invalid.
+        instance:
+          type: string
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
+
+    ErrorInvalidMessageParams:
+      description: Invalid message parameters
+      type: object
+      required:
+        - type
+        - title
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors/messages-olympus#1020
+        title:
+          type: string
+          description: Generic error message
+          example: Invalid params
+        detail:
+          type: string
+          description: Additional information about the error
+          example: The value of one or more parameters is invalid.
+        instance:
+          type: string
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
+        invalid_parameters:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of invalid parameter
+                example: image.url
+              reason:
+                type: string
+                description: Reason of failure
+                example: is required.
+
+
+
+
+    ErrorPaymentRequired:
+      type: object
+      required:
+        - type
+        - title
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors/messages-olympus#1070
+        title:
+          type: string
+          description: Generic error message
+          example: Partner quota exceeded
+        detail:
+          type: string
+          description: Additional information about the error
+          example: Your pre-paid account does not have sufficient credit to process this message.
+        instance:
+          type: string
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
+
+    ErrorThrottled:
+      type: object
+      required:
+        - type
+        - title
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors/messages-olympus#1000
+        title:
+          type: string
+          description: Generic error message
+          example: Rate Limit Hit
+        detail:
+          type: string
+          description: Additional information about the error
+          example: Please wait, then retry your request
+        instance:
+          type: string
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
+    
