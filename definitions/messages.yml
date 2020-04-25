@@ -1,6 +1,6 @@
 openapi: "3.0.0"
 info:
-  version: 0.3.6
+  version: 0.9.0
   title: Messages API
   description: 'The Messaging API is a new API that consolidates all messaging channels. It encapsulates a user (developer) from having to use multiple APIs to interact with our various channels such as SMS, MMS, Viber, Facebook Messenger, etc. The API normalises information across all channels to abstracted to, from and content. This API is currently in Beta.'
   contact:
@@ -280,7 +280,6 @@ paths:
               schema:
                 oneOf:
                   - $ref: "#/components/responses/ErrorUnauthorizedMissingCredentials"
-                  - $ref: "#/components/responses/ErrorUnauthorizedInvalidCredentials"
                   - $ref: "#/components/responses/ErrorUnauthorizedInvalidApplication"
         
         '402':
@@ -297,11 +296,12 @@ paths:
               schema:
                 oneOf:
                   - $ref: "#/components/responses/ErrorInvalidJson"
-                  - $ref: "#/components/responses/ErrorChannelNotSupported"
-                  - $ref: "#/components/responses/ErrorInvalidChannelParams"
-                  - $ref: "#/components/responses/ErrorInvalidSender"
-                  - $ref: "#/components/responses/ErrorInvalidRecipient"
-                  - $ref: "#/components/responses/ErrorInvalidMessageParams"
+                  - $ref: "#/components/responses/ErrorChannel"
+                  - $ref: "#/components/responses/ErrorChannelParams"
+                  - $ref: "#/components/responses/ErrorSender"
+                  - $ref: "#/components/responses/ErrorRecipient"
+                  - $ref: "#/components/responses/ErrorMessageType"
+                  - $ref: "#/components/responses/ErrorMessageParams"
                   - $ref: "#/components/responses/ErrorClientReference"
 
         '429':
@@ -340,6 +340,15 @@ paths:
               responses:
                 '200':
                   description: Your server returns this code if it accepts the callback.
+                  content:
+                    application/json:
+                      schema:
+                        oneOf:
+                          - $ref: '#/components/schemas/inboundMessageSMS'
+                          - $ref: '#/components/schemas/messageStatusMMS'
+                          - $ref: '#/components/schemas/messageStatusWhatsApp'
+                          - $ref: '#/components/schemas/messageStatusMessenger'
+                          - $ref: '#/components/schemas/messageStatusViber'
         inbound-message:
           '{$request.body#/callback}':
             post:
@@ -839,52 +848,56 @@ components:
           example: f94b4e56604e07e5e5ad5a7228618f81
       
     ErrorUnauthorizedMissingCredentials:
-      description: Missing Credentials
+      description: Missing or Invalid Credentials
       type: object
       required:
         - type
-        - error_title
+        - title
+        - details
+        - instance
       properties:
         type:
           type: string
-          description: Machine readable error type
-          example: UNAUTHORIZED
-        error_title:
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors/#unathorized
+        title:
           type: string
-          description: Error title
-          example: Missing credentials
-
-    ErrorUnauthorizedInvalidCredentials:
-      description: Invalid Credentials
-      type: object
-      required:
-        - type
-        - error_title
-      properties:
-        type:
+          description: Generic error message
+          example: You did not provide correct credentials.
+        detail:
           type: string
-          description: Machine readable error type
-          example: UNAUTHORIZED
-        error_title:
+          description: Additional information about the error
+          example: Check that you're using the correct credentials, and that your account has this feature enabled
+        instance:
           type: string
-          description: Error title
-          example: Unauthorized
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
 
     ErrorUnauthorizedInvalidApplication:
       description: Invalid Application Type
       type: object
       required:
         - type
-        - error_title
+        - title
+        - details
+        - instance
       properties:
         type:
           type: string
-          description: Machine readable error type
-          example: UNAUTHORIZED
-        error_title:
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors/#unprovisioned
+        title:
           type: string
-          description: Error title
-          example: Invalid application type
+          description: Generic error message
+          example: The crendentials provided do not have access to the requested product
+        detail:
+          type: string
+          description: Additional information about the error
+          example: Check your API key is correct and has been whitelisted
+        instance:
+          type: string
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
 
     ErrorInvalidJson:
       description: Invalid JSON
@@ -902,7 +915,7 @@ components:
         title:
           type: string
           description: Generic error message
-          example: Invalid JSON
+          example: The request body did not contain valid JSON
         detail:
           type: string
           description: Additional information about the error
@@ -912,8 +925,8 @@ components:
           description: Internal Trace ID
           example: bf0ca0bf927b3b52e3cb03217e1a1ddf
 
-    ErrorChannelNotSupported:
-      description: Channel not supported
+    ErrorChannel:
+      description: Unsupported channel
       type: object
       required:
         - type
@@ -924,21 +937,21 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/messages-olympus#1140
+          example: https://developer.nexmo.com/api-errors/messages#1100
         title:
           type: string
           description: Generic error message
-          example: Facility not allowed
+          example: Unsupported channel
         detail:
           type: string
           description: Additional information about the error
-          example: Your request makes use of a facility that is not enabled on your account.
+          example: The specified channel is not supported.
         instance:
           type: string
           description: Internal Trace ID
           example: bf0ca0bf927b3b52e3cb03217e1a1ddf
 
-    ErrorInvalidChannelParams:
+    ErrorChannelParams:
       description: Invalid channel parameters
       type: object
       required:
@@ -950,11 +963,11 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/messages-olympus#1020
+          example: https://developer.nexmo.com/api-errors/messages#1110
         title:
           type: string
           description: Generic error message
-          example: Invalid params
+          example: Invalid channel parameters
         detail:
           type: string
           description: Additional information about the error
@@ -977,7 +990,7 @@ components:
                 description: Reason of failure
                 example: Must be one of `response`, `update` or `message_tag`.
 
-    ErrorInvalidSender:
+    ErrorSender:
       description: Invalid sender
       type: object
       required:
@@ -989,22 +1002,21 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/messages-olympus#1120
+          example: https://developer.nexmo.com/api-errors/messages#1120
         title:
           type: string
           description: Generic error message
-          example: Illegal sender
+          example: Invalid sender
         detail:
           type: string
           description: Additional information about the error
-          example: Due to local regulations, the sender you set in from in the request was not accepted. Please check the Global messaging section.
+          example: The `from` parameter is invalid for the given channel.
         instance:
           type: string
           description: Internal Trace ID
           example: bf0ca0bf927b3b52e3cb03217e1a1ddf
 
-
-    ErrorInvalidRecipient:
+    ErrorRecipient:
       description: Invalid recipient
       type: object
       required:
@@ -1016,21 +1028,47 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/messages-olympus#1170
+          example: https://developer.nexmo.com/api-errors/messages#110
         title:
           type: string
           description: Generic error message
-          example: Illegal recipient
+          example: Invalid recipient
         detail:
           type: string
           description: Additional information about the error
-          example: Invalid or Missing Msisdn Param - The phone number you supplied in the to parameter of your request was either missing or invalid.
+          example: The `to` parameter is invalid for the given channel.
+        instance:
+          type: string
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
+    
+    ErrorMessageType:
+      description: Invalid message type
+      type: object
+      required:
+        - type
+        - title
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors/messages#1140
+        title:
+          type: string
+          description: Generic error message
+          example: Invalid message type
+        detail:
+          type: string
+          description: Additional information about the error
+          example: The `to` parameter is invalid for the given channel.
         instance:
           type: string
           description: Internal Trace ID
           example: bf0ca0bf927b3b52e3cb03217e1a1ddf
 
-    ErrorInvalidMessageParams:
+    ErrorMessageParams:
       description: Invalid message parameters
       type: object
       required:
@@ -1042,7 +1080,7 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/messages-olympus#1020
+          example: https://developer.nexmo.com/api-errors/messages#1150
         title:
           type: string
           description: Generic error message
@@ -1081,7 +1119,7 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/messages-olympus#1021
+          example: https://developer.nexmo.com/api-errors/messages#1060
         title:
           type: string
           description: Generic error message
@@ -1089,13 +1127,11 @@ components:
         detail:
           type: string
           description: Additional information about the error
-          example: The client rerference is invalid.
+          example: The client reference can be a string of up to 40 characters.
         instance:
           type: string
           description: Internal Trace ID
           example: bf0ca0bf927b3b52e3cb03217e1a1ddf
-
-
 
     ErrorPaymentRequired:
       type: object
@@ -1108,15 +1144,15 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/messages-olympus#1070
+          example: https://developer.nexmo.com/api-errors/#low-balance
         title:
           type: string
           description: Generic error message
-          example: Partner quota exceeded
+          example: Low balance
         detail:
           type: string
           description: Additional information about the error
-          example: Your pre-paid account does not have sufficient credit to process this message.
+          example: This request could not be performed due to your account balance being low.
         instance:
           type: string
           description: Internal Trace ID
@@ -1133,7 +1169,7 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/messages-olympus#1000
+          example: https://developer.nexmo.com/api-errors/messages#1010
         title:
           type: string
           description: Generic error message
@@ -1158,7 +1194,7 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/messages-olympus#1030
+          example: https://developer.nexmo.com/api-errors/messages#1000
         title:
           type: string
           description: Generic error message
@@ -1172,3 +1208,25 @@ components:
           description: Internal Trace ID
           example: bf0ca0bf927b3b52e3cb03217e1a1ddf
     
+
+x-errors:
+  "1000":
+    description: Internal error  -  There was an error processing your request in the Platform.
+  "1010":
+    description: Throttled - You have exceeded the submission capacity allowed on this account. Please wait and retry
+
+  "1100":
+    description: Unsupported channel - The channel specified in the request is not supported.
+  "1110":
+    description: Invalid channel parameters -  The value of one or more parameters is invalid.
+  "1120":
+    description: Invalid sender -  The `from` parameter is invalid for the given channel.
+  "1130":
+    description: Invalid recipient -  The `to` parameter is invalid for the given channel.
+  "1140":
+    description: Invalid message type - The message type specified in the request is not supported for the given channel.
+  "1150":
+    description: Invalid channel parameters -  The value of one or more parameters is invalid.
+  "1160":
+    description: Invalid client reference -  The client reference can be a string of up to 40 characters.
+  
