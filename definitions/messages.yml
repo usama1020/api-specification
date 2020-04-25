@@ -271,44 +271,8 @@ paths:
                     properties:
                       message_uuid:
                         $ref: '#/components/responses/MessageUuid'
-        '400':
-          description: Bad Request.
-          content:
-            application/json:
-              schema:
-                type: object
-                oneOf:
-                  - title: SMS
-                    description: SMS
-                    x-tab-id: SMS
-                    type: object
-                    properties:
-                      message_uuid:
-                        $ref: '#/components/responses/Error'
-                  - description: MMS
-                    x-tab-id: MMS
-                    type: object
-                    properties:
-                      message_uuid:
-                        $ref: '#/components/responses/Error'
-                  - description: WhatsApp
-                    x-tab-id: WhatsApp
-                    type: object
-                    properties:
-                      message_uuid:
-                        $ref: '#/components/responses/Error'
-                  - description: Messenger
-                    x-tab-id: Messenger
-                    type: object
-                    properties:
-                      message_uuid:
-                        $ref: '#/components/responses/Error'
-                  - description: Viber
-                    x-tab-id: Viber
-                    type: object
-                    properties:
-                      message_uuid:
-                        $ref: '#/components/responses/Error'
+
+
         '401':
           description: "Authentication failure"
           content:
@@ -338,6 +302,7 @@ paths:
                   - $ref: "#/components/responses/ErrorInvalidSender"
                   - $ref: "#/components/responses/ErrorInvalidRecipient"
                   - $ref: "#/components/responses/ErrorInvalidMessageParams"
+                  - $ref: "#/components/responses/ErrorClientReference"
 
         '429':
           description: "Authentication failure"
@@ -345,6 +310,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/responses/ErrorThrottled"
+
+        '500':
+          description: "Internal error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/responses/ErrorInternal"
 
       callbacks:
         message-status:
@@ -967,7 +939,7 @@ components:
           example: bf0ca0bf927b3b52e3cb03217e1a1ddf
 
     ErrorInvalidChannelParams:
-      description: Channel not supported
+      description: Invalid channel parameters
       type: object
       required:
         - type
@@ -978,19 +950,32 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/messages-olympus#1140
+          example: https://developer.nexmo.com/api-errors/messages-olympus#1020
         title:
           type: string
           description: Generic error message
-          example: Facility not allowed
+          example: Invalid params
         detail:
           type: string
           description: Additional information about the error
-          example: Your request makes use of a facility that is not enabled on your account.
+          example: The value of one or more parameters is invalid.
         instance:
           type: string
           description: Internal Trace ID
           example: bf0ca0bf927b3b52e3cb03217e1a1ddf
+        invalid_parameters:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of invalid parameter
+                example: messenger.category
+              reason:
+                type: string
+                description: Reason of failure
+                example: Must be one of `response`, `update` or `message_tag`.
 
     ErrorInvalidSender:
       description: Invalid sender
@@ -1008,7 +993,7 @@ components:
         title:
           type: string
           description: Generic error message
-          example: Illegal Sender Address
+          example: Illegal sender
         detail:
           type: string
           description: Additional information about the error
@@ -1031,15 +1016,15 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/messages-olympus#1020
+          example: https://developer.nexmo.com/api-errors/messages-olympus#1170
         title:
           type: string
           description: Generic error message
-          example: Invalid params
+          example: Illegal recipient
         detail:
           type: string
           description: Additional information about the error
-          example: The value of one or more parameters is invalid.
+          example: Invalid or Missing Msisdn Param - The phone number you supplied in the to parameter of your request was either missing or invalid.
         instance:
           type: string
           description: Internal Trace ID
@@ -1084,6 +1069,31 @@ components:
                 description: Reason of failure
                 example: is required.
 
+    ErrorClientReference:
+      description: Invalid client reference
+      type: object
+      required:
+        - type
+        - title
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors/messages-olympus#1021
+        title:
+          type: string
+          description: Generic error message
+          example: Invalid client reference
+        detail:
+          type: string
+          description: Additional information about the error
+          example: The client rerference is invalid.
+        instance:
+          type: string
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
 
 
 
@@ -1132,6 +1142,31 @@ components:
           type: string
           description: Additional information about the error
           example: Please wait, then retry your request
+        instance:
+          type: string
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
+
+    ErrorInternal:
+      type: object
+      required:
+        - type
+        - title
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors/messages-olympus#1030
+        title:
+          type: string
+          description: Generic error message
+          example: Internal error
+        detail:
+          type: string
+          description: Additional information about the error
+          example: There was an error processing your request in the Platform.
         instance:
           type: string
           description: Internal Trace ID
