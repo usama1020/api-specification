@@ -281,32 +281,16 @@ paths:
                   - title: SMS
                     description: SMS
                     x-tab-id: SMS
-                    oneOf:
-                      - allOf:
-                        - title: Text
-                          description: Text
-                          type: object
-                          properties:
-                            message_uuid:
-                              $ref: '#/components/responses/Error'
+                    type: object
+                    properties:
+                      message_uuid:
+                        $ref: '#/components/responses/Error'
                   - description: MMS
                     x-tab-id: MMS
                     type: object
-                    oneOf:
-                      - allOf:
-                        - title: Text
-                          description: Text
-                          type: object
-                          properties:
-                            message_uuid:
-                              $ref: '#/components/responses/Error'
-                      - allOf:
-                        - title: Image
-                          description: Image
-                          type: object
-                          properties:
-                            message_uuid:
-                              $ref: '#/components/responses/Error'
+                    properties:
+                      message_uuid:
+                        $ref: '#/components/responses/Error'
                   - description: WhatsApp
                     x-tab-id: WhatsApp
                     type: object
@@ -345,8 +329,8 @@ paths:
                         - $ref: '#/components/schemas/messageStatusMessenger'
                         - $ref: '#/components/schemas/messageStatusViber'
               responses:
-                  '200':
-                    description: Your server returns this code if it accepts the callback.
+                '200':
+                  description: Your server returns this code if it accepts the callback.
         inbound-message:
           '{$request.body#/callback}':
             post:
@@ -359,7 +343,12 @@ paths:
                 content:
                   application/json:
                     schema:
-                      $ref: '#/components/schemas/InboundMessage'
+                      oneOf:
+                        - $ref: '#/components/schemas/inboundMessageSMS'
+                        - $ref: '#/components/schemas/messageStatusMMS'
+                        - $ref: '#/components/schemas/messageStatusWhatsApp'
+                        - $ref: '#/components/schemas/messageStatusMessenger'
+                        - $ref: '#/components/schemas/messageStatusViber'
               responses:
                   '200':
                     description: Your server returns this code if it accepts the callback.
@@ -417,7 +406,6 @@ components:
         client_ref:
           type: string
           description: Client reference of up to 40 characters. The reference will be present in every message status.
-
     channelOptionsSms:
       type: object
       properties:
@@ -431,7 +419,6 @@ components:
           example: sms
           enum:
             - sms
-
     channelOptionsMms:
       type: object
       properties:
@@ -445,7 +432,6 @@ components:
           example: mms
           enum:
             - mms
-
     channelOptionsMessenger:
       type: object
       properties:
@@ -470,7 +456,6 @@ components:
                 - message_tag
             tag:
               type: string
-
     channelOptionsViber:
       type: object
       properties:
@@ -496,7 +481,6 @@ components:
               type: integer
             type:
               type: string
-
     channelOptionsWhatsapp:
       type: object
       properties:
@@ -510,7 +494,6 @@ components:
           example: whatsapp
           enum:
             - whatsapp
-
     messageStatusBase:
       type: object
       properties:
@@ -533,6 +516,33 @@ components:
             - delivered
             - rejected
             - undeliverable
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              example: 1300
+              description: The error code. See [our errors list](https://developer.nexmo.com/api-errors/messages-olympus) for a list of possible errors
+            reason:
+              type: string
+              example: 'Not part of the provider network'
+              description: Text describing the error. See [our errors list](https://developer.nexmo.com/api-errors/messages-olympus) for a list of possible errors
+        usage:
+          type: object
+          properties:
+            currency:
+              type: string
+              example: EUR
+              description: The charge currency in ISO 4217 format.
+              enum:
+                - EUR
+            price:
+              type: string
+              example: '0.0333'
+              description: The charge amount as a stringified number.
+        client_ref:
+          type: string
+          description: Client reference of up to 40 characters. The reference will be present in every message status.
       required:
         - message_uuid
         - channel
@@ -620,7 +630,6 @@ components:
                 Your ID for the platform that you are sending from.
 
                 This value should be the `to.id` value you received in the inbound messenger event.
-
     messageStatusViber:
       allOf:
         - $ref: "#/components/schemas/messageStatusBase"
@@ -644,7 +653,8 @@ components:
                 - read
     
 
-    InboundMessage:
+    inboundMessageSMS:
+      title: SMS
       type: object
       properties:
         message_uuid:
