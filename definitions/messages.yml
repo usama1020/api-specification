@@ -340,15 +340,7 @@ paths:
               responses:
                 '200':
                   description: Your server returns this code if it accepts the callback.
-                  content:
-                    application/json:
-                      schema:
-                        oneOf:
-                          - $ref: '#/components/schemas/inboundMessageSMS'
-                          - $ref: '#/components/schemas/messageStatusMMS'
-                          - $ref: '#/components/schemas/messageStatusWhatsApp'
-                          - $ref: '#/components/schemas/messageStatusMessenger'
-                          - $ref: '#/components/schemas/messageStatusViber'
+
         inbound-message:
           '{$request.body#/callback}':
             post:
