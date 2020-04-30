@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Numbers API
-  version: 1.0.17
+  version: 1.0.18
   description: >-
     The Numbers API enables you to manage your existing numbers and buy new virtual numbers for
     use with Nexmo's APIs. Further information is here: <https://developer.nexmo.com/numbers/overview>
@@ -38,7 +38,7 @@ paths:
           required: false
           in: query
           schema:
-            $ref: "#/components/schemas/country" 
+            $ref: "#/components/schemas/country"
         - $ref: "#/components/parameters/pattern"
         - $ref: "#/components/parameters/search_pattern"
         - $ref: "#/components/parameters/size"
@@ -83,14 +83,18 @@ paths:
           required: false
           in: query
           description: >-
-            Available features are `SMS` and `VOICE`. To look for numbers that support both, use a 
-            comma-separated value: `SMS,VOICE`.
+            Available features are `SMS`, `VOICE` and `MMS`. To look for numbers that support multiple features, use a
+            comma-separated value: `SMS,MMS,VOICE`.
           schema:
             type: string
             enum:
               - SMS
               - VOICE
               - "SMS,VOICE"
+              - MMS
+              - "SMS,MMS"
+              - "VOICE,MMS"
+              - "SMS,MMS,VOICE"
           example: SMS
         - $ref: "#/components/parameters/size"
         - $ref: "#/components/parameters/index"
@@ -316,8 +320,8 @@ components:
           type: array
           items:
             type: string
-          example: ["VOICE", "SMS"]
-          description: "The capabilities of the number: `SMS` or `VOICE` or `SMS,VOICE`"
+          example: ["VOICE", "SMS", "MMS"]
+          description: "The capabilities of the number: `SMS` or `VOICE` or `SMS,VOICE` or `SMS,MMS` or `VOICE,MMS` or `SMS,MMS,VOICE`"
         messagesCallbackType:
           type: string
           example: app
@@ -355,8 +359,8 @@ components:
           type: array
           items:
             type: string
-          example: [VOICE, SMS]
-          description: "The capabilities of the number: `SMS` or `VOICE` or `SMS,VOICE`"
+          example: [VOICE, SMS, MMS]
+          description: "The capabilities of the number: `SMS` or `VOICE` or `SMS,VOICE` or `SMS,MMS` or `VOICE,MMS` or `SMS,MMS,VOICE`"
     inbound-numbers:
       type: object
       properties:
@@ -429,7 +433,7 @@ components:
         voiceCallbackType:
           description: |
             Specify whether inbound voice calls on your number are forwarded
-            to a SIP or a telephone number.  This must be used with the 
+            to a SIP or a telephone number.  This must be used with the
             `voiceCallbackValue` parameter. If set, `sip` or `tel` are
             prioritized over the Voice capability in your Application.
 
