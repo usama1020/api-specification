@@ -1,45 +1,74 @@
-extends: spectral:oas
+extends: 'spectral:oas'
 rules:
-  example-value-or-externalValue: false
-  oas3-unused-components-schema: false # needed by inter-file references e.g. Voice API
-  oas3-valid-content-schema-example: false
-  oas3-valid-oas-content-example: false
-  oas3-valid-oas-parameter-example: false
-  oas3-valid-parameter-schema-example: false
-  oas3-valid-schema-example: false
-  openapi-tags: false
-  operation-description: false
-  operation-tags: false
+  # change warning levels
+  tag-description: info
 
-  # Check field names meet api standards
+  # add rules
   property-names:
     severity: warn
-    message: "Invalid property name: {{value}} (expected: lowercase with underscores)"
+    message: 'Invalid property name: {{value}} (expected: lowercase with underscores)'
     recommended: true
-    given: "$.paths.*.*.parameters.*.name"
+    given: '$.paths.*.*.parameters.*.name'
     then:
       function: pattern
       functionOptions:
-        match: "^[a-z_]+$"
-
-  # Check response field names meet api standards
+        match: '^[a-z_]+$'
   response-property-names:
     severity: warn
-    message: "Invalid response property name: {{property}} (expected: lowercase with underscores)"
+    message: 'Invalid response property name: {{property}} (expected: lowercase with underscores)'
     recommended: true
-    given: "$..components.schemas.*.properties[*]~"
+    given: '$..components.schemas.*.properties[*]~'
     then:
       function: pattern
       functionOptions:
-        match: "^[a-z_]+$"
-
-  # Require 3-part Semantic Versions as the spec versions
+        match: '^[a-z_]+$'
   semver:
     severity: error
     recommended: true
-    message: Specs should follow semantic versioning. {{value}} is not a valid version.
+    message: 'Specs should follow semantic versioning. {{value}} is not a valid version.'
     given: $.info.version
     then:
       function: pattern
       functionOptions:
-        match: "^([0-9]+.[0-9]+.[0-9]+)$"
+        match: '^([0-9]+.[0-9]+.[0-9]+)$'
+
+# the hall of shame for things that don't meet our ideal standards
+except:
+  # Account API - approved exceptions
+  "definitions/account.yml#/components/schemas/accountBalance/properties/autoReload":
+    - response-property-names
+  "definitions/account.yml#/components/schemas/accountSettings/properties/mo-callback-url":
+    - response-property-names
+  "definitions/account.yml#/components/schemas/accountSettings/properties/dr-callback-url":
+    - response-property-names
+  "definitions/account.yml#/components/schemas/accountSettings/properties/max-outbound-request":
+    - response-property-names
+  "definitions/account.yml#/components/schemas/accountSettings/properties/max-calls-per-second":
+    - response-property-names
+  "definitions/account.yml#/components/schemas/accountSettings/properties/max-inbound-request":
+    - response-property-names
+  # Account API - TODO: Fix these
+  "definitions/account.yml#/paths/~1":
+    - operation-description
+  "definitions/account.yml#/paths/~1accounts~1{api_key}~1secrets/get":
+    - operation-description
+  "definitions/account.yml#/paths/~1accounts~1{api_key}~1secrets/post":
+    - operation-description
+  "definitions/account.yml#/paths/~1accounts~1{api_key}~1secrets~1{secret_id}/delete":
+    - operation-description
+  "definitions/account.yml#/paths/~1accounts~1{api_key}~1secrets~1{secret_id}/get":
+    - operation-description
+  "definitions/account.yml#/paths/~1account~1settings/post/responses/200/content/application~1json/example":
+    - oas3-valid-oas-content-example
+  "definitions/account.yml#/paths/~1account~1settings/post/responses/200/content/application~1xml/example":
+    - oas3-valid-oas-content-example
+  "definitions/account.yml#/paths/~1account~1top-up/post/responses/200/content/application~1json/example":
+    - oas3-valid-oas-content-example
+  "definitions/account.yml#/paths/~1account~1top-up/post/responses/200/content/application~1xml/example":
+    - oas3-valid-oas-content-example
+  "definitions/account.yml#/paths/~1account~1get-balance/get/responses/200/content/application~1xml/example":
+    - oas3-valid-oas-content-example
+  "definitions/account.yml#/paths/~1accounts~1{api_key}~1secrets/post/responses/201/content/application~1json/example":
+    - oas3-valid-oas-content-example
+  "definitions/account.yml#/paths/~1accounts~1{api_key}~1secrets~1{secret_id}/get/responses/200/content/application~1json/example":
+    - oas3-valid-oas-content-example
