@@ -2,36 +2,191 @@ openapi: 3.0.0
 info:
   version: 0.1.0
   title: Natural Language Understanding API
-  description: "Vonage Natural Language Understanding API allows you to build, store, and use model's for intent \nand entity detection from user utterances.\n"
+  description: "Vonage's Natural Language Understanding API allows you to build, store, and use model's for intent \nand entity detection from user utterances.\n"
   contact:
     name: Nexmo
     url: 'https://developer.nexmo.com/'
     email: devrel@nexmo.com
 servers:
   - url: 'https://api.nexmo.com/v0.1/athena'
-paths:
-  "/entities/{entity_iud}/values/{value_id}/synonyms":
+paths:  
+  
+  "/entities/{entity_id}/values/{value_id}/synonyms":
+    post:
+      operationId: create_synonym
+      tags:
+        - synonyms
+      summary: Create a synonym for a value of an entity
+      requestBody:
+        $ref: '#/components/requestBodies/Synonym'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/synonym'
     get:
       operationId: get_synonyms
       tags:
-        - synonym
-      summary: List synonyms for an entity value
+        - synonyms
+      summary: List synonyms of an entity value
       parameters:
+        - $ref: "#/components/parameters/record_index"
         - $ref: "#/components/parameters/page_size"
         - $ref: "#/components/parameters/cursor"
         - $ref: "#/components/parameters/order"
       responses:
         "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  page_size:
+                    type: integer
+                    example: 10
+                    description: The number of results returned on this page.
+                  record_index:
+                    $ref: '#/components/schemas/record_index'
+                  _embedded:
+                    type: object
+                    x-nexmo-developer-collection-description-shown: true
+                    properties:
+                      synonyms:
+                        type: array
+                        description: List of Synonyms matching provided filter
+                        items:
+                          $ref: "#/components/schemas/synonym"
+        "404":
+          description: Resource Not Found
+  "/entities/{entity_id}/values/{value_id}/synonyms/{synonym_id}":
+    parameters:
+        - $ref: '#/components/parameters/synonym_id'
+    get:
+      operationId: get_synonym
+      tags:
+        - synonyms
+      responses:
+        '200':
+          description: Synonym retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/synonym"
+        '404':
+          description: Synonym Not found
+    delete:
+      operationId: delete_synonym
+      tags:
+        - synonyms        
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Synonym Not Found
+  "/entities/{entity_id}/values":
+    get:
+      operationId: get_values
+      tags:
+        - values
+      summary: List Values of an entity
+      parameters:
+        - $ref: "#/components/parameters/record_index"
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/cursor"
+        - $ref: "#/components/parameters/order"
+      responses:
+        '200':
+          description: Values Listed
+          content:
+            application/json:
+              schema:
+                properties:
+                  record_index:
+                    $ref: '#/components/schemas/record_index'
+                  _embedded:
+                    type: object
+                    x-nexmo-developer-collection-description-shown: true
+                    properties:
+                      values:
+                        type: array
+                        description: List of Values matching provided filter
+                        items:
+                          $ref: "#/components/schemas/value"
+    post:
+      operationId: create_value
+      tags:
+        - values
+      summary: Create a new Value for the intent
+      requestBody:
+        $ref: "#/components/requestBodies/Value"
+      responses:
+        '200':
+          description: Value Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/value"
 
-
-
-components:
+  "/entities/{entity_id}/values/{value_id}":
+    get:
+      operationId: get_value
+      tags:
+        - values
+      summary: Get a value of an entity
+      parameters:
+        - $ref: "#/components/parameters/value_id"
+      responses:
+        '200':
+          description: Value found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/value"
+        '404':
+          description: Resource Not Found
+    patch:
+      operationId: update_value      
+      tags:
+        - values
+      summary: Update the value of an entity
+      requestBody:
+        $ref: "#/components/requestBodies/ValueUpdate"
+      responses:
+        '200':
+          description: Value updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/value"
+    delete:
+      operationId: delete_value
+      tags:
+        - values
+      summary: delete a value of an entity
+      parameters:
+        - $ref: "#/components/parameters/value_id"
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Resource Not Found
+          
+components:  
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
   parameters:
+    record_index:
+      name: record_index
+      in: query
+      description: Return calls from this index in the response
+      required: false
+      schema:
+        $ref: '#/components/schemas/record_index'
     page_size:
       name: page_size
       in: query
@@ -66,10 +221,119 @@ components:
       name: synonym_id
       in: path
       description: The Id of the synonym
+      example: SYN-f972836a-550f-45fa-956c-12a2ab5b7d22
       schema:
         type: string
       required: true
-  schemas:    
+    value_id:
+      name: value_id
+      in: path
+      description: The Id of the value
+      example: VAL-f972836a-550f-45fa-956c-12a2ab5b7d22
+      schema:
+        type: string
+      required: true
+  requestBodies:
+    Value:
+      description: A possible value for an Entity
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+                description: The name of the value - a concrete instance of the entity
+                example: green
+              synonyms:
+                type: array
+                description: synonyms associated with this value
+                example: ['mint', 'lime']
+                items:
+                  type: string
+                  example: mint
+              metadata:
+                type: object
+                description: metadata for the value you might want your app to use Limit 4k in size
+    ValueUpdate:
+      description: A possible value for an Entity
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+                description: Name to change the value name to
+                example: green
+              metadata:
+                type: object
+                description: Custom metadata to send back to your app when this value is detected, limit of 4k
+                example: "{custom:'metadata'}"              
+    Synonym:
+      description: A Synonym of a Entity Value
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - synonym
+            properties:
+              synonym:
+                type: string
+                description: the synonym for a given concrete value of an entity
+                example: mint
+  schemas:
+    record_index:
+      type: number
+      description: 'Return `page_size` amount of values from this index in the response. That is, if your request returns 300 values, set `record_index` to 5 in order to return values 50 to 59. The default is 0. That is, the first `page_size` calls.'
+      default: 0
+      minimum: 0       
+    value:
+      properties:
+        _links:
+          type: object
+          properties:
+            first:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: 'https://api.nexmo.com/v0.1/athena/entities/ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625/values?order=desc&page_size=10'
+            self:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: 'https://api.nexmo.com/v0.1/athena/entities/ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625/values?order=desc&page_size=10&cursor=88b395c167da4d94e929705cbd63b82973771e7d390d274a58e301386d5762600a3ffd799bfb3fc5190c5a0d124cdd0fc72fe6e450506b18e4e2edf9fe84c7a0'
+            next:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: 'https://api.nexmo.com/v0.1/athena/entities/ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625/values?order=desc&page_size=10&cursor=88b395c167da4d94e929705cbd63b829a650e69a39197bfd4c949f4243f60dc4babb696afa404d2f44e7775e32b967f2a1a0bb8fb259c0999ba5a4e501eaab55'
+            prev:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: 'https://api.nexmo.com/v0.1/athena/entities/ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625/values?order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'
+        name:
+          type: string
+          description: the name of a value representing a concrete instance of an entity. e.g. `green` is a possible value of the entity `color`
+          example: 'green'
+        id:
+          type: string
+          description: Unique identifier of a concrete value of an entity
+          example: VAL-afe887d8-d587-4280-9aae-dfa4c9227d5e
+        metadata:
+          type: object
+          description: Custom object of metadata that will be sent back to your app when this value is detected
+          example: "{custom:metadata}"
     synonym:
       properties:
         _links:
@@ -101,7 +365,46 @@ components:
                   example: 'https://api.nexmo.com/v0.1/athena/entities/ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625/values/VAL-92a44c64-7e4e-485f-a0c4-1f2adfc44625?order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'
         id:
           type: string
+          description: the unique ID for a synonym
           example: SYN-afe887d8-d587-4280-9aae-dfa4c9227d5e
-        value:
+        synonym:
           type: string
+          description: the synonym of a concrete value of an entity
           example: mint
+    entity:
+      properties:
+        _links:
+          type: object
+          properties:
+            first:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: 'https://api.nexmo.com/v0.1/athena/entities?order=desc&page_size=10'
+            self:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: 'https://api.nexmo.com/v0.1/athena/entities?order=desc&page_size=10&cursor=88b395c167da4d94e929705cbd63b82973771e7d390d274a58e301386d5762600a3ffd799bfb3fc5190c5a0d124cdd0fc72fe6e450506b18e4e2edf9fe84c7a0'
+            next:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: 'https://api.nexmo.com/v0.1/athena/entities?order=desc&page_size=10&cursor=88b395c167da4d94e929705cbd63b829a650e69a39197bfd4c949f4243f60dc4babb696afa404d2f44e7775e32b967f2a1a0bb8fb259c0999ba5a4e501eaab55'
+            prev:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: 'https://api.nexmo.com/v0.1/athena/entities?order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'
+        
+security:
+  - bearerAuth: []
+tags:
+  - name: synonyms
+    description: A synonym is an alternative value for a discrete value of an entity - for example 'lime' or 'mint' can be thought of as a synonym for the 'green' value of the 'color' entity
+  - name: values
+    description: A Value is a potential value of an entity - for example 'green' is a possible value of the entity 'color'
