@@ -2,7 +2,7 @@ openapi: 3.0.0
 servers:
   - url: "https://rest.nexmo.com/account"
 info:
-  version: "0.0.2"
+  version: "0.0.3"
   title: Pricing API
   description: >-
     The API to retrieve pricing information.
@@ -22,8 +22,6 @@ paths:
         Retrieves the pricing information based on the specified country.
       tags:
         - Pricing
-      security:
-        - basicAuth: []
       parameters:
         - $ref: "#/components/parameters/type"
         - $ref: "#/components/parameters/api_key"
@@ -57,8 +55,6 @@ paths:
         Retrieves the pricing information for all countries.
       tags:
         - Pricing
-      security:
-        - basicAuth: []
       parameters:
         - $ref: "#/components/parameters/type"
         - $ref: "#/components/parameters/api_key"
@@ -87,8 +83,6 @@ paths:
         Retrieves the pricing information based on the dialing prefix.
       tags:
         - Pricing
-      security:
-        - basicAuth: []
       parameters:
         - $ref: "#/components/parameters/type"
         - $ref: "#/components/parameters/api_key"
@@ -115,10 +109,6 @@ paths:
         "429":
           $ref: "#/components/responses/TooManyRequestsError"
 components:
-  securitySchemes:
-    basicAuth:
-      type: http
-      scheme: basic
   responses:
     UnauthorizedError:
       description: You did not provide valid credentials
