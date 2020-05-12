@@ -9,17 +9,158 @@ info:
     email: devrel@nexmo.com
 servers:
   - url: 'https://api.nexmo.com/v0.1/athena'
-paths:  
-  
-  "/entities/{entity_id}/values/{value_id}/synonyms":
+paths:
+  '/intent':
+    post:
+      operationId: create_intent
+      tags:
+        - intents
+      requestBody:
+        $ref: '#/components/requestBodies/Intent'
+      responses:
+        '200':
+          description: Intent Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/intent'
+    get:
+      operationId: list_intents
+      tags:
+        - intents
+      parameters:
+        - $ref: '#/components/parameters/record_index'
+        - $ref: '#/components/parameters/page_size'
+        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/order'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  page_size:
+                    type: integer
+                    example: 10
+                    description: The number of results returned per page
+                  record_index:
+                    type: integer
+                    example: 10
+                    description: The index into the set of records retrieved by the filter to start the page on
+                  _embedded:
+                    type: object
+                    x-nexmo-developer-collection-description-show: true
+                    properties:
+                      intents:
+                        type: array
+                        description: the list of intents matching the provided filter
+                        items:
+                          $ref: '#/components/schemas/intent'
+  '/entities/{entity_id}':
+    patch:
+      operationId: update_entity
+      tags:
+        - entities
+      parameters:
+        - $ref: '#/components/parameters/entity_id'
+      requestBody:
+        $ref: '#/components/requestBodies/EntityUpdate'
+      responses:
+        '200':
+          description: Entity Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/value'
+    get:
+      operationId: get_entity
+      tags:
+        - entities
+      parameters:
+        - $ref: '#/components/parameters/entity_id'
+      responses:
+        '200':
+          description: Value Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/entity'
+        '401':
+          description: Bad Credentials
+        '404':
+          description: Resource Not Found
+    delete:
+      operationId: delete_entity
+      tags:
+        - entities
+      parameters:
+        - $ref: '#/components/parameters/entity_id'
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Resource Not Found
+  '/entities':
+    post:
+      operationId: create_entity
+      tags:
+        - entities
+      summary: Create an Entity
+      description: Creates an entity. An entity represents a real world object such as a color, person, location
+      requestBody:
+        $ref: '#/components/requestBodies/Entity'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/entity'
+    get:
+      operationId: list_entities
+      tags:
+        - entities
+      summary: List Entities
+      description: List all Entities associated with your application. The endpoint requires a JWT.
+      parameters:        
+        - $ref: '#/components/parameters/record_index'
+        - $ref: '#/components/parameters/page_size'
+        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/order'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  page_size:
+                    type: integer
+                    example: 10
+                    description: The number of results returned on this page.
+                  record_index:
+                    type: integer
+                    example: 10
+                    description: The index in the response from which the page starts
+                  _embedded:
+                    type: object
+                    x-nexmo-developer-collection-description-show: true
+                    properties:
+                      entities:
+                        type: array
+                        description: List of entities matching the provided filter
+                        items:
+                          $ref: '#/components/schemas/entity'
+  '/entities/{entity_id}/values/{value_id}/synonyms':
     post:
       operationId: create_synonym
       tags:
         - synonyms
       summary: Create a synonym for a value of an entity
       parameters:
-        - $ref: "#/components/parameters/entity_id"
-        - $ref: "#/components/parameters/value_id"
+        - $ref: '#/components/parameters/entity_id'
+        - $ref: '#/components/parameters/value_id'
       requestBody:
         $ref: '#/components/requestBodies/Synonym'
       responses:
@@ -35,14 +176,14 @@ paths:
         - synonyms
       summary: List synonyms of an entity value
       parameters:
-        - $ref: "#/components/parameters/record_index"
-        - $ref: "#/components/parameters/page_size"
-        - $ref: "#/components/parameters/cursor"
-        - $ref: "#/components/parameters/order"
-        - $ref: "#/components/parameters/entity_id"
-        - $ref: "#/components/parameters/value_id"
+        - $ref: '#/components/parameters/record_index'
+        - $ref: '#/components/parameters/page_size'
+        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/order'
+        - $ref: '#/components/parameters/entity_id'
+        - $ref: '#/components/parameters/value_id'
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -62,14 +203,14 @@ paths:
                         type: array
                         description: List of Synonyms matching provided filter
                         items:
-                          $ref: "#/components/schemas/synonym"
-        "404":
+                          $ref: '#/components/schemas/synonym'
+        '404':
           description: Resource Not Found
-  "/entities/{entity_id}/values/{value_id}/synonyms/{synonym_id}":
+  '/entities/{entity_id}/values/{value_id}/synonyms/{synonym_id}':
     parameters:
-        - $ref: '#/components/parameters/synonym_id'
-        - $ref: "#/components/parameters/entity_id"
-        - $ref: "#/components/parameters/value_id"
+      - $ref: '#/components/parameters/synonym_id'
+      - $ref: '#/components/parameters/entity_id'
+      - $ref: '#/components/parameters/value_id'
     get:
       operationId: get_synonym
       tags:
@@ -80,30 +221,30 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/synonym"
+                $ref: '#/components/schemas/synonym'
         '404':
           description: Synonym Not found
     delete:
       operationId: delete_synonym
       tags:
-        - synonyms        
+        - synonyms
       responses:
         '204':
           description: No Content
         '404':
           description: Synonym Not Found
-  "/entities/{entity_id}/values":
+  '/entities/{entity_id}/values':
     get:
       operationId: get_values
       tags:
         - values
       summary: List Values of an entity
       parameters:
-        - $ref: "#/components/parameters/record_index"
-        - $ref: "#/components/parameters/page_size"
-        - $ref: "#/components/parameters/cursor"
-        - $ref: "#/components/parameters/order"
-        - $ref: "#/components/parameters/entity_id"
+        - $ref: '#/components/parameters/record_index'
+        - $ref: '#/components/parameters/page_size'
+        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/order'
+        - $ref: '#/components/parameters/entity_id'
       responses:
         '200':
           description: Values Listed
@@ -121,68 +262,68 @@ paths:
                         type: array
                         description: List of Values matching provided filter
                         items:
-                          $ref: "#/components/schemas/value"
+                          $ref: '#/components/schemas/value'
     post:
       operationId: create_value
       tags:
         - values
       summary: Create a new Value for the intent
       requestBody:
-        $ref: "#/components/requestBodies/Value"
+        $ref: '#/components/requestBodies/Value'
       responses:
         '200':
           description: Value Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/value"
-
-  "/entities/{entity_id}/values/{value_id}":
+                $ref: '#/components/schemas/value'
+  '/entities/{entity_id}/values/{value_id}':
     get:
       operationId: get_value
       tags:
         - values
       summary: Get a value of an entity
       parameters:
-        - $ref: "#/components/parameters/value_id"
-        - $ref: "#/components/parameters/entity_id"
+        - $ref: '#/components/parameters/value_id'
+        - $ref: '#/components/parameters/entity_id'
       responses:
         '200':
           description: Value found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/value"
+                $ref: '#/components/schemas/value'
         '404':
           description: Resource Not Found
     patch:
-      operationId: update_value      
+      operationId: update_value
       tags:
         - values
-      summary: Update the value of an entity
+      summary: Update a value of an entity
       requestBody:
-        $ref: "#/components/requestBodies/ValueUpdate"
+        $ref: '#/components/requestBodies/ValueUpdate'
       responses:
         '200':
           description: Value updated
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/value"
+                $ref: '#/components/schemas/value'
+        '404':
+          description: Resource Not Found
     delete:
       operationId: delete_value
       tags:
         - values
       summary: delete a value of an entity
       parameters:
-        - $ref: "#/components/parameters/value_id"
+        - $ref: '#/components/parameters/value_id'
       responses:
         '204':
           description: No Content
         '404':
           description: Resource Not Found
-          
-components:  
+components:
   securitySchemes:
     bearerAuth:
       type: http
@@ -250,6 +391,25 @@ components:
         type: string
       required: true
   requestBodies:
+    Intent:
+      description: A task or action a user intends for the agent
+      x-nexmo-developer-collection-description-show: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+                description: The name of the intent
+              utterances:
+                type: array
+                x-nexmo-developer-collection-description-shown: true
+                description: pre-tagged utterances for the intent provided
+                items:
+                  $ref: '#/components/requestBodies/Utterance'
     Value:
       description: A possible value for an Entity
       content:
@@ -265,14 +425,38 @@ components:
                 example: green
               synonyms:
                 type: array
+                x-nexmo-developer-collection-description-shown: true
                 description: synonyms associated with this value
-                example: ['mint', 'lime']
+                example:
+                  - mint
+                  - lime
                 items:
                   type: string
                   example: mint
-              metadata:
+              metadata:                
                 type: object
+                x-nexmo-developer-collection-description-shown: true
                 description: metadata for the value you might want your app to use Limit 4k in size
+                example: "{RGB:'00FF00'}"
+    Entity:
+      description: An entity representing a real world object
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+                example: color
+                description: the name of the entity - an abstract real world object
+              values:
+                x-nexmo-developer-collection-description-shown: true
+                type: array
+                description: concrete representations of the entity in the real world
+                items:
+                  $ref: '#/components/requestBodies/Value'    
     ValueUpdate:
       description: A possible value for an Entity
       content:
@@ -288,8 +472,76 @@ components:
                 example: green
               metadata:
                 type: object
-                description: Custom metadata to send back to your app when this value is detected, limit of 4k
-                example: "{custom:'metadata'}"              
+                x-nexmo-developer-collection-description-shown: true
+                description: 'Custom metadata to send back to your app when this value is detected, limit of 4k'
+                example: "{'RGB':'00FF00'}"
+    EntityUpdate:
+      description: Update model of an entity.
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+                description: The name of the entity
+                example: color
+    Utterance:
+      description: An utterance labeled for a specific intent
+      x-nexmo-developer-collection-description-show: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - intent
+              - text
+            properties:
+              intent:
+                type: string
+                example: Buy Dress
+              text:
+                type: string
+                example: I'd like to buy a red dress
+              entities:
+                x-nexmo-developer-collection-description-show: true
+                type: array
+                example: [{"type" : "color", "name" : "red","text" : "red dress", "start_idx" : 18, "end_idx": 27}]
+              
+
+    LabeledEntity:
+      description: An entity tagged within an utterance of an intent
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - type
+              - name
+              - text
+              - start_idx
+              - end_idx
+            properties:
+              type:
+                type: string
+                description: the name of the entity type being labeled
+                example: color
+              name:
+                type: string
+                description: the detectable synonym of the entity type in this utterance
+                example: 
+              text:
+                type: string
+                description: the text denoting the entity
+              start_idx:
+                type: integer
+                description: position in the utterance where the entity starts
+              end_idx:
+                type: integer  
+                description: position in the utterance where the entity ends
+                
     Synonym:
       description: A Synonym of a Entity Value
       content:
@@ -304,11 +556,84 @@ components:
                 description: the synonym for a given concrete value of an entity
                 example: mint
   schemas:
+    labeled_entity:
+      type: object
+      description: An entity labeled for an utterance
+      properties:
+        type:
+          type: string
+          description: the name of the entity type being labeled
+          example: color
+        name:
+          type: string
+          description: the detectable synonym of the entity type in this utterance
+          example: 
+        text:
+          type: string
+          description: the text denoting the entity
+        start_idx:
+          type: integer
+          description: position in the utterance where the entity starts
+        end_idx:
+          type: integer  
+          description: position in the utterance where the entity ends
+
+    utterance:
+      type: object
+      description: an example of text conveying a user's intent along with possible entities associated with the intent
+      properties:
+        text:
+          type: string
+          description: the text of the utterance
+        labeled_entities:
+          type: array
+          description: the entities associated with this utterance
+          x-nexmo-developer-collection-description-shown: true
+          items:
+            $ref: '#/components/schemas/labeled_entity'
+    intent:
+      type: object
+      description: represents a real world task that a user want's to perform e.g. booking a flight
+      properties:
+        name:
+          type: string
+          description: The name of the intent
+        utterances:
+          type: array
+          items:
+            $ref: '#/components/schemas/utterance'
+        _links:
+          type: object
+          properties:
+            first:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: 'https://api.nexmo.com/v0.1/athena/intent?order=desc&page_size=10'
+            self:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: 'https://api.nexmo.com/v0.1/athena/intent?order=desc&page_size=10&cursor=88b395c167da4d94e929705cbd63b82973771e7d390d274a58e301386d5762600a3ffd799bfb3fc5190c5a0d124cdd0fc72fe6e450506b18e4e2edf9fe84c7a0'
+            next:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: 'https://api.nexmo.com/v0.1/athena/intent?order=desc&page_size=10&cursor=88b395c167da4d94e929705cbd63b829a650e69a39197bfd4c949f4243f60dc4babb696afa404d2f44e7775e32b967f2a1a0bb8fb259c0999ba5a4e501eaab55'
+            prev:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: 'https://api.nexmo.com/v0.1/athena/intent?order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'
     record_index:
       type: number
       description: 'Return `page_size` amount of values from this index in the response. That is, if your request returns 300 values, set `record_index` to 5 in order to return values 50 to 59. The default is 0. That is, the first `page_size` calls.'
       default: 0
-      minimum: 0       
+      minimum: 0    
     value:
       properties:
         _links:
@@ -341,7 +666,7 @@ components:
         name:
           type: string
           description: the name of a value representing a concrete instance of an entity. e.g. `green` is a possible value of the entity `color`
-          example: 'green'
+          example: green
         id:
           type: string
           description: Unique identifier of a concrete value of an entity
@@ -349,7 +674,7 @@ components:
         metadata:
           type: object
           description: Custom object of metadata that will be sent back to your app when this value is detected
-          example: "{custom:metadata}"
+          example: '{custom:metadata}'
     synonym:
       properties:
         _links:
@@ -388,7 +713,14 @@ components:
           description: the synonym of a concrete value of an entity
           example: mint
     entity:
+      type: object
       properties:
+        name:
+          type: string
+          description: the name of the entity
+        id:
+          type: string
+          description: The unique identifier for the entity
         _links:
           type: object
           properties:
@@ -416,11 +748,17 @@ components:
                 href:
                   type: string
                   example: 'https://api.nexmo.com/v0.1/athena/entities?order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'
-        
+      x-examples:
+        example-1: {}
 security:
   - bearerAuth: []
 tags:
+  - name: intents
+    description: "An intent of an utterance"
   - name: synonyms
-    description: A synonym is an alternative value for a discrete value of an entity - for example 'lime' or 'mint' can be thought of as a synonym for the 'green' value of the 'color' entity
+    description: "A synonym is an alternative value for a discrete value of an entity - for example 'lime' or 'mint' can be thought of as a synonym for the 'green' value of the 'color' entity"
   - name: values
-    description: A Value is a potential value of an entity - for example 'green' is a possible value of the entity 'color'
+    description: "A Value is a potential value of an entity - for example 'green' is a possible value of the entity 'color'"
+  - name: entities
+    description: "An entity representing a real world object e.g. Color, Location, persons, organizations"
+  
