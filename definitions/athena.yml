@@ -805,6 +805,16 @@ components:
                 description: the synonym for a given concrete value of an entity
                 example: mint
   schemas:
+    value_request:
+      type: object
+      description: A possible value of an entity
+      properties:
+        name:
+          $ref: '#/components/schemas/value_name'
+        synonyms:
+          $ref: '#/components/schemas/synonyms'
+        metadata:
+          $ref: '#/components/schemas/metadata'
     start_idx:
       type: integer
       description: position in the utterance where the entity starts
@@ -845,7 +855,7 @@ components:
       type: array
       description: concrete representations of the entity in the real world
       items:
-        $ref: '#/components/requestBodies/Value'
+        $ref: '#/components/schemas/value_request'
     entity_name:
       type: string
       example: color
