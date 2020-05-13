@@ -10,7 +10,54 @@ info:
 servers:
   - url: 'https://api.nexmo.com/v0.1/athena'
 paths:
-  '/intent':
+  /models:
+    post:
+      operationId: create_model
+      tags:
+        - models
+      requestBody:
+        $ref: '#/components/requestBodies/Model'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model'
+    get:
+      operationId: list_models
+      tags:
+        - models
+      parameters:
+        - $ref: '#/components/parameters/record_index'
+        - $ref: '#/components/parameters/page_size'
+        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/order'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  page_size:
+                    type: integer
+                    example: 10
+                    description: The number of results returned on this page.
+                  record_index:
+                    type: integer
+                    example: 10
+                    description: The index in the response from which the page starts
+                  _embedded:
+                    type: object
+                    x-nexmo-developer-collection-description-show: true
+                    properties:
+                      models:
+                        type: array
+                        description: List of Models matching the provided filter
+                        items:
+                          $ref: '#/components/schemas/model'
+  /intents:
     post:
       operationId: create_intent
       tags:
@@ -24,6 +71,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/intent'
+        '401':
+          description: Not Authorized
     get:
       operationId: list_intents
       tags:
@@ -57,6 +106,61 @@ paths:
                         description: the list of intents matching the provided filter
                         items:
                           $ref: '#/components/schemas/intent'
+        '401':
+          description: Not Authorized
+  '/intents/{intent_id}':
+    delete:
+      operationId: delete_intent
+      description: delete an intent
+      tags:
+        - intents
+      parameters:
+        - $ref: '#/components/parameters/intent_id'
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Not Authorized
+        '404':
+          description: Not Found
+    get:
+      operationId: get_intent
+      description: Get an individual intent
+      tags:
+        - intents
+      parameters:
+        - $ref: '#/components/parameters/intent_id'
+      responses:
+        '200':
+          description: Intent Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/intent'
+        '401':
+          description: Not Authorized
+        '404':
+          description: Not Found
+    patch:
+      operationId: update_intent
+      description: Add utterances to an individual intent.
+      tags:
+        - intents
+      parameters:
+        - $ref: '#/components/parameters/intent_id'
+      requestBody:
+        $ref: '#/components/requestBodies/IntentUpdate'
+      responses:
+        '200':
+          description: Intent updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/intent'
+        '401':
+          description: Not Authorized
+        '404':
+          description: Not Found
   '/entities/{entity_id}':
     patch:
       operationId: update_entity
@@ -73,6 +177,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/value'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
     get:
       operationId: get_entity
       tags:
@@ -99,15 +207,17 @@ paths:
       responses:
         '204':
           description: No Content
+        '401':
+          description: Not Authorized
         '404':
-          description: Resource Not Found
-  '/entities':
+          description: Not Found
+  /entities:
     post:
       operationId: create_entity
       tags:
         - entities
       summary: Create an Entity
-      description: Creates an entity. An entity represents a real world object such as a color, person, location
+      description: 'Creates an entity. An entity represents a real world object such as a color, person, location'
       requestBody:
         $ref: '#/components/requestBodies/Entity'
       responses:
@@ -117,13 +227,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/entity'
+        '401':
+          description: Not Authorized
     get:
       operationId: list_entities
       tags:
         - entities
       summary: List Entities
       description: List all Entities associated with your application. The endpoint requires a JWT.
-      parameters:        
+      parameters:
         - $ref: '#/components/parameters/record_index'
         - $ref: '#/components/parameters/page_size'
         - $ref: '#/components/parameters/cursor'
@@ -152,6 +264,8 @@ paths:
                         description: List of entities matching the provided filter
                         items:
                           $ref: '#/components/schemas/entity'
+        '401':
+          description: Not Authorized
   '/entities/{entity_id}/values/{value_id}/synonyms':
     post:
       operationId: create_synonym
@@ -170,6 +284,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/synonym'
+        '401':
+          description: Not Authorized
+        '404':
+          description: Not Found
     get:
       operationId: get_synonyms
       tags:
@@ -204,6 +322,8 @@ paths:
                         description: List of Synonyms matching provided filter
                         items:
                           $ref: '#/components/schemas/synonym'
+        '401':
+          description: Not Authorized
         '404':
           description: Resource Not Found
   '/entities/{entity_id}/values/{value_id}/synonyms/{synonym_id}':
@@ -212,6 +332,7 @@ paths:
       - $ref: '#/components/parameters/entity_id'
       - $ref: '#/components/parameters/value_id'
     get:
+      summary: Get a synonym
       operationId: get_synonym
       tags:
         - synonyms
@@ -222,6 +343,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/synonym'
+        '401':
+          description: Not Authorized
         '404':
           description: Synonym Not found
     delete:
@@ -231,6 +354,8 @@ paths:
       responses:
         '204':
           description: No Content
+        '401':
+          description: Not Authorized
         '404':
           description: Synonym Not Found
   '/entities/{entity_id}/values':
@@ -263,6 +388,10 @@ paths:
                         description: List of Values matching provided filter
                         items:
                           $ref: '#/components/schemas/value'
+        '401':
+          description: Not Authorized
+        '404':
+          description: Not Found
     post:
       operationId: create_value
       tags:
@@ -277,12 +406,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/value'
+        '401':
+          description: Not Authorized
+        '404':
+          description: Not Found
   '/entities/{entity_id}/values/{value_id}':
     get:
       operationId: get_value
       tags:
         - values
-      summary: Get a value of an entity
+      summary: Get a value
       parameters:
         - $ref: '#/components/parameters/value_id'
         - $ref: '#/components/parameters/entity_id'
@@ -293,13 +426,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/value'
+        '401':
+          description: Not Authorized
         '404':
           description: Resource Not Found
     patch:
       operationId: update_value
       tags:
         - values
-      summary: Update a value of an entity
+      summary: Update a value
       requestBody:
         $ref: '#/components/requestBodies/ValueUpdate'
       responses:
@@ -309,20 +444,112 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/value'
+        '401':
+          description: Not Authorized
         '404':
           description: Resource Not Found
     delete:
       operationId: delete_value
       tags:
         - values
-      summary: delete a value of an entity
+      summary: Delete a value
       parameters:
         - $ref: '#/components/parameters/value_id'
       responses:
         '204':
           description: No Content
+        '401':
+          description: Not Authorized
         '404':
           description: Resource Not Found
+  '/models/{model_id}':
+    parameters:
+      - schema:
+          type: string
+        name: model_id
+        in: path
+        required: true
+    get:
+      summary: Get a model
+      tags:
+        - models
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model'
+      operationId: get-models-model_id
+      description: Get the model at the given ID
+    patch:
+      summary: Update a Model
+      operationId: patch-models-model_id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model'
+      description: Update a Model at the given Id
+      requestBody:
+        $ref: '#/components/requestBodies/Model'
+      tags:
+        - models
+    delete:
+      summary: Delete a Model
+      operationId: delete-models-model_id
+      responses:
+        '204':
+          description: No Content
+      description: Deletes a Model
+      tags:
+        - models
+  /analyze:
+    post:
+      summary: Analyze text
+      operationId: analyze_text
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/analysis'
+        '401':
+          description: Unauthorized
+        '422':
+          description: Unprocessable Entity (WebDAV)
+      description: Analyze submitted text text
+      requestBody:
+        $ref: '#/components/requestBodies/AnalyzeRequest'
+      tags:
+        - analyze
+  '/analyze/{analyze_id}':
+    parameters:
+      - schema:
+          type: string
+        name: analyze_id
+        in: path
+        required: true
+    get:
+      summary: Get analysis
+      tags:
+        - analyze
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/analysis'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+      operationId: get_analysis
+      description: Retrieve an analysis for the given id
 components:
   securitySchemes:
     bearerAuth:
@@ -330,6 +557,27 @@ components:
       scheme: bearer
       bearerFormat: JWT
   parameters:
+    analyze_id:
+      name: analyze_id
+      in: path
+      description: Unique id for the analysis being looked up
+      required: true
+      schema:
+        type: string
+    model_id:
+      name: model_id
+      in: path
+      description: Unique id for a model being looked up
+      required: true
+      schema:
+        type: string
+    intent_id:
+      name: intent_id
+      in: path
+      description: Unique Id for an Intent being looked up
+      required: true
+      schema:
+        type: string
     entity_id:
       name: entity_id
       in: path
@@ -391,6 +639,87 @@ components:
         type: string
       required: true
   requestBodies:
+    AnalyzeRequest:
+      description: A Request to analyze a piece of text against a model
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - text
+            properties:
+              text:
+                type: string
+                description: the text to run the natural language analysis against
+                example: "I'd like to buy a red dress"
+              language_code:
+                description: BCP-47 compliant language code of the language the submitted text is in - current supported languages are - `en-US`
+                type: string
+                example: en-US
+              model_id:
+                type: string
+                example: MOD-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+                description: "The Model to be used in analysis \n> Note every analyze requests requires at least a model or an intent\n"
+              intent_ids:
+                description: "the list of intents to be used in analysis \n> Note every analyze requests requires at least a model or an intent\n"
+                type: array
+                x-nexmo-developer-collection-description-shown: true
+                items:
+                  type: string
+                example:
+                  - INT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+              entity_ids:
+                description: The entities to use in analysis
+                type: array
+                x-nexmo-developer-collection-description-shown: true
+                items:
+                  type: string
+                example:
+                  - ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+    Model:
+      description: The model to run text analysis against.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: The name of the model
+              intent_ids:
+                type: array
+                description: "the intent's to be included in model"
+                x-nexmo-developer-collection-description-shown: true
+                items:
+                  type: string
+                  example:
+                    - INT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+              entity_ids:
+                type: array
+                description: the entities to be included in the model
+                x-nexmo-developer-collection-description-shown: true
+                items:
+                  type: string
+                  example:
+                    - ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+    IntentUpdate:
+      description: New name for the intent
+      x-nexmo-developer-collection-description-show: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: The name of the intent
+              utterances:
+                type: array
+                x-nexmo-developer-collection-description-shown: true
+                description: pre-tagged utterances for the intent provided
+                items:
+                  oneOf:
+                    - $ref: '#/components/schemas/utterance'
     Intent:
       description: A task or action a user intends for the agent
       x-nexmo-developer-collection-description-show: true
@@ -409,7 +738,8 @@ components:
                 x-nexmo-developer-collection-description-shown: true
                 description: pre-tagged utterances for the intent provided
                 items:
-                  $ref: '#/components/requestBodies/Utterance'
+                  oneOf:
+                    - $ref: '#/components/schemas/utterance'
     Value:
       description: A possible value for an Entity
       content:
@@ -433,7 +763,7 @@ components:
                 items:
                   type: string
                   example: mint
-              metadata:                
+              metadata:
                 type: object
                 x-nexmo-developer-collection-description-shown: true
                 description: metadata for the value you might want your app to use Limit 4k in size
@@ -456,7 +786,7 @@ components:
                 type: array
                 description: concrete representations of the entity in the real world
                 items:
-                  $ref: '#/components/requestBodies/Value'    
+                  $ref: '#/components/requestBodies/Value'
     ValueUpdate:
       description: A possible value for an Entity
       content:
@@ -504,13 +834,16 @@ components:
                 example: Buy Dress
               text:
                 type: string
-                example: I'd like to buy a red dress
+                example: "I'd like to buy a red dress"
               entities:
                 x-nexmo-developer-collection-description-show: true
                 type: array
-                example: [{"type" : "color", "name" : "red","text" : "red dress", "start_idx" : 18, "end_idx": 27}]
-              
-
+                example:
+                  - type: color
+                    name: red
+                    text: red dress
+                    start_idx: 18
+                    end_idx: 27
     LabeledEntity:
       description: An entity tagged within an utterance of an intent
       content:
@@ -531,7 +864,7 @@ components:
               name:
                 type: string
                 description: the detectable synonym of the entity type in this utterance
-                example: 
+                example: null
               text:
                 type: string
                 description: the text denoting the entity
@@ -539,9 +872,8 @@ components:
                 type: integer
                 description: position in the utterance where the entity starts
               end_idx:
-                type: integer  
+                type: integer
                 description: position in the utterance where the entity ends
-                
     Synonym:
       description: A Synonym of a Entity Value
       content:
@@ -556,6 +888,58 @@ components:
                 description: the synonym for a given concrete value of an entity
                 example: mint
   schemas:
+    analysis:
+      type: object
+      description: The Result of an analysis request
+      properties:
+        analyze_id:
+          type: string
+          example: ANY-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+          description: The ID of an analysis request
+        text:
+          type: string
+          example: "I'd like to buy a red dress"
+          description: the text that was analyzed
+        labeled_entities:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/labeled_entity'
+              - type: object
+                properties:
+                  confidence:
+                    type: number
+                    description: confidence of the model the the labeled entity is in fact in the phrase
+    model:
+      type: object
+      description: A model to run text analysis against
+      properties:
+        model_id:
+          type: string
+          description: the id of the model
+          example: MOD-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+        name:
+          type: string
+          description: the name of the model
+          example: Airline Model
+        entity_ids:
+          type: array
+          x-nexmo-developer-collection-description-show: true
+          description: the entities included in the model
+          items:
+            type: string
+          example:
+            - ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+            - ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44626
+        intent_ids:
+          type: array
+          x-nexmo-developer-collection-description-show: true
+          description: The intents included in the model
+          items:
+            type: string
+          example:
+            - INT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+            - INT-92a44c64-7e4e-485f-a0c4-1f2adfc44626
     labeled_entity:
       type: object
       description: An entity labeled for an utterance
@@ -567,7 +951,7 @@ components:
         name:
           type: string
           description: the detectable synonym of the entity type in this utterance
-          example: 
+          example: null
         text:
           type: string
           description: the text denoting the entity
@@ -575,12 +959,11 @@ components:
           type: integer
           description: position in the utterance where the entity starts
         end_idx:
-          type: integer  
+          type: integer
           description: position in the utterance where the entity ends
-
     utterance:
       type: object
-      description: an example of text conveying a user's intent along with possible entities associated with the intent
+      description: "labeled text conveying user's intent"
       properties:
         text:
           type: string
@@ -590,10 +973,11 @@ components:
           description: the entities associated with this utterance
           x-nexmo-developer-collection-description-shown: true
           items:
-            $ref: '#/components/schemas/labeled_entity'
+            oneOf:
+              - $ref: '#/components/schemas/labeled_entity'
     intent:
       type: object
-      description: represents a real world task that a user want's to perform e.g. booking a flight
+      description: "represents a real world task that a user want's to perform e.g. booking a flight"
       properties:
         name:
           type: string
@@ -633,7 +1017,7 @@ components:
       type: number
       description: 'Return `page_size` amount of values from this index in the response. That is, if your request returns 300 values, set `record_index` to 5 in order to return values 50 to 59. The default is 0. That is, the first `page_size` calls.'
       default: 0
-      minimum: 0    
+      minimum: 0
     value:
       properties:
         _links:
@@ -753,12 +1137,15 @@ components:
 security:
   - bearerAuth: []
 tags:
+  - name: analyze
+    description: Used to Analyze text for Intents an entities
+  - name: models
+    description: Used to compose different Intents and Entities from a knowledge base into a model that will be used to perform intent and entity detection on text inputs
   - name: intents
-    description: "An intent of an utterance"
+    description: An intent of an utterance
   - name: synonyms
     description: "A synonym is an alternative value for a discrete value of an entity - for example 'lime' or 'mint' can be thought of as a synonym for the 'green' value of the 'color' entity"
   - name: values
     description: "A Value is a potential value of an entity - for example 'green' is a possible value of the entity 'color'"
   - name: entities
-    description: "An entity representing a real world object e.g. Color, Location, persons, organizations"
-  
+    description: 'An entity representing a real world object e.g. Color, Location, persons, organizations'
