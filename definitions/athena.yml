@@ -11,23 +11,11 @@ servers:
   - url: 'https://api.nexmo.com/v0.1/athena'
 paths:
   /models:
-    post:
-      operationId: create_model
-      tags:
-        - models
-      requestBody:
-        $ref: '#/components/requestBodies/Model'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model'
     get:
+      summary: List models
       operationId: list_models
       tags:
-        - models
+        - Models
       parameters:
         - $ref: '#/components/parameters/record_index'
         - $ref: '#/components/parameters/page_size'
@@ -57,26 +45,27 @@ paths:
                         description: List of Models matching the provided filter
                         items:
                           $ref: '#/components/schemas/model'
-  /intents:
     post:
-      operationId: create_intent
+      summary: Create model
+      operationId: create_model
       tags:
-        - intents
+        - Models
       requestBody:
-        $ref: '#/components/requestBodies/Intent'
+        $ref: '#/components/requestBodies/Model'
       responses:
         '200':
-          description: Intent Created
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/intent'
-        '401':
-          description: Not Authorized
+                $ref: '#/components/schemas/model'
+    
+  /intents:
     get:
       operationId: list_intents
+      summary: List intents
       tags:
-        - intents
+        - Intents
       parameters:
         - $ref: '#/components/parameters/record_index'
         - $ref: '#/components/parameters/page_size'
@@ -108,26 +97,28 @@ paths:
                           $ref: '#/components/schemas/intent'
         '401':
           description: Not Authorized
-  '/intents/{intent_id}':
-    delete:
-      operationId: delete_intent
-      description: delete an intent
+    post:
+      summary: Create Intent
+      operationId: create_intent
       tags:
-        - intents
-      parameters:
-        - $ref: '#/components/parameters/intent_id'
+        - Intents
+      requestBody:
+        $ref: '#/components/requestBodies/Intent'
       responses:
-        '204':
-          description: No Content
+        '200':
+          description: Intent Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/intent'
         '401':
-          description: Not Authorized
-        '404':
-          description: Not Found
+          description: Not Authorized    
+  '/intents/{intent_id}':
     get:
       operationId: get_intent
-      description: Get an individual intent
+      description: Get an intent
       tags:
-        - intents
+        - Intents
       parameters:
         - $ref: '#/components/parameters/intent_id'
       responses:
@@ -143,9 +134,10 @@ paths:
           description: Not Found
     patch:
       operationId: update_intent
-      description: Add utterances to an individual intent.
+      summary: Update intent
+      description: Add utterances to or rename to an intent.
       tags:
-        - intents
+        - Intents
       parameters:
         - $ref: '#/components/parameters/intent_id'
       requestBody:
@@ -161,11 +153,44 @@ paths:
           description: Not Authorized
         '404':
           description: Not Found
+    delete:
+      operationId: delete_intent
+      description: Delete an intent
+      tags:
+        - Intents
+      parameters:
+        - $ref: '#/components/parameters/intent_id'
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Not Authorized
+        '404':
+          description: Not Found        
   '/entities/{entity_id}':
+    get:
+      summary: Get an Entity
+      operationId: get_entity
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/entity_id'
+      responses:
+        '200':
+          description: Value Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/entity'
+        '401':
+          description: Bad Credentials
+        '404':
+          description: Resource Not Found
     patch:
+      summary: Update an entity
       operationId: update_entity
       tags:
-        - entities
+        - Entities
       parameters:
         - $ref: '#/components/parameters/entity_id'
       requestBody:
@@ -180,28 +205,12 @@ paths:
         '401':
           description: Unauthorized
         '404':
-          description: Not Found
-    get:
-      operationId: get_entity
-      tags:
-        - entities
-      parameters:
-        - $ref: '#/components/parameters/entity_id'
-      responses:
-        '200':
-          description: Value Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/entity'
-        '401':
-          description: Bad Credentials
-        '404':
-          description: Resource Not Found
+          description: Not Found    
     delete:
+      summary: Delete an entity
       operationId: delete_entity
       tags:
-        - entities
+        - Entities
       parameters:
         - $ref: '#/components/parameters/entity_id'
       responses:
@@ -212,28 +221,11 @@ paths:
         '404':
           description: Not Found
   /entities:
-    post:
-      operationId: create_entity
-      tags:
-        - entities
-      summary: Create an Entity
-      description: 'Creates an entity. An entity represents a real world object such as a color, person, location'
-      requestBody:
-        $ref: '#/components/requestBodies/Entity'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/entity'
-        '401':
-          description: Not Authorized
     get:
       operationId: list_entities
       tags:
-        - entities
-      summary: List Entities
+        - Entities
+      summary: List entities
       description: List all Entities associated with your application. The endpoint requires a JWT.
       parameters:
         - $ref: '#/components/parameters/record_index'
@@ -266,33 +258,29 @@ paths:
                           $ref: '#/components/schemas/entity'
         '401':
           description: Not Authorized
-  '/entities/{entity_id}/values/{value_id}/synonyms':
     post:
-      operationId: create_synonym
+      operationId: create_entity
       tags:
-        - synonyms
-      summary: Create a synonym for a value of an entity
-      parameters:
-        - $ref: '#/components/parameters/entity_id'
-        - $ref: '#/components/parameters/value_id'
+        - Entities
+      summary: Create an entity
+      description: 'Creates an entity. An entity represents a real world object such as a color, person, location'
       requestBody:
-        $ref: '#/components/requestBodies/Synonym'
+        $ref: '#/components/requestBodies/Entity'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/synonym'
+                $ref: '#/components/schemas/entity'
         '401':
-          description: Not Authorized
-        '404':
-          description: Not Found
+          description: Not Authorized    
+  '/entities/{entity_id}/values/{value_id}/synonyms':
     get:
       operationId: get_synonyms
       tags:
-        - synonyms
-      summary: List synonyms of an entity value
+        - Synonyms
+      summary: List synonyms
       parameters:
         - $ref: '#/components/parameters/record_index'
         - $ref: '#/components/parameters/page_size'
@@ -326,6 +314,27 @@ paths:
           description: Not Authorized
         '404':
           description: Resource Not Found
+    post:
+      operationId: create_synonym
+      tags:
+        - Synonyms
+      summary: Add a synonym
+      parameters:
+        - $ref: '#/components/parameters/entity_id'
+        - $ref: '#/components/parameters/value_id'
+      requestBody:
+        $ref: '#/components/requestBodies/Synonym'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/synonym'
+        '401':
+          description: Not Authorized
+        '404':
+          description: Not Found    
   '/entities/{entity_id}/values/{value_id}/synonyms/{synonym_id}':
     parameters:
       - $ref: '#/components/parameters/synonym_id'
@@ -335,7 +344,7 @@ paths:
       summary: Get a synonym
       operationId: get_synonym
       tags:
-        - synonyms
+        - Synonyms
       responses:
         '200':
           description: Synonym retrieved
@@ -348,9 +357,10 @@ paths:
         '404':
           description: Synonym Not found
     delete:
+      summary: Delete a synonym
       operationId: delete_synonym
       tags:
-        - synonyms
+        - Synonyms
       responses:
         '204':
           description: No Content
@@ -359,11 +369,12 @@ paths:
         '404':
           description: Synonym Not Found
   '/entities/{entity_id}/values':
+    summary: list_values
     get:
       operationId: get_values
       tags:
-        - values
-      summary: List Values of an entity
+        - Values
+      summary: List Values
       parameters:
         - $ref: '#/components/parameters/record_index'
         - $ref: '#/components/parameters/page_size'
@@ -395,8 +406,8 @@ paths:
     post:
       operationId: create_value
       tags:
-        - values
-      summary: Create a new Value for the intent
+        - Values
+      summary: Create a value
       requestBody:
         $ref: '#/components/requestBodies/Value'
       responses:
@@ -414,7 +425,7 @@ paths:
     get:
       operationId: get_value
       tags:
-        - values
+        - Values
       summary: Get a value
       parameters:
         - $ref: '#/components/parameters/value_id'
@@ -433,7 +444,7 @@ paths:
     patch:
       operationId: update_value
       tags:
-        - values
+        - Values
       summary: Update a value
       requestBody:
         $ref: '#/components/requestBodies/ValueUpdate'
@@ -451,7 +462,7 @@ paths:
     delete:
       operationId: delete_value
       tags:
-        - values
+        - Values
       summary: Delete a value
       parameters:
         - $ref: '#/components/parameters/value_id'
@@ -472,7 +483,7 @@ paths:
     get:
       summary: Get a model
       tags:
-        - models
+        - Models
       responses:
         '200':
           description: OK
@@ -483,7 +494,7 @@ paths:
       operationId: get-models-model_id
       description: Get the model at the given ID
     patch:
-      summary: Update a Model
+      summary: Update a model
       operationId: patch-models-model_id
       responses:
         '200':
@@ -496,16 +507,16 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/Model'
       tags:
-        - models
+        - Models
     delete:
-      summary: Delete a Model
+      summary: Delete a model
       operationId: delete-models-model_id
       responses:
         '204':
           description: No Content
       description: Deletes a Model
       tags:
-        - models
+        - Models
   /analyze:
     post:
       summary: Analyze text
@@ -520,12 +531,12 @@ paths:
         '401':
           description: Unauthorized
         '422':
-          description: Unprocessable Entity (WebDAV)
+          description: validation error
       description: Analyze submitted text text
       requestBody:
         $ref: '#/components/requestBodies/AnalyzeRequest'
       tags:
-        - analyze
+        - Analyze
   '/analyze/{analyze_id}':
     parameters:
       - schema:
@@ -536,7 +547,7 @@ paths:
     get:
       summary: Get analysis
       tags:
-        - analyze
+        - Analyze
       responses:
         '200':
           description: OK
@@ -1179,15 +1190,15 @@ components:
 security:
   - bearerAuth: []
 tags:
-  - name: analyze
+  - name: Analyze
     description: Used to Analyze text for Intents an entities
-  - name: models
-    description: Used to compose different Intents and Entities from a knowledge base into a model that will be used to perform intent and entity detection on text inputs
-  - name: intents
+  - name: Models
+    description: Models are used to compose different Intents and Entities from a knowledge base into a model that will be used to perform intent and entity detection on text inputs
+  - name: Intents
     description: An intent of an utterance
-  - name: synonyms
-    description: "A synonym is an alternative value for a discrete value of an entity - for example 'lime' or 'mint' can be thought of as a synonym for the 'green' value of the 'color' entity"
-  - name: values
-    description: "A Value is a potential value of an entity - for example 'green' is a possible value of the entity 'color'"
-  - name: entities
+  - name: Entities
     description: 'An entity representing a real world object e.g. Color, Location, persons, organizations'
+  - name: Values
+    description: "A Value is a potential value of an entity - for example 'green' is a possible value of the entity 'color'"
+  - name: Synonyms
+    description: "A synonym is an alternative value for a discrete value of an entity - for example 'lime' or 'mint' can be thought of as a synonym for the 'green' value of the 'color' entity"
