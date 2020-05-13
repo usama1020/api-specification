@@ -420,14 +420,9 @@ components:
             file:
               $ref: '#/components/schemas/FileProperty'
             template:
-              $ref: '#/components/schemas/TemplateProperty'
-            # @TODO: Clarify requirements
-            # custom:
-            #   type: object
-            #   description: This is a highly experimental feature. To enable the user to send any type of Messenger message we have included a custom object. To use this feature include the original Messenger API payload from the message object onwards.
-            #   properties:
-            #     custom:
-            #       type: object
+              $ref: '#/components/schemas/TemplateProperty'            
+            custom:
+              $ref: '#/components/schemas/CustomProperty'
         viber_service_msg:
           type: object
           properties:
@@ -573,9 +568,6 @@ components:
           example: 'Additional text to accompany the image.'
     TemplateProperty:
       type: object
-      x-nexmo-developer-collection-description-shown: true
-      description: |
-        > **Note**: WhatsApp templates are restricted to having 60 characters in the header and footer components, and 1024 characters in the body component
       properties:
         name:
           type: string
@@ -613,6 +605,12 @@ components:
           type: string
           description: The name of the location attachment.
           example: 'Nexmo London'
+    CustomProperty:
+      type: object
+      x-nexmo-developer-collection-description-shown: true
+      description: |
+        Custom Content, used for such features as sending [Media Message Templates](https://developer.nexmo.com/messages/code-snippets/whatsapp/send-media-mtm) and [Link Buttons](https://developer.nexmo.com/messages/code-snippets/whatsapp/send-button-link) in WhatsApp
+        > **NOTE** WhatsApp templates are restricted to having 60 characters in each header and footer component. Additionally the Body component is restricted to 1024 characters
 
 x-errors:
   "1000":
