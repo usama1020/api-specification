@@ -649,33 +649,15 @@ components:
               - text
             properties:
               text:
-                type: string
-                description: the text to run the natural language analysis against
-                example: "I'd like to buy a red dress"
+                $ref: '#/components/schemas/analyze_text'
               language_code:
-                description: BCP-47 compliant language code of the language the submitted text is in - current supported languages are - `en-US`
-                type: string
-                example: en-US
+                $ref: '#/components/schemas/language_code'
               model_id:
-                type: string
-                example: MOD-92a44c64-7e4e-485f-a0c4-1f2adfc44625
-                description: "The Model to be used in analysis \n> Note every analyze requests requires at least a model or an intent\n"
+                $ref: '#/components/schemas/model_id'
               intent_ids:
-                description: "the list of intents to be used in analysis \n> Note every analyze requests requires at least a model or an intent\n"
-                type: array
-                x-nexmo-developer-collection-description-shown: true
-                items:
-                  type: string
-                example:
-                  - INT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+                $ref: '#/components/schemas/intent_ids'
               entity_ids:
-                description: The entities to use in analysis
-                type: array
-                x-nexmo-developer-collection-description-shown: true
-                items:
-                  type: string
-                example:
-                  - ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+                $ref: '#/components/schemas/entity_ids'
     Model:
       description: The model to run text analysis against.
       content:
@@ -684,24 +666,11 @@ components:
             type: object
             properties:
               name:
-                type: string
-                description: The name of the model
+                $ref: '#/components/schemas/model_name'
               intent_ids:
-                type: array
-                description: "the intent's to be included in model"
-                x-nexmo-developer-collection-description-shown: true
-                items:
-                  type: string
-                  example:
-                    - INT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+                $ref: '#/components/schemas/model_intent_ids'
               entity_ids:
-                type: array
-                description: the entities to be included in the model
-                x-nexmo-developer-collection-description-shown: true
-                items:
-                  type: string
-                  example:
-                    - ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+                $ref: '#/components/schemas/entity_ids'
     IntentUpdate:
       description: New name for the intent
       x-nexmo-developer-collection-description-show: true
@@ -711,15 +680,9 @@ components:
             type: object
             properties:
               name:
-                type: string
-                description: The name of the intent
+                $ref: '#/components/schemas/intent_name'
               utterances:
-                type: array
-                x-nexmo-developer-collection-description-shown: true
-                description: pre-tagged utterances for the intent provided
-                items:
-                  oneOf:
-                    - $ref: '#/components/schemas/utterance'
+                $ref: '#/components/schemas/utterances'
     Intent:
       description: A task or action a user intends for the agent
       x-nexmo-developer-collection-description-show: true
@@ -731,15 +694,9 @@ components:
               - name
             properties:
               name:
-                type: string
-                description: The name of the intent
+                $ref: '#/components/schemas/intent_name'
               utterances:
-                type: array
-                x-nexmo-developer-collection-description-shown: true
-                description: pre-tagged utterances for the intent provided
-                items:
-                  oneOf:
-                    - $ref: '#/components/schemas/utterance'
+                $ref: '#/components/schemas/utterances'
     Value:
       description: A possible value for an Entity
       content:
@@ -750,24 +707,11 @@ components:
               - name
             properties:
               name:
-                type: string
-                description: The name of the value - a concrete instance of the entity
-                example: green
+                $ref: '#/components/schemas/value_name'
               synonyms:
-                type: array
-                x-nexmo-developer-collection-description-shown: true
-                description: synonyms associated with this value
-                example:
-                  - mint
-                  - lime
-                items:
-                  type: string
-                  example: mint
+                $ref: '#/components/schemas/synonyms'
               metadata:
-                type: object
-                x-nexmo-developer-collection-description-shown: true
-                description: metadata for the value you might want your app to use Limit 4k in size
-                example: "{RGB:'00FF00'}"
+                $ref: '#/components/schemas/metadata'
     Entity:
       description: An entity representing a real world object
       content:
@@ -778,15 +722,9 @@ components:
               - name
             properties:
               name:
-                type: string
-                example: color
-                description: the name of the entity - an abstract real world object
+                $ref: '#/components/schemas/entity_name'
               values:
-                x-nexmo-developer-collection-description-shown: true
-                type: array
-                description: concrete representations of the entity in the real world
-                items:
-                  $ref: '#/components/requestBodies/Value'
+                $ref: '#/components/schemas/values'
     ValueUpdate:
       description: A possible value for an Entity
       content:
@@ -797,14 +735,9 @@ components:
               - name
             properties:
               name:
-                type: string
-                description: Name to change the value name to
-                example: green
+                $ref: '#/components/schemas/value_name'
               metadata:
-                type: object
-                x-nexmo-developer-collection-description-shown: true
-                description: 'Custom metadata to send back to your app when this value is detected, limit of 4k'
-                example: "{'RGB':'00FF00'}"
+                $ref: '#/components/schemas/metadata'
     EntityUpdate:
       description: Update model of an entity.
       content:
@@ -815,9 +748,7 @@ components:
               - name
             properties:
               name:
-                type: string
-                description: The name of the entity
-                example: color
+                $ref: '#/components/schemas/entity_name'
     Utterance:
       description: An utterance labeled for a specific intent
       x-nexmo-developer-collection-description-show: true
@@ -829,21 +760,14 @@ components:
               - intent
               - text
             properties:
+              intent_id:
+                $ref: '#/components/schemas/intent_id'
               intent:
-                type: string
-                example: Buy Dress
+                $ref: '#/components/schemas/intent_name'
               text:
-                type: string
-                example: "I'd like to buy a red dress"
+                $ref: '#/components/schemas/utterance_text'
               entities:
-                x-nexmo-developer-collection-description-show: true
-                type: array
-                example:
-                  - type: color
-                    name: red
-                    text: red dress
-                    start_idx: 18
-                    end_idx: 27
+                $ref: '#/components/schemas/labeled_entities'
     LabeledEntity:
       description: An entity tagged within an utterance of an intent
       content:
@@ -858,22 +782,15 @@ components:
               - end_idx
             properties:
               type:
-                type: string
-                description: the name of the entity type being labeled
-                example: color
+                $ref: '#/components/schemas/entity_name'
               name:
-                type: string
-                description: the detectable synonym of the entity type in this utterance
-                example: null
+                $ref: '#/components/schemas/synonym_name'
               text:
-                type: string
-                description: the text denoting the entity
+                $ref: '#/components/schemas/labeled_text'
               start_idx:
-                type: integer
-                description: position in the utterance where the entity starts
+                $ref: '#/components/schemas/start_idx'
               end_idx:
-                type: integer
-                description: position in the utterance where the entity ends
+                $ref: '#/components/schemas/end_idx'
     Synonym:
       description: A Synonym of a Entity Value
       content:
@@ -888,6 +805,121 @@ components:
                 description: the synonym for a given concrete value of an entity
                 example: mint
   schemas:
+    start_idx:
+      type: integer
+      description: position in the utterance where the entity starts
+      example: 5
+    end_idx:
+      type: integer
+      description: position in the utterance where the entity ends
+      example: 10
+    labeled_text:
+      type: string
+      description: the text denoting the entity
+      example: red dress
+    synonym_name:
+      type: string
+      description: the detectable synonym of the entity type in this utterance
+      example: lime
+    intent_id:
+      type: string
+      description: the id of an intent
+      example: INT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+    labeled_entities:
+      x-nexmo-developer-collection-description-show: true
+      type: array
+      example:
+        - type: color
+          name: red
+          text: red dress
+          start_idx: 18
+          end_idx: 27
+      items:
+        $ref: '#/components/schemas/labeled_entity'
+    utterance_text:
+      type: string
+      description: The Text of the utterance
+      example: "I'd like to buy a red dress"
+    values:
+      x-nexmo-developer-collection-description-shown: true
+      type: array
+      description: concrete representations of the entity in the real world
+      items:
+        $ref: '#/components/requestBodies/Value'
+    entity_name:
+      type: string
+      example: color
+      description: the name of the entity - an abstract real world object
+    metadata:
+      type: object
+      x-nexmo-developer-collection-description-shown: true
+      description: metadata for the value you might want your app to use Limit 4k in size
+      example: "{RGB:'00FF00'}"
+    synonyms:
+      type: array
+      x-nexmo-developer-collection-description-shown: true
+      description: synonyms associated with this value
+      example:
+        - mint
+        - lime
+      items:
+        type: string
+        example: mint
+    value_name:
+      type: string
+      description: The name of the value - a concrete instance of the entity
+      example: green
+    intent_name:
+      type: string
+      description: The name of the intent
+      example: Buy Dress
+    utterances:
+      type: array
+      x-nexmo-developer-collection-description-shown: true
+      description: pre-tagged utterances for the intent provided
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/utterance'      
+    model_name:
+      type: string
+      description: The name of the model
+      example: Airline Model
+    analyze_text:
+      type: string
+      description: the text to run the natural language analysis against
+      example: "I'd like to buy a red dress"
+    language_code:
+      description: BCP-47 compliant language code of the language the submitted text is in - current supported languages are - `en-US`
+      type: string
+      example: en-US
+    model_id:
+      type: string
+      example: MOD-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+      description: "The Model to be used in analysis \n> Note every analyze requests requires at least a model or an intent\n"
+    intent_ids:
+      description: "the list of intents to be used in analysis \n> Note every analyze requests requires at least a model or an intent\n"
+      type: array
+      x-nexmo-developer-collection-description-shown: true
+      items:
+        type: string
+      example:
+        - INT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+    model_intent_ids:
+      description: "the list of intents to be used in the model"
+      type: array
+      x-nexmo-developer-collection-description-shown: true
+      items:
+        type: string
+      example:
+        - INT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+    entity_ids:
+      description: The entities to use in analysis
+      type: array
+      x-nexmo-developer-collection-description-shown: true
+      items:
+        type: string
+      example:
+        - ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
     analysis:
       type: object
       description: The Result of an analysis request
