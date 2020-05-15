@@ -16,7 +16,7 @@ paths:
       security:
         - bearerAuth: []
         - basicAuth: []
-      summary: Send a Message
+      description: Send a Message
       operationId: NewMessage
       requestBody:
         description: Send a Message.
@@ -30,7 +30,7 @@ paths:
                   x-tab-id: SMS
                   oneOf:
                     - allOf:
-                      - $ref: '#/components/requestBodies/Text'
+                      - $ref: '#/components/schemas/Text'
                       - properties:
                           text:
                             description: |
@@ -40,10 +40,10 @@ paths:
                   x-tab-id: MMS
                   oneOf:
                     - allOf:
-                      - $ref: '#/components/requestBodies/Text'
+                      - $ref: '#/components/schemas/Text'
                       - $ref: '#/components/schemas/channelOptionsMms'
                     - allOf:
-                      - $ref: '#/components/requestBodies/Image'
+                      - $ref: '#/components/schemas/Image'
                       - properties:
                           image:
                             properties:
@@ -65,14 +65,14 @@ paths:
                   x-tab-id: WhatsApp
                   oneOf:
                     - allOf:
-                      - $ref: '#/components/requestBodies/Text'
+                      - $ref: '#/components/schemas/Text'
                       - properties:
                           text:
                             description: |
                                 The text of message to send; limited to 4096 characters, including unicode.
                       - $ref: '#/components/schemas/channelOptionsWhatsapp'
                     - allOf:
-                      - $ref: '#/components/requestBodies/Image'
+                      - $ref: '#/components/schemas/Image'
                       - properties:
                           image:
                             properties:
@@ -91,7 +91,7 @@ paths:
                                 example: 'Additional text to accompany the image.'
                       - $ref: '#/components/schemas/channelOptionsWhatsapp'
                     - allOf:
-                      - $ref: '#/components/requestBodies/Audio'
+                      - $ref: '#/components/schemas/Audio'
                       - properties:
                           audio:
                             properties:
@@ -102,7 +102,7 @@ paths:
                                   Supports `.aac`, `.m4a`, `.amr`, `.mp3` and `.opus`.
                       - $ref: '#/components/schemas/channelOptionsWhatsapp'
                     - allOf:
-                      - $ref: '#/components/requestBodies/Video'
+                      - $ref: '#/components/schemas/Video'
                       - properties:
                           video:
                             properties:
@@ -117,7 +117,7 @@ paths:
                                 example: Additional text.
                       - $ref: '#/components/schemas/channelOptionsWhatsapp'
                     - allOf:
-                      - $ref: '#/components/requestBodies/File'
+                      - $ref: '#/components/schemas/File'
                       - properties:
                           file:
                             properties:
@@ -133,7 +133,7 @@ paths:
 
                       - $ref: '#/components/schemas/channelOptionsWhatsapp'
                     - allOf:
-                      - $ref: '#/components/requestBodies/Template'
+                      - $ref: '#/components/schemas/Template'
                       - $ref: '#/components/schemas/channelOptionsWhatsapp'
                       - properties:
                           template:
@@ -158,14 +158,14 @@ paths:
                   x-tab-id: Messenger
                   oneOf:
                     - allOf:
-                      - $ref: '#/components/requestBodies/Text'
+                      - $ref: '#/components/schemas/Text'
                       - properties:
                           text:
                             description: |
                               The text of message to send; limited to 640 characters, including unicode.
                       - $ref: '#/components/schemas/channelOptionsMessenger'
                     - allOf:
-                      - $ref: '#/components/requestBodies/Image'
+                      - $ref: '#/components/schemas/Image'
                       - properties:
                           image:
                             properties:
@@ -178,7 +178,7 @@ paths:
                                 example: 'https://example.com/image.jpg'
                       - $ref: '#/components/schemas/channelOptionsMessenger'
                     - allOf:
-                      - $ref: '#/components/requestBodies/Audio'
+                      - $ref: '#/components/schemas/Audio'
                       - properties:
                           audio:
                             properties:
@@ -189,7 +189,7 @@ paths:
                                     Only supports `.mp3` files
                       - $ref: '#/components/schemas/channelOptionsMessenger'
                     - allOf:
-                      - $ref: '#/components/requestBodies/Video'
+                      - $ref: '#/components/schemas/Video'
                       - properties:
                           video:
                             properties:
@@ -200,7 +200,7 @@ paths:
                                   Supports `.mp4` files. Note, only `H.264` video codec and `AAC` audio codec is supported.
                       - $ref: '#/components/schemas/channelOptionsMessenger'
                     - allOf:
-                      - $ref: '#/components/requestBodies/File'
+                      - $ref: '#/components/schemas/File'
                       - properties:
                           file:
                             properties:
@@ -214,14 +214,14 @@ paths:
                   x-tab-id: Viber
                   oneOf:
                     - allOf:
-                      - $ref: '#/components/requestBodies/Text'
+                      - $ref: '#/components/schemas/Text'
                       - properties:
                           text:
                             description: |
                               The text of message to send; limited to 1000 characters, including unicode.
                       - $ref: '#/components/schemas/channelOptionsViber'
                     - allOf:
-                      - $ref: '#/components/requestBodies/Image'
+                      - $ref: '#/components/schemas/Image'
                       - properties:
                           image:
                             properties:
@@ -246,31 +246,31 @@ paths:
                     type: object
                     properties:
                       message_uuid:
-                        $ref: '#/components/responses/MessageUuid'
+                        $ref: '#/components/schemas/MessageUuid'
                   - description: MMS
                     x-tab-id: MMS
                     type: object
                     properties:
                       message_uuid:
-                        $ref: '#/components/responses/MessageUuid'
+                        $ref: '#/components/schemas/MessageUuid'
                   - description: WhatsApp
                     x-tab-id: WhatsApp
                     type: object
                     properties:
                       message_uuid:
-                        $ref: '#/components/responses/MessageUuid'
+                        $ref: '#/components/schemas/MessageUuid'
                   - description: Messenger
                     x-tab-id: Messenger
                     type: object
                     properties:
                       message_uuid:
-                        $ref: '#/components/responses/MessageUuid'
+                        $ref: '#/components/schemas/MessageUuid'
                   - description: Viber
                     x-tab-id: Viber
                     type: object
                     properties:
                       message_uuid:
-                        $ref: '#/components/responses/MessageUuid'
+                        $ref: '#/components/schemas/MessageUuid'
 
 
         '401':
@@ -279,15 +279,15 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/responses/ErrorUnauthorizedMissingCredentials"
-                  - $ref: "#/components/responses/ErrorUnauthorizedInvalidApplication"
+                  - $ref: "#/components/schemas/ErrorUnauthorizedMissingCredentials"
+                  - $ref: "#/components/schemas/ErrorUnauthorizedInvalidApplication"
         
         '402':
           description: "Payment Required"
           content:
             application/json:
               schema:
-                $ref: "#/components/responses/ErrorPaymentRequired"
+                $ref: "#/components/schemas/ErrorPaymentRequired"
 
         '422':
           description: "Payment Required"
@@ -295,28 +295,28 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/responses/ErrorInvalidJson"
-                  - $ref: "#/components/responses/ErrorChannel"
-                  - $ref: "#/components/responses/ErrorChannelParams"
-                  - $ref: "#/components/responses/ErrorSender"
-                  - $ref: "#/components/responses/ErrorRecipient"
-                  - $ref: "#/components/responses/ErrorMessageType"
-                  - $ref: "#/components/responses/ErrorMessageParams"
-                  - $ref: "#/components/responses/ErrorClientReference"
+                  - $ref: "#/components/schemas/ErrorInvalidJson"
+                  - $ref: "#/components/schemas/ErrorChannel"
+                  - $ref: "#/components/schemas/ErrorChannelParams"
+                  - $ref: "#/components/schemas/ErrorSender"
+                  - $ref: "#/components/schemas/ErrorRecipient"
+                  - $ref: "#/components/schemas/ErrorMessageType"
+                  - $ref: "#/components/schemas/ErrorMessageParams"
+                  - $ref: "#/components/schemas/ErrorClientReference"
 
         '429':
           description: "Authentication failure"
           content:
             application/json:
               schema:
-                $ref: "#/components/responses/ErrorThrottled"
+                $ref: "#/components/schemas/ErrorThrottled"
 
         '500':
           description: "Internal error"
           content:
             application/json:
               schema:
-                $ref: "#/components/responses/ErrorInternal"
+                $ref: "#/components/schemas/ErrorInternal"
 
       callbacks:
         message-status:
@@ -341,27 +341,28 @@ paths:
                 '200':
                   description: Your server returns this code if it accepts the callback.
 
-        inbound-message:
-          '{$request.body#/callback}':
-            post:
-              summary: Inbound Message
-              operationId: inbound-message
-              x-example-path: '/webhooks/inbound-message'
-              description: An inbound message from a customer to you.
-              requestBody:
-                required: true
-                content:
-                  application/json:
-                    schema:
-                      oneOf:
-                        - $ref: '#/components/schemas/inboundMessageSMS'
-                        - $ref: '#/components/schemas/messageStatusMMS'
-                        - $ref: '#/components/schemas/messageStatusWhatsApp'
-                        - $ref: '#/components/schemas/messageStatusMessenger'
-                        - $ref: '#/components/schemas/messageStatusViber'
-              responses:
-                  '200':
-                    description: Your server returns this code if it accepts the callback.
+x-webhooks:
+  inbound-message:
+    '{$request.body#/callback}':
+      post:
+        summary: Inbound Message
+        operationId: inbound-message
+        x-example-path: '/webhooks/inbound-message'
+        description: An inbound message from a customer to you.
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/inboundMessageSMS'
+                  - $ref: '#/components/schemas/messageStatusMMS'
+                  - $ref: '#/components/schemas/messageStatusWhatsApp'
+                  - $ref: '#/components/schemas/messageStatusMessenger'
+                  - $ref: '#/components/schemas/messageStatusViber'
+        responses:
+            '200':
+              description: Your server returns this code if it accepts the callback.
 
 
 components:
@@ -375,328 +376,6 @@ components:
       scheme: basic
 
   schemas:
-    ToNumber:
-      type: string
-      minLength: 1
-      maxLength: 50
-      example: '447700900000'
-      description: |
-           The phone number of the message **recipient** in the [E.164](https://en.wikipedia.org/wiki/E.164) format. Don't use a leading + or 00 when entering a phone number, start with the country code, for example, 447700900000.
-    FromNumber:
-      type: string
-      minLength: 1
-      maxLength: 50
-      example: '447700900001'
-      description: |
-           The phone number of the message **sender** in the [E.164](https://en.wikipedia.org/wiki/E.164) format. Don't use a leading + or 00 when entering a phone number, start with the country code, for example, 447700900000.
-    ToId:
-      type: string
-      minLength: 1
-      maxLength: 50
-      example: '0123456789'
-      description: |
-          The ID of the message recipient
-    FromId:
-      type: string
-      minLength: 1
-      maxLength: 50
-      example: '9876543210'
-      description: |
-          The ID of the message sender
-
-    baseMessageType:
-      type: object
-      required:
-        - to
-        - from
-        - message
-        - type
-        - channel
-      properties:
-        client_ref:
-          type: string
-          description: Client reference of up to 40 characters. The reference will be present in every message status.
-    channelOptionsSms:
-      type: object
-      properties:
-        to:
-          $ref: "#/components/schemas/ToNumber"
-        from:
-          $ref: "#/components/schemas/FromNumber"
-        channel:
-          type: string
-          description: The channel to send to. You must provide `sms` in this field
-          example: sms
-          enum:
-            - sms
-    channelOptionsMms:
-      type: object
-      properties:
-        to:
-          $ref: "#/components/schemas/ToNumber"
-        from:
-          $ref: "#/components/schemas/FromNumber"
-        channel:
-          type: string
-          description: The channel to send to. You must provide `mms` in this field
-          example: mms
-          enum:
-            - mms
-    channelOptionsMessenger:
-      type: object
-      properties:
-        to:
-          $ref: "#/components/schemas/ToId"
-        from:
-          $ref: "#/components/schemas/FromId"
-        channel:
-          description: The channel to send to. You must provide `messenger` in this field
-          type: string
-          example: messenger
-          enum:
-            - messenger
-        messenger:
-          type: object
-          properties:
-            category:
-              type: string
-              enum:
-                - response
-                - update
-                - message_tag
-            tag:
-              type: string
-    channelOptionsViber:
-      type: object
-      properties:
-        to:
-          $ref: "#/components/schemas/ToNumber"
-        from:
-          $ref: "#/components/schemas/FromId"
-        channel:
-          description: The channel to send to. You must provide `viber_service` in this field
-          type: string
-          example: viber_service
-          enum:
-            - viber_service
-        viber_service:
-          type: object
-          properties:
-            category:
-              type: string
-              enum:
-                - transaction
-                - promotion
-            ttl:
-              type: integer
-            type:
-              type: string
-    channelOptionsWhatsapp:
-      type: object
-      properties:
-        to:
-          $ref: "#/components/schemas/ToNumber"
-        from:
-          $ref: "#/components/schemas/FromNumber"
-        channel:
-          description: The channel to send to. You must provide `whatsapp` in this field
-          type: string
-          example: whatsapp
-          enum:
-            - whatsapp
-    messageStatusBase:
-      type: object
-      properties:
-        message_uuid:
-          $ref: "#/components/responses/MessageUuid"
-        to:
-          $ref: "#/components/schemas/ToNumber"
-        from:
-          $ref: "#/components/schemas/FromNumber"
-        timestamp:
-          type: string
-          description: The datetime of when the event occurred, in `ISO 8601` format.
-          example: 2020-01-01T14:00:00.000Z
-        status:
-          type: string
-          description: The status of the message.
-          example: submitted
-          enum:
-            - submitted
-            - delivered
-            - rejected
-            - undeliverable
-        error:
-          type: object
-          properties:
-            code:
-              type: integer
-              example: 1300
-              description: The error code. See [our errors list](https://developer.nexmo.com/api-errors/messages-olympus) for a list of possible errors
-            reason:
-              type: string
-              example: 'Not part of the provider network'
-              description: Text describing the error. See [our errors list](https://developer.nexmo.com/api-errors/messages-olympus) for a list of possible errors
-        usage:
-          type: object
-          properties:
-            currency:
-              type: string
-              example: EUR
-              description: The charge currency in ISO 4217 format.
-              enum:
-                - EUR
-            price:
-              type: string
-              example: '0.0333'
-              description: The charge amount as a stringified number.
-        client_ref:
-          type: string
-          description: Client reference of up to 40 characters. The reference will be present in every message status.
-      required:
-        - message_uuid
-        - channel
-        - to
-        - from
-        - timestamp
-        - status
-    messageStatusSMS:
-      allOf:
-        - $ref: "#/components/schemas/messageStatusBase"
-        - title: SMS
-          x-tab-id: status_SMS
-          description: SMS
-          properties:
-            channel:
-              type: string
-              description: The channel sending to.
-              example: sms
-              enum:
-                - sms
-    messageStatusMMS:
-      allOf:
-        - $ref: "#/components/schemas/messageStatusBase"
-        - title: MMS
-          x-tab-id: status_MMS
-          description: MMS
-          properties:
-            channel:
-              type: string
-              description: The channel sending to.
-              example: mms
-              enum:
-                - mms
-    messageStatusWhatsApp:
-      allOf:
-        - $ref: "#/components/schemas/messageStatusBase"
-        - title: WhatsApp
-          x-tab-id: status_WhatsApp
-          description: WhatsApp
-          properties:
-            channel:
-              type: string
-              description: The channel sending to.
-              example: whatsapp
-              enum:
-                - whatsapp
-            status:
-              example: read
-              enum:
-                - submitted
-                - delivered
-                - rejected
-                - undeliverable
-                - read
-    messageStatusMessenger:
-      allOf:
-        - $ref: "#/components/schemas/messageStatusBase"
-        - title: Messenger
-          x-tab-id: status_Messenger
-          description: Messenger
-          properties:
-            channel:
-              type: string
-              description: The channel sending to.
-              example: messenger
-              enum:
-                - messenger
-            status:
-              example: read
-              enum:
-                - submitted
-                - delivered
-                - rejected
-                - undeliverable
-                - read
-            to:
-              $ref: "#/components/schemas/ToId"
-              description: |
-                The ID of the message recipient. 
-                
-                This value should be the `from.id` value you received in the inbound messenger event.
-            from:
-              $ref: "#/components/schemas/FromId"
-              description: |
-                Your ID for the platform that you are sending from.
-
-                This value should be the `to.id` value you received in the inbound messenger event.
-    messageStatusViber:
-      allOf:
-        - $ref: "#/components/schemas/messageStatusBase"
-        - title: Viber
-          x-tab-id: status_Viber
-          description: Viber
-          properties:
-            channel:
-              type: string
-              description: The channel sending to.
-              example: viber_service
-              enum:
-                - viber_service
-            status:
-              example: read
-              enum:
-                - submitted
-                - delivered
-                - rejected
-                - undeliverable
-                - read
-    
-
-    inboundMessageSMS:
-      title: SMS
-      type: object
-      properties:
-        message_uuid:
-          type: string
-          example: 'aaaaaaaa-bbbb-cccc-dddd-0123456789ab'
-          description: The UUID of the message.
-      required:
-        - message_uuid
-        - to
-        - from
-        - timestamp
-
-  requestBodies:
-    Text:
-      allOf:
-        - $ref: "#/components/schemas/baseMessageType"
-        - title: Text
-          x-tab-id: Text
-          description: The text of message to send.
-          required:
-            - text
-          properties:
-            type:
-              type: string
-              enum:
-                - text
-              example: text
-              description: The type of message to send. You must provide `text` in this field
-            text:
-              type: string
-              example: 'Nexmo Verification code: 12345.<br />Valid for 10 minutes.'
-
     Image:
       allOf:
         - $ref: "#/components/schemas/baseMessageType"
@@ -810,113 +489,24 @@ components:
                   type: array
                   items:
                     type: object
-
-  responses:
-
-    MessageUuid:
-      type: string
-      example: aaaaaaaa-bbbb-cccc-dddd-0123456789ab
-      description: The UUID of the message
-
-    Error:
-      description: 'The error format is standardized to the 4xx/5xx range with a code and a human readable explanation.'
-      required:
-        - type
-        - title
-        - detail
-        - instance
-      properties:
-        type:
-          type: string
-          example: 'https://www.nexmo.com/messages/Errors#InvalidParams'
-        title:
-          type: string
-          example: 'Invalid Parameters'
-        detail:
-          type: string
-          example: 'Your request parameters did not validate.'
-        instance:
-          type: string
-          example: f94b4e56604e07e5e5ad5a7228618f81
-      
-    ErrorUnauthorizedMissingCredentials:
-      description: Missing or Invalid Credentials
-      type: object
-      required:
-        - type
-        - title
-        - details
-        - instance
-      properties:
-        type:
-          type: string
-          description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/#unathorized
-        title:
-          type: string
-          description: Generic error message
-          example: You did not provide correct credentials.
-        detail:
-          type: string
-          description: Additional information about the error
-          example: Check that you're using the correct credentials, and that your account has this feature enabled
-        instance:
-          type: string
-          description: Internal Trace ID
-          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
-
-    ErrorUnauthorizedInvalidApplication:
-      description: Invalid Application Type
-      type: object
-      required:
-        - type
-        - title
-        - details
-        - instance
-      properties:
-        type:
-          type: string
-          description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/#unprovisioned
-        title:
-          type: string
-          description: Generic error message
-          example: The crendentials provided do not have access to the requested product
-        detail:
-          type: string
-          description: Additional information about the error
-          example: Check your API key is correct and has been whitelisted
-        instance:
-          type: string
-          description: Internal Trace ID
-          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
-
-    ErrorInvalidJson:
-      description: Invalid JSON
-      type: object
-      required:
-        - type
-        - title
-        - detail
-        - instance
-      properties:
-        type:
-          type: string
-          description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors#invalid-json
-        title:
-          type: string
-          description: Generic error message
-          example: The request body did not contain valid JSON
-        detail:
-          type: string
-          description: Additional information about the error
-          example: 'Unexpected character (''"'' (code 34)): was expecting comma to separate Object entries'
-        instance:
-          type: string
-          description: Internal Trace ID
-          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
-
+    Text:
+      allOf:
+        - $ref: "#/components/schemas/baseMessageType"
+        - title: Text
+          x-tab-id: Text
+          description: The text of message to send.
+          required:
+            - text
+          properties:
+            type:
+              type: string
+              enum:
+                - text
+              example: text
+              description: The type of message to send. You must provide `text` in this field
+            text:
+              type: string
+              example: 'Nexmo Verification code: 12345.<br />Valid for 10 minutes.'
     ErrorChannel:
       description: Unsupported channel
       type: object
@@ -1200,6 +790,393 @@ components:
           description: Internal Trace ID
           example: bf0ca0bf927b3b52e3cb03217e1a1ddf
     
+    ErrorInvalidJson:
+      description: Invalid JSON
+      type: object
+      required:
+        - type
+        - title
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors#invalid-json
+        title:
+          type: string
+          description: Generic error message
+          example: The request body did not contain valid JSON
+        detail:
+          type: string
+          description: Additional information about the error
+          example: 'Unexpected character (''"'' (code 34)): was expecting comma to separate Object entries'
+        instance:
+          type: string
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
+
+    ErrorUnauthorizedInvalidApplication:
+      description: Invalid Application Type
+      type: object
+      required:
+        - type
+        - title
+        - details
+        - instance
+      properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors/#unprovisioned
+        title:
+          type: string
+          description: Generic error message
+          example: The crendentials provided do not have access to the requested product
+        detail:
+          type: string
+          description: Additional information about the error
+          example: Check your API key is correct and has been whitelisted
+        instance:
+          type: string
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
+
+    ErrorUnauthorizedMissingCredentials:
+      description: Missing or Invalid Credentials
+      type: object
+      required:
+        - type
+        - title
+        - details
+        - instance
+      properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors/#unathorized
+        title:
+          type: string
+          description: Generic error message
+          example: You did not provide correct credentials.
+        detail:
+          type: string
+          description: Additional information about the error
+          example: Check that you're using the correct credentials, and that your account has this feature enabled
+        instance:
+          type: string
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
+
+    MessageUuid:
+      type: string
+      example: aaaaaaaa-bbbb-cccc-dddd-0123456789ab
+      description: The UUID of the message
+
+    ToNumber:
+      type: string
+      minLength: 1
+      maxLength: 50
+      example: '447700900000'
+      description: |
+           The phone number of the message **recipient** in the [E.164](https://en.wikipedia.org/wiki/E.164) format. Don't use a leading + or 00 when entering a phone number, start with the country code, for example, 447700900000.
+
+    FromNumber:
+      type: string
+      minLength: 1
+      maxLength: 50
+      example: '447700900001'
+      description: |
+           The phone number of the message **sender** in the [E.164](https://en.wikipedia.org/wiki/E.164) format. Don't use a leading + or 00 when entering a phone number, start with the country code, for example, 447700900000.
+
+    ToId:
+      type: string
+      minLength: 1
+      maxLength: 50
+      example: '0123456789'
+      description: |
+          The ID of the message recipient
+
+    FromId:
+      type: string
+      minLength: 1
+      maxLength: 50
+      example: '9876543210'
+      description: |
+          The ID of the message sender
+
+    baseMessageType:
+      type: object
+      required:
+        - to
+        - from
+        - message
+        - type
+        - channel
+      properties:
+        client_ref:
+          type: string
+          description: Client reference of up to 40 characters. The reference will be present in every message status.
+    channelOptionsSms:
+      type: object
+      properties:
+        to:
+          $ref: "#/components/schemas/ToNumber"
+        from:
+          $ref: "#/components/schemas/FromNumber"
+        channel:
+          type: string
+          description: The channel to send to. You must provide `sms` in this field
+          example: sms
+          enum:
+            - sms
+    channelOptionsMms:
+      type: object
+      properties:
+        to:
+          $ref: "#/components/schemas/ToNumber"
+        from:
+          $ref: "#/components/schemas/FromNumber"
+        channel:
+          type: string
+          description: The channel to send to. You must provide `mms` in this field
+          example: mms
+          enum:
+            - mms
+    channelOptionsMessenger:
+      type: object
+      properties:
+        to:
+          $ref: "#/components/schemas/ToId"
+        from:
+          $ref: "#/components/schemas/FromId"
+        channel:
+          description: The channel to send to. You must provide `messenger` in this field
+          type: string
+          example: messenger
+          enum:
+            - messenger
+        messenger:
+          type: object
+          properties:
+            category:
+              type: string
+              enum:
+                - response
+                - update
+                - message_tag
+            tag:
+              type: string
+    channelOptionsViber:
+      type: object
+      properties:
+        to:
+          $ref: "#/components/schemas/ToNumber"
+        from:
+          $ref: "#/components/schemas/FromId"
+        channel:
+          description: The channel to send to. You must provide `viber_service` in this field
+          type: string
+          example: viber_service
+          enum:
+            - viber_service
+        viber_service:
+          type: object
+          properties:
+            category:
+              type: string
+              enum:
+                - transaction
+                - promotion
+            ttl:
+              type: integer
+            type:
+              type: string
+    channelOptionsWhatsapp:
+      type: object
+      properties:
+        to:
+          $ref: "#/components/schemas/ToNumber"
+        from:
+          $ref: "#/components/schemas/FromNumber"
+        channel:
+          description: The channel to send to. You must provide `whatsapp` in this field
+          type: string
+          example: whatsapp
+          enum:
+            - whatsapp
+    messageStatusBase:
+      type: object
+      properties:
+        message_uuid:
+          $ref: "#/components/schemas/MessageUuid"
+        to:
+          $ref: "#/components/schemas/ToNumber"
+        from:
+          $ref: "#/components/schemas/FromNumber"
+        timestamp:
+          type: string
+          description: The datetime of when the event occurred, in `ISO 8601` format.
+          example: 2020-01-01T14:00:00.000Z
+        status:
+          type: string
+          description: The status of the message.
+          example: submitted
+          enum:
+            - submitted
+            - delivered
+            - rejected
+            - undeliverable
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              example: 1300
+              description: The error code. See [our errors list](https://developer.nexmo.com/api-errors/messages-olympus) for a list of possible errors
+            reason:
+              type: string
+              example: 'Not part of the provider network'
+              description: Text describing the error. See [our errors list](https://developer.nexmo.com/api-errors/messages-olympus) for a list of possible errors
+        usage:
+          type: object
+          properties:
+            currency:
+              type: string
+              example: EUR
+              description: The charge currency in ISO 4217 format.
+              enum:
+                - EUR
+            price:
+              type: string
+              example: '0.0333'
+              description: The charge amount as a stringified number.
+        client_ref:
+          type: string
+          description: Client reference of up to 40 characters. The reference will be present in every message status.
+      required:
+        - message_uuid
+        - channel
+        - to
+        - from
+        - timestamp
+        - status
+    messageStatusSMS:
+      allOf:
+        - $ref: "#/components/schemas/messageStatusBase"
+        - title: SMS
+          x-tab-id: status_SMS
+          description: SMS
+          properties:
+            channel:
+              type: string
+              description: The channel sending to.
+              example: sms
+              enum:
+                - sms
+    messageStatusMMS:
+      allOf:
+        - $ref: "#/components/schemas/messageStatusBase"
+        - title: MMS
+          x-tab-id: status_MMS
+          description: MMS
+          properties:
+            channel:
+              type: string
+              description: The channel sending to.
+              example: mms
+              enum:
+                - mms
+    messageStatusWhatsApp:
+      allOf:
+        - $ref: "#/components/schemas/messageStatusBase"
+        - title: WhatsApp
+          x-tab-id: status_WhatsApp
+          description: WhatsApp
+          properties:
+            channel:
+              type: string
+              description: The channel sending to.
+              example: whatsapp
+              enum:
+                - whatsapp
+            status:
+              example: read
+              enum:
+                - submitted
+                - delivered
+                - rejected
+                - undeliverable
+                - read
+    messageStatusMessenger:
+      allOf:
+        - $ref: "#/components/schemas/messageStatusBase"
+        - title: Messenger
+          x-tab-id: status_Messenger
+          description: Messenger
+          properties:
+            channel:
+              type: string
+              description: The channel sending to.
+              example: messenger
+              enum:
+                - messenger
+            status:
+              example: read
+              enum:
+                - submitted
+                - delivered
+                - rejected
+                - undeliverable
+                - read
+            to:
+              $ref: "#/components/schemas/ToId"
+#              description: |
+#                The ID of the message recipient. 
+#                
+#                This value should be the `from.id` value you received in the inbound messenger event.
+            from:
+              $ref: "#/components/schemas/FromId"
+#              description: |
+#                Your ID for the platform that you are sending from.
+#
+#                This value should be the `to.id` value you received in the inbound messenger event.
+    messageStatusViber:
+      allOf:
+        - $ref: "#/components/schemas/messageStatusBase"
+        - title: Viber
+          x-tab-id: status_Viber
+          description: Viber
+          properties:
+            channel:
+              type: string
+              description: The channel sending to.
+              example: viber_service
+              enum:
+                - viber_service
+            status:
+              example: read
+              enum:
+                - submitted
+                - delivered
+                - rejected
+                - undeliverable
+                - read
+    
+
+    inboundMessageSMS:
+      title: SMS
+      type: object
+      properties:
+        message_uuid:
+          type: string
+          example: 'aaaaaaaa-bbbb-cccc-dddd-0123456789ab'
+          description: The UUID of the message.
+      required:
+        - message_uuid
+        - to
+        - from
+        - timestamp
 
 x-errors:
   "1000":
