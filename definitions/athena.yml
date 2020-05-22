@@ -255,7 +255,7 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/IntentUpdate'
       responses:
-        '200':
+        '202':
           description: Intent updated
           content:
             application/json:
@@ -311,12 +311,12 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/EntityUpdate'
       responses:
-        '200':
+        '202':
           description: Entity Updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/value'
+                $ref: '#/components/schemas/entity'
         '401':
           description: Unauthorized
         '404':
@@ -556,7 +556,11 @@ paths:
         $ref: '#/components/requestBodies/ValueUpdate'
       responses:
         '202':
-          description: Accepted          
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/value'          
         '401':
           description: Not Authorized
         '404':
@@ -604,7 +608,7 @@ paths:
       summary: Update a model
       operationId: patch-models-model_id
       responses:
-        '200':
+        '202':
           description: OK
           content:
             application/json:
