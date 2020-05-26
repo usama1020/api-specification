@@ -22,19 +22,27 @@ These definitions provide a single point of truth that can be used end-to-end:
 
 ## Resources
 
-- [What is OpenAPI?](https://swagger.io/docs/specification/about/)
-- [A Visual Guide to What's New in Swagger 3.0](https://blog.readme.io/an-example-filled-guide-to-swagger-3-2/)
-- [OAS3 Documentation](https://swagger.io/docs/specification/basic-structure/)
-- [OAS3 Specification](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md)
+- [OAS3 Specification](http://spec.openapis.org/oas/v3.0.3)
 - [OAS3 Examples](https://github.com/OAI/OpenAPI-Specification/tree/master/examples/v3.0)
 
 ## Tools
 
+- [Stoplight Studio](https://stoplight.io/studio/) - powerful spec editor with validation and local mock server
 - [Nexmo OAS Renderer](https://github.com/Nexmo/nexmo-oas-renderer) - Nexmo's tool for rendering OpenAPI specs to HTML.
 - [Nexmo Developer](https://github.com/Nexmo/nexmo-developer) - Nexmo Developer uses these specs and the renderer for the API reference pages.
-- [Swagger Editor](http://editor.swagger.io/) - Can be used to edit OAS3 definitions, provides live reloading Swagger UI.
-- [Swagger Codegen](https://github.com/swagger-api/swagger-codegen) - A template-driven engine to generate documentation, API clients and server stubs in different languages by parsing OAS3 definitions.
-- [Swagger Parser](https://github.com/swagger-api/swagger-parser) - Standalone library for parsing OAS3 definitions from Java
+
+### Check your API spec for validity and style
+
+We use [Spectral](https://stoplight.io/open-source/spectral/) to style and validity check our files. If you're using Stoplight Studio, this picks up our style definition by default. Otherwise, you can install the tool locally like this:
+
+`npm install -g @stoplight/spectral`
+
+And check your file (for example `verify.yml`):
+
+`spectral lint definitions/verify.yml`
+
+This runs the same checks that we use in the build that runs when you open a pull request.
+
 
 ## Contributing
 
