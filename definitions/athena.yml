@@ -928,9 +928,9 @@ components:
           schema:
             type: object
             required:
-              - synonym
+              - name
             properties:
-              synonym:
+              name:
                 type: string
                 description: the synonym for a given concrete value of an entity
                 example: mint
@@ -1356,7 +1356,7 @@ components:
           $ref: "#/components/schemas/value_id"
         entity_id:
           $ref: "#/components/schemas/entity_id"
-        synonym:
+        name:
           type: string
           description: the synonym of a concrete value of an entity
           example: mint
