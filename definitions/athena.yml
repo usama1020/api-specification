@@ -385,7 +385,11 @@ paths:
             application/json:
               schema:
                 type: object
-                properties:
+                properties:      
+                  type:
+                    type: string
+                    description: Link to error / remediation options
+                    example: https://developer.nexmo.com/api-errors/athena#delete-conflict
                   title:
                     type: string
                     description: title of the error
@@ -549,6 +553,10 @@ paths:
               schema:
                 type: object
                 properties:
+                  type:
+                    type: string
+                    description: Link to error / remediation options
+                    example: https://developer.nexmo.com/api-errors/athena#delete-conflict
                   title:
                     type: string
                     description: title of the error
@@ -847,6 +855,10 @@ paths:
               schema:
                 type: object
                 properties:
+                  type:
+                    type: string
+                    description: Link to error / remediation options
+                    example: https://developer.nexmo.com/api-errors/athena#delete-conflict
                   title:
                     type: string
                     description: title of the error
@@ -1311,6 +1323,10 @@ components:
         - title
         - detail  
       properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors/athena#missing-model
         title:
           type: string
           description: Title of "The Model to be used in analysis \n> Note every analyze requests requires at least a model or an intent\n"
@@ -1923,6 +1939,17 @@ components:
                       example: 'https://api.nexmo.com/v0.1/athena/entities?order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'
 security:
   - bearerAuth: []
+x-errors:
+  missing-model:
+    description: Model id or intent id not provided
+    resolution: Add either a model id or an intent id to your request
+    link:
+      url: /api/athena/#missing-model
+  delete-conflict:
+    description: Delete operation would orphan child entities
+    resolution: Delete the child entities or set force tag to true
+    link:
+      url: /api/athena/#delete-conflict
 tags:
   - name: Analyze
     description: Used to Analyze text for Intents an entities
