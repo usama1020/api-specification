@@ -1,9 +1,9 @@
 openapi: "3.0.0"
 info:
-  version: 2.1.1
+  version: 2.1.5
   title: Nexmo Reports API
   description: |
-    Nexmo's Reports API allows you to request a report of activity on your Nexmo account.
+    [Nexmo's Reports API](/reports/overview) allows you to request a report of activity on your Nexmo account.
 
     Depending on your query pattern, you can choose from one of the two versions of Reports API: asynchronous and synchronous. Asynchronous version is optimized for infrequent and large data queries (from several records to tens of millions). Synchronous version is optimized for frequent and periodic retrievals of small batches of data records (from one record to tens of thousand per query).
 
@@ -76,7 +76,7 @@ paths:
           in: query
           schema:
             type: string
-          example: inbound
+          example: "aaaaaaaa-bbbb-cccc-dddd-0123456789ab"
         - name: date_start
           schema:
             type: string
@@ -84,10 +84,9 @@ paths:
           description: |
             ISO-8601 extended time zone offset or ISO-8601 UTC zone offset formatted date (format `yyyy-mm-ddThh:mm:ss[.sss]±hh:mm` or `yyyy-mm-ddThh:mm:ss[.sss]Z`) for when reports should begin. 
 
-            It filters on the time the API call was received by Nexmo and corresponds to the field date_received (date_start for Voice) in the report file. It is inclusive, i.e. the provided value is less than or equal to the value in the field date_received (date_start for Voice) in the CDR.
+            It filters on the time the API call was received by Nexmo and corresponds to the field `date_received` (`date_start` for Voice) in the report file. It is inclusive, i.e. the provided value is less than or equal to the value in the field `date_received` (`date_start` for Voice) in the CDR.
 
-              If you provide this, you must provide `date_end` and must not provide `message_id`
-            to seven days ago.
+            If you provide this, you must provide `date_end` and must not provide `id`.
           example: "2017-12-01T00:00:00+0000"
           in: query
         - name: date_end
@@ -95,13 +94,13 @@ paths:
             type: string
             format: date
           description: |
-            **Must be within 1 hour of `date_start`**
+            **Must be no more than 24 hours later than `date_start`**
 
             ISO-8601 extended time zone offset or ISO-8601 UTC zone offset formatted date (format `yyyy-mm-ddThh:mm:ss[.sss]±hh:mm` or `yyyy-mm-ddThh:mm:ss[.sss]Z`) for when report should end.
 
-            It is exclusive, i.e. the provided value is strictly greater than the value in the field date_received in the CDR.
+            It is exclusive, i.e. the provided value is strictly greater than the value in the field `date_received` in the CDR.
 
-              If you provide this, you must provide `date_start` and must not provide `message_id`
+            If you provide this, you must provide `date_start` and must not provide `id`.
           example: "2018-01-01T00:00:00+0000"
           in: query
         - name: include_message
@@ -267,14 +266,14 @@ paths:
             type: string
           example: SUCCESS, FAILED
         - name: date_from
-          description: ISO-8601 extended time zone offset or ISO-8601 UTC zone offset formatted date from which the list of reports will be queried. Format yyyy-mm-ddThh:mm:ss[.sss]±hh:mm or yyyy-mm-ddThh:mm:ss[.sss]Z
+          description: ISO-8601 extended time zone offset or ISO-8601 UTC zone offset formatted date from which the list of reports will be queried. Format `yyyy-mm-ddThh:mm:ss[.sss]±hh:mm` or `yyyy-mm-ddThh:mm:ss[.sss]Z`.
           in: query
           schema:
             type: string
             format: date
           example: "2019-06-28T00:00:00-00:00"
         - name: date_to
-          description: ISO-8601 extended time zone offset or ISO-8601 UTC zone offset formatted date until which the list of reports will be queried. Format yyyy-mm-ddThh:mm:ss[.sss]±hh:mm or yyyy-mm-ddThh:mm:ss[.sss]Z
+          description: ISO-8601 extended time zone offset or ISO-8601 UTC zone offset formatted date until which the list of reports will be queried. Format `yyyy-mm-ddThh:mm:ss[.sss]±hh:mm` or `yyyy-mm-ddThh:mm:ss[.sss]Z`.
           in: query
           schema:
             type: string
@@ -774,17 +773,17 @@ components:
       type: string
       format: date
       description: >
-        ISO-8601 extended time zone offset or ISO-8601 UTC zone offset formatted date (format yyyy-mm-ddThh:mm:ss[.sss]±hh:mm or yyyy-mm-ddThh:mm:ss[.sss]Z) for when reports 
-        should begin. It filters on the time the API call was received by Nexmo and corresponds to the field date_received (date_start for Voice) in the report file. It is
-        inclusive, i.e. the provided value is less than or equal to the value in the field date_received (date_start for Voice) in the CDR.<br>If unspecified, defaults 
+        ISO-8601 extended time zone offset or ISO-8601 UTC zone offset formatted date (format `yyyy-mm-ddThh:mm:ss[.sss]±hh:mm` or `yyyy-mm-ddThh:mm:ss[.sss]Z`) for when reports 
+        should begin. It filters on the time the API call was received by Nexmo and corresponds to the field `date_received` (`date_start` for Voice) in the report file. It is
+        inclusive, i.e. the provided value is less than or equal to the value in the field `date_received` (`date_start` for Voice) in the CDR.<br>If unspecified, defaults 
         to seven days ago.
       example: "2017-12-01T00:00:00+00:00"
     date_end:
       type: string
       format: date
       description: >
-        ISO-8601 extended time zone offset or ISO-8601 UTC zone offset formatted date (format yyyy-mm-ddThh:mm:ss[.sss]±hh:mm or yyyy-mm-ddThh:mm:ss[.sss]Z) for when report should end. 
-        It is exclusive, i.e. the provided value is strictly greater than the value in the field date_received in the CDR. <br>If unspecified, defaults to the current time.
+        ISO-8601 extended time zone offset or ISO-8601 UTC zone offset formatted date (format `yyyy-mm-ddThh:mm:ss[.sss]±hh:mm` or `yyyy-mm-ddThh:mm:ss[.sss]Z`) for when report should end. 
+        It is exclusive, i.e. the provided value is strictly greater than the value in the field `date_received` in the CDR. <br>If unspecified, defaults to the current time.
       example: "2018-01-01T00:00:00+00:00"
     client_ref:
       type: string
@@ -1157,6 +1156,8 @@ components:
         propertyName: product
 
     sms_fields:
+      description: SMS
+      x-tab-id: SMS
       type: object
       properties:
         product:
@@ -1183,6 +1184,8 @@ components:
         - direction
 
     voice_call_fields:
+      description: Voice Call
+      x-tab-id: voice-call
       type: object
       properties:
         product:
@@ -1199,6 +1202,8 @@ components:
           $ref: '#/components/schemas/voice_status'
 
     verify_api_fields:
+      description: Verify
+      x-tab-id: verify
       type: object
       properties:
         product:
@@ -1209,6 +1214,8 @@ components:
           $ref: '#/components/schemas/network'
 
     number_insight_fields:
+      description: Number Insight
+      x-tab-id: number-insight
       type: object
       properties:
         product:
@@ -1219,6 +1226,8 @@ components:
           $ref: '#/components/schemas/network'
 
     conversations_fields:
+      description: Conversations
+      x-tab-id: conversations
       type: object
       properties:
         product:
@@ -1231,6 +1240,8 @@ components:
           $ref: '#/components/schemas/status'
 
     messages_fields:
+      description: Messages
+      x-tab-id: messages
       type: object
       properties:
         product:
