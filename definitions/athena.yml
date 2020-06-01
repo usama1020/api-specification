@@ -10,33 +10,6 @@ info:
 servers:
   - url: 'https://api.nexmo.com/v0.1/athena'
 paths:  
-  '/intents/{intent_id}/utterances':
-    post:
-      summary: Create an utterance
-      operationId: createUtterance
-      description: Create an utterance that corresponds to a given intent
-      tags:
-        - Utterances
-      parameters:
-        - $ref: "#/components/parameters/intent_id"
-      requestBody:        
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/utterance"      
-      responses:
-        '201':
-          description: Created utterance
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/utterance"
-        '400':
-          description: Bad Request
-        '401':
-          description: Invalid or Missing Credentials
-        '404':
-          description: Resource not found
   '/utterances':
     get:
       summary: List utterances
@@ -60,6 +33,43 @@ paths:
           description: Bad Request
         '401':
           description: Missing or Invalid Credentials
+  '/intents/{intent_id}/utterances':
+    post:
+      summary: Create an utterance
+      operationId: createUtterance
+      description: Create an utterance that corresponds to a given intent
+      tags:
+        - Utterances
+      parameters:
+        - $ref: "#/components/parameters/intent_id"
+      requestBody:        
+        $ref: "#/components/requestBodies/Utterance"  
+                  
+      responses:
+        '201':
+          description: Created utterance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/utterance"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidJson"
+        '401':
+          description: Invalid or Missing Credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
   '/utterances/{utterance_id}':
     get:
       summary: Get Utterance
@@ -74,11 +84,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/utterance_links"
+                $ref: "#/components/schemas/utterance"
         '401':
           description: Missing or Invalid Credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
         '404':
           description: Resource Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
     patch:
       description: Updates the utterance - note all fields are replaced and not added
       tags:
@@ -88,21 +106,32 @@ paths:
       parameters:
         - $ref: "#/components/parameters/utterance_id"
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/utterance"      
+        $ref: "#/components/requestBodies/UtteranceUpdate"                    
       responses:
         '202':
           description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/utterance"
         '400':
           description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidJson"
         '401':
           description: Missing or Invalid Credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
         '404':
           description: Resource Not Found
-        '422':
-          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"        
     delete:
       description: deletes the utterances
       tags:
@@ -116,8 +145,16 @@ paths:
           description: No Content
         '401':
           description: Missing or Invalid Credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
         '404':
           description: Resource Not Found        
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
   /models:
     get:
       summary: List models
@@ -162,6 +199,12 @@ paths:
                         description: List of Models matching the provided filter
                         items:
                           $ref: '#/components/schemas/model_links'
+        '401':
+          description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
     post:
       summary: Create model
       operationId: create_model
@@ -176,6 +219,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/model'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidJson"
+        '401':
+          description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
     
   /intents:
     get:
@@ -209,6 +264,10 @@ paths:
                           $ref: '#/components/schemas/intent_links'
         '401':
           description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
     post:
       summary: Create Intent
       operationId: create_intent
@@ -223,8 +282,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/intent'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidJson"
         '401':
           description: Not Authorized    
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
   '/intents/{intent_id}':
     get:
       operationId: get_intent
@@ -239,11 +308,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/intent_links'
+                $ref: '#/components/schemas/intent'
         '401':
           description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
         '404':
           description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
     patch:
       operationId: update_intent
       summary: Update intent
@@ -255,16 +332,30 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/IntentUpdate'
       responses:
-        '202':
-          description: Intent updated
+        '200':
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/intent'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidJson"
         '401':
           description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
         '404':
           description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
     delete:
       operationId: delete_intent
       description: Delete an intent
@@ -278,66 +369,31 @@ paths:
           description: No Content
         '401':
           description: Not Authorized
-        '404':
-          description: Not Found        
-        '409':
-          description: Delete operation would orphan utterances, delete utterances or set force to true to continue with the delete operation
-  '/entities/{entity_id}':
-    get:
-      summary: Get an Entity
-      operationId: get_entity
-      tags:
-        - Entities
-      parameters:
-        - $ref: '#/components/parameters/entity_id'
-      responses:
-        '200':
-          description: Value Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/entity_links'
-        '401':
-          description: Bad Credentials
-        '404':
-          description: Resource Not Found
-    patch:
-      summary: Update an entity
-      operationId: update_entity
-      tags:
-        - Entities
-      parameters:
-        - $ref: '#/components/parameters/entity_id'
-      requestBody:
-        $ref: '#/components/requestBodies/EntityUpdate'
-      responses:
-        '202':
-          description: Entity Updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/entity'
-        '401':
-          description: Unauthorized
-        '404':
-          description: Not Found    
-    delete:
-      summary: Delete an entity
-      operationId: delete_entity
-      tags:
-        - Entities
-      parameters:
-        - $ref: '#/components/parameters/entity_id'
-        - $ref: "#/components/parameters/force"
-      responses:
-        '204':
-          description: No Content
-        '401':
-          description: Not Authorized
+                $ref: "#/components/schemas/ErrorUnauthorized"
         '404':
           description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"        
         '409':
-          description: Delete operation would orphan child values. Set the force flag to true or delete the child values to delete
+          description: Delete operation would orphan utterances, delete utterances or set force to true to continue with the delete operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    description: title of the error
+                    example: Conflict
+                  detail:
+                    type: string
+                    description: detailed description of the error
+                    example: Delete operation would orphan child utterances - please delete child utterances or set force to true to cascade the delete to child entities
   /entities:
     get:
       operationId: list_entities
@@ -371,6 +427,10 @@ paths:
                           $ref: '#/components/schemas/entity_links'
         '401':
           description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
     post:
       operationId: create_entity
       tags:
@@ -386,8 +446,118 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/entity'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidJson"
         '401':
-          description: Not Authorized    
+          description: Not Authorized  
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+  '/entities/{entity_id}':
+    get:
+      summary: Get an Entity
+      operationId: get_entity
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/entity_id'
+      responses:
+        '200':
+          description: Value Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/entity'
+        '401':
+          description: Bad Credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        '404':
+          description: Resource Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+    patch:
+      summary: Update an entity
+      operationId: update_entity
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/entity_id'
+      requestBody:
+        $ref: '#/components/requestBodies/EntityUpdate'
+      responses:
+        '202':
+          description: Entity Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/entity'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidJson"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        '404':
+          description: Not Found    
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+    delete:
+      summary: Delete an entity
+      operationId: delete_entity
+      tags:
+        - Entities
+      parameters:
+        - $ref: '#/components/parameters/entity_id'
+        - $ref: "#/components/parameters/force"
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+        '409':
+          description: Delete operation would orphan child values. Set the force flag to true or delete the child values to delete
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    description: title of the error
+                    example: Conflict
+                  detail:
+                    type: string
+                    description: detailed description of the error
+                    example: Delete operation would orphan child values - please delete child values or set force to true to cascade the delete to child entities
+    
   '/synonyms':
     get:
       operationId: get_synonyms
@@ -421,8 +591,16 @@ paths:
                           $ref: '#/components/schemas/synonym_links'
         '401':
           description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
         '404':
           description: Resource Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
   '/values/{value_id}/synonyms':
     post:
       operationId: create_synonym
@@ -440,10 +618,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/synonym'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidJson"
         '401':
           description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
         '404':
           description: Not Found    
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
   '/synonyms/{synonym_id}':
     parameters:
       - $ref: '#/components/parameters/synonym_id'   
@@ -461,8 +653,16 @@ paths:
                 $ref: '#/components/schemas/synonym_links'
         '401':
           description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
         '404':
           description: Synonym Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
     delete:
       summary: Delete a synonym
       operationId: delete_synonym
@@ -473,8 +673,16 @@ paths:
           description: No Content
         '401':
           description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
         '404':
           description: Synonym Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
   '/values':
     summary: list_values
     get:
@@ -505,8 +713,16 @@ paths:
                           $ref: '#/components/schemas/value_links'
         '401':
           description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
         '404':
           description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
   '/entities/{entity_id}/values':
     post:
       operationId: create_value
@@ -524,10 +740,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/value'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidJson"
         '401':
           description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
         '404':
           description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
   '/values/{value_id}':
     get:
       operationId: get_value
@@ -542,11 +772,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/value_links'
+                $ref: '#/components/schemas/value'
         '401':
           description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
         '404':
           description: Resource Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
     patch:
       operationId: update_value
       tags:
@@ -560,11 +798,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/value'          
+                $ref: '#/components/schemas/value'     
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidJson"     
         '401':
           description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
         '404':
           description: Resource Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
     delete:
       operationId: delete_value
       tags:
@@ -578,10 +830,31 @@ paths:
           description: No Content
         '401':
           description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
         '404':
           description: Resource Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
         '409':
           description: Conflict - Delete would orphan child entities, delete the child entities or set the force flag to true to cascade the delete operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    description: title of the error
+                    example: Conflict
+                  detail:
+                    type: string
+                    description: detailed description of the error
+                    example: Delete operation would orphan child synonyms - please delete child synonyms or set force to true to cascade the delete to child entities                  
   '/models/{model_id}':
     parameters:
       - schema:
@@ -601,19 +874,49 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/model_links'
+                $ref: '#/components/schemas/model'
+        '401':
+          description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        '404':
+          description: Resource Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
       operationId: get-models-model_id
       description: Get the model at the given ID
     patch:
       summary: Update a model
       operationId: patch-models-model_id
       responses:
-        '202':
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/model'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidJson"
+        '401':
+          description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        '404':
+          description: Resource Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
       description: Update a Model at the given Id
       requestBody:
         $ref: '#/components/requestBodies/Model'
@@ -625,6 +928,12 @@ paths:
       responses:
         '204':
           description: No Content
+        '401':
+          description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
       description: Deletes a Model
       tags:
         - Models
@@ -639,10 +948,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/analysis'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidJson"
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
         '422':
           description: validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnprocessable"
       description: Analyze submitted text text
       requestBody:
         $ref: '#/components/requestBodies/AnalyzeRequest'
@@ -812,9 +1135,7 @@ components:
             type: object
             properties:
               name:
-                $ref: '#/components/schemas/intent_name'
-              utterances:
-                $ref: '#/components/schemas/utterances'
+                $ref: '#/components/schemas/intent_name'              
     Intent:
       description: A task or action a user intends for the agent
       x-nexmo-developer-collection-description-show: true
@@ -837,9 +1158,7 @@ components:
               - name
             properties:
               name:
-                $ref: '#/components/schemas/value_name'
-              synonyms:
-                $ref: '#/components/schemas/synonyms'
+                $ref: '#/components/schemas/value_name'              
               metadata:
                 $ref: '#/components/schemas/metadata'
     Entity:
@@ -886,14 +1205,21 @@ components:
         application/json:
           schema:
             type: object
-            required:
-              - intent
+            required:              
               - text
-            properties:
-              intent_id:
-                $ref: '#/components/schemas/intent_id'
-              intent:
-                $ref: '#/components/schemas/intent_name'
+            properties:              
+              text:
+                $ref: '#/components/schemas/utterance_text'
+              labeled_entities:                
+                $ref: '#/components/schemas/labeled_entities'
+    UtteranceUpdate:
+      description: An utterance labeled for a specific intent
+      x-nexmo-developer-collection-description-show: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:              
               text:
                 $ref: '#/components/schemas/utterance_text'
               labeled_entities:
@@ -935,6 +1261,89 @@ components:
                 description: the synonym for a given concrete value of an entity
                 example: mint
   schemas:
+    ErrorNotFound:
+      type: object
+      required:
+        - type
+        - title
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors#not-found
+        title:
+          type: string
+          description: Generic error message
+          example: Not Found
+        detail:
+          type: string
+          description: Additional information about the error
+          example: Requested resource wasn't found
+        instance:
+          type: string
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
+    ErrorUnauthorized:
+      type: object
+      required:
+        - type
+        - error_title
+        - detail
+      properties:
+        type:
+          type: string
+          description: Machine readable error type
+          example: https://developer.nexmo.com/api-errors#unauthorized
+        error_title:
+          type: string
+          description: Error title
+          example: Unauthorized
+        detail:
+          type: string
+          description: Unauthorized
+          example: Unauthorized
+    ErrorUnprocessable:
+      description: Unprocessable entity
+      type: object
+      required:        
+        - title
+        - detail  
+      properties:
+        title:
+          type: string
+          description: Title of "The Model to be used in analysis \n> Note every analyze requests requires at least a model or an intent\n"
+          example: Request is Unprocessable
+        detail:
+          type: string
+          description: More granular explanation of the error
+          example: Missing required parameter    
+    ErrorInvalidJson:
+      description: Invalid JSON
+      type: object
+      required:
+        - type
+        - title
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors#invalid-json
+        title:
+          type: string
+          description: Generic error message
+          example: Invalid JSON
+        detail:
+          type: string
+          description: Additional information about the error
+          example: 'Unexpected character (''"'' (code 34)): was expecting comma to separate Object entries'
+        instance:
+          type: string
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
     value_id:
       type: string
       description: Unique id of a value
@@ -975,7 +1384,7 @@ components:
       example: INT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
     labeled_entities:
       x-nexmo-developer-collection-description-show: true
-      type: array
+      type: array      
       example:
         - type: color
           name: red
@@ -1026,8 +1435,7 @@ components:
       x-nexmo-developer-collection-description-shown: true
       description: pre-tagged utterances for the intent provided
       items:
-        oneOf:
-          - $ref: '#/components/schemas/utterance_links'      
+        $ref: '#/components/schemas/utterance_links'      
     model_name:
       type: string
       description: The name of the model
@@ -1078,18 +1486,22 @@ components:
           description: The ID of an analysis request
         text:
           type: string
-          example: "I'd like to buy a red dress"
+          example: "I'd like to buy a tangerine"
           description: the text that was analyzed
-        labeled_entities:
+        intents:
           type: array
+          description: the intents tagged in the analysis
+          x-nexmo-developer-collection-description-shown: true
           items:
-            allOf:
-              - $ref: '#/components/schemas/labeled_entity'
-              - type: object
-                properties:
-                  confidence:
-                    type: number
-                    description: confidence of the model the the labeled entity is in fact in the phrase
+            $ref: '#/components/schemas/labeled_intent'
+
+        entities:
+          type: array
+          description: the entities tagged in the utterance
+          x-nexmo-developer-collection-description-shown: true
+          items:            
+            $ref: '#/components/schemas/labeled_entities_analysis'
+                            
     model:
       type: object
       description: A model to run text analysis against
@@ -1156,7 +1568,22 @@ components:
                       href:
                         type: string
                         example: 'https://api.nexmo.com/v0.1/athena/models?int_id=INT-f972836a-550f-45fa-956c-12a2ab5b7d22&order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'
-            
+    labeled_intent:
+      type: object
+      description: A detected intent for an analysis
+      properties:
+        intent_id:
+          type: string
+          description: the id of the detected intent
+          example: INT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+        intent_name:
+          type: string
+          description: The name of the detected intent
+          example: Buy fruit
+        confidence:
+          type: number
+          description: the confidence the model has that this was the intent of the utterance. Lies in the range of [0,1]
+          example: 0.95 
     labeled_entity:
       type: object
       description: An entity labeled for an utterance
@@ -1164,15 +1591,7 @@ components:
         entity_id:
           type: string
           description: the entity id of the labeled entity          
-          example: ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
-        entity_name:
-          type: string
-          description: the name of the entity type being labeled
-          example: fruit
-        value_name:
-          type: string
-          description: The value of the entity being labeled
-          example: orange
+          example: ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625                
         value_id:
           type: string
           description: The unique id of the labeled value
@@ -1180,21 +1599,61 @@ components:
         synonym_id:
           type: string
           description: the synonym for the entity value that's been locked onto
-          example: SYN-afe887d8-d587-4280-9aae-dfa4c9227d5e
-        synonym_name:
-          type: string
-          description: the detectable synonym of the entity type in this utterance
-          example: tangerine
+          example: SYN-afe887d8-d587-4280-9aae-dfa4c9227d5e        
         text:
           type: string
           description: the text denoting the entity
           example: Can I buy a tangerine?
-        start_idx:
+        start_index:
           type: integer
-          description: position in the utterance where the entity starts
-        end_idx:
+          example: 5
+          description: position (in words) into the utterance where the entity starts - 0 based - setting start and end to the same value captures a single word
+        end_index:
           type: integer
-          description: position in the utterance where the entity ends
+          example: 5
+          description: position (in words) into the utterance where the entity ends - 0 based - setting start and end to the same value captures a single word
+    labeled_entities_analysis:
+      properties:        
+        entity_id:
+            type: string
+            description: the entity id of the labeled entity          
+            example: ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+        entity_name:
+          type: string
+          description: the name of the entity type being labeled
+          example: fruit                
+        value_id:
+          type: string
+          description: The unique id of the labeled value
+          example: VAL-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+        value_name:
+          type: string
+          description: The value of the entity being labeled
+          example: orange
+        synonym_id:
+          type: string
+          description: the synonym for the entity value that's been locked onto
+          example: SYN-afe887d8-d587-4280-9aae-dfa4c9227d5e 
+        synonym_name:
+          type: string
+          description: the detectable synonym of the entity type in this utterance
+          example: tangerine       
+        text:
+          type: string
+          description: the text denoting the entity
+          example: Can I buy a tangerine?
+        start_index:
+          type: integer
+          example: 5
+          description: position (in words) into the utterance where the entity starts - 0 based - setting start and end to the same value captures a single word
+        end_index:
+          type: integer
+          example: 5
+          description: position (in words) into the utterance where the entity ends - 0 based - setting start and end to the same value captures a single word        
+        confidence:
+          type: number
+          description: confidence the model has that the detected entity is present in the text - on a range of [0,1]
+          example: 0.95
     utterance:
       type: object
       description: "labeled text conveying user's intent"
@@ -1205,14 +1664,14 @@ components:
           type: string
         text:
           type: string
+          example: I'd like to buy a tangerine
           description: the text of the utterance
         labeled_entities:
           type: array
-          description: the entities associated with this utterance
+          description: the entities tagged in the utterance
           x-nexmo-developer-collection-description-shown: true
           items:
-            oneOf:
-              - $ref: '#/components/schemas/labeled_entity'
+            $ref: '#/components/schemas/labeled_entity'
         _links:
           type: object
           properties:
@@ -1222,6 +1681,12 @@ components:
                 href:
                   type: string
                   example: https://api.nexmo.com/v0.1/athena/utterances/UTT-f972836a-550f-45fa-956c-12a2ab5b7d22
+            intent:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: https://api.nexmo.com/v0.1/athena/intents/INT-f972836a-550f-45fa-956c-12a2ab5b7d22
     utterance_links:
       allOf:
         - $ref: "#/components/schemas/utterance"
@@ -1252,14 +1717,14 @@ components:
       type: object
       description: "represents a real world task that a user want's to perform e.g. booking a flight"
       properties:
-        name:
-          type: string
-          example: Buy Dress
-          description: The name of the intent        
         id:
           type: string
           description: the identity of the intent
           example: INT-f972836a-550f-45fa-956c-12a2ab5b7d22
+        name:
+          type: string
+          example: Buy Dress
+          description: The name of the intent                
         _links:
           type: object
           properties:
@@ -1296,17 +1761,17 @@ components:
                       type: string
                       example: 'https://api.nexmo.com/v0.1/athena/intents?order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'            
     value:
-      properties:        
+      properties:
+        id:
+          type: string
+          description: Unique identifier of a concrete value of an entity
+          example: VAL-afe887d8-d587-4280-9aae-dfa4c9227d5e        
         name:
           type: string
           description: the name of a value representing a concrete instance of an entity. e.g. `green` is a possible value of the entity `color`
           example: green
         entity_id:
-          $ref: "#/components/schemas/entity_id"
-        id:
-          type: string
-          description: Unique identifier of a concrete value of an entity
-          example: VAL-afe887d8-d587-4280-9aae-dfa4c9227d5e
+          $ref: "#/components/schemas/entity_id"        
         metadata:
           type: object
           description: Custom object of metadata that will be sent back to your app when this value is detected
@@ -1314,6 +1779,12 @@ components:
         _links:
           type: object
           properties:
+            entity:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: https://api.nexmo.com/v0.1/athena/entities/ENT-f972836a-550f-45fa-956c-12a2ab5b7d22
             self:
               type: object
               properties:
@@ -1362,13 +1833,19 @@ components:
           example: mint
         _links:
           type: object
-          properties:
+          properties:            
             self:
               type: object
               properties:
                 href:
                   type: string
                   example: https://api.nexmo.com/v0.1/athena/synonyms/SYN-f972836a-550f-45fa-956c-12a2ab5b7d22
+            value:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: https://api.nexmo.com/v0.1/athena/values/VAL-f972836a-550f-45fa-956c-12a2ab5b7d22
     synonym_links:
       allOf:
           - $ref: "#/components/schemas/synonym"
@@ -1400,14 +1877,14 @@ components:
     entity:
       type: object
       properties:
-        name:
-          type: string
-          example: fruit
-          description: the name of the entity
         id:
           type: string
           example: ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
-          description: The unique identifier for the entity     
+          description: The unique identifier for the entity
+        name:
+          type: string
+          example: fruit
+          description: the name of the entity             
         _links:
           type: object
           properties:
@@ -1454,7 +1931,7 @@ tags:
   - name: Intents
     description: An intent of an utterance
   - name: Utterances
-    description: Real speech phrases corresponding to a given user intent.
+    description: Utterances are real speech phrases corresponding to a given user intent. In addition to intents, they can be tagged with various entities denoting the entities present within the utterance.
   - name: Entities
     description: 'An entity representing a real world object e.g. Color, Location, persons, organizations'
   - name: Values
