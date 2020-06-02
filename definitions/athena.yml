@@ -242,6 +242,7 @@ paths:
         - $ref: '#/components/parameters/page_size'
         - $ref: '#/components/parameters/cursor'
         - $ref: '#/components/parameters/order'
+        - $ref: '#/components/parameters/model_id_query'
       responses:
         '200':
           description: OK
@@ -365,7 +366,7 @@ paths:
         - Intents
       parameters:
         - $ref: '#/components/parameters/intent_id'
-        - $ref: "#/components/parameters/force"
+        - $ref:  "#/components/parameters/force_intent_delete"
       responses:
         '204':
           description: No Content
@@ -411,6 +412,7 @@ paths:
         - $ref: '#/components/parameters/page_size'
         - $ref: '#/components/parameters/cursor'
         - $ref: '#/components/parameters/order'
+        - $ref: '#/components/parameters/model_id_query'
       responses:
         '200':
           description: OK
@@ -534,7 +536,7 @@ paths:
         - Entities
       parameters:
         - $ref: '#/components/parameters/entity_id'
-        - $ref: "#/components/parameters/force"
+        - $ref: "#/components/parameters/force_entity_delete"
       responses:
         '204':
           description: No Content
@@ -824,7 +826,7 @@ paths:
       summary: Delete a value
       parameters:
         - $ref: '#/components/parameters/value_id'
-        - $ref: "#/components/parameters/force"
+        - $ref: "#/components/parameters/force_value_delete"
       responses:
         '204':
           description: No Content
@@ -982,6 +984,30 @@ components:
       scheme: bearer
       bearerFormat: JWT
   parameters:
+    force_value_delete:
+      name: force
+      in: query
+      description: If set to `true` a delete will cascade to all child synonyms.
+      required: false
+      example: false
+      schema:
+        type: boolean
+    force_entity_delete:
+      name: force
+      in: query
+      description: If set to `true` a delete will cascade to all child values and synonyms.
+      required: false
+      example: false
+      schema:
+        type: boolean
+    force_intent_delete:
+      name: force
+      in: query
+      description: If set to `true` a delete will cascade to all child utterances.
+      required: false
+      example: false
+      schema:
+        type: boolean
     force:
       name: force
       in: query
@@ -1032,7 +1058,14 @@ components:
       description: Unique Id for an entity
       required: true
       schema:
-        type: string    
+        type: string
+    model_id_query:
+      name: model_id
+      in: query
+      description: Looks up resources that are part of the provided model
+      schema:
+        type: string
+        example: MOD-92a44c64-7e4e-485f-a0c4-1f2adfc44625    
     page_size:
       name: page_size
       in: query
@@ -1272,7 +1305,7 @@ components:
               name:
                 type: string
                 description: the synonym for a given concrete value of an entity
-                example: mint
+                example: tangerine
   schemas:
     ErrorNotFound:
       type: object
@@ -1399,11 +1432,11 @@ components:
     labeled_text:
       type: string
       description: the text denoting the entity
-      example: red dress
+      example: tangerine
     synonym_name:
       type: string
       description: the detectable synonym of the entity type in this utterance
-      example: lime
+      example: tangerine
     intent_id:
       type: string
       description: the id of an intent
@@ -1412,9 +1445,9 @@ components:
       x-nexmo-developer-collection-description-show: true
       type: array      
       example:
-        - type: color
-          name: red
-          text: red dress
+        - type: fruit
+          name: orange
+          text: tangerine
           start_idx: 18
           end_idx: 27
       items:
@@ -1422,7 +1455,7 @@ components:
     utterance_text:
       type: string
       description: The Text of the utterance
-      example: "I'd like to buy a red dress"
+      example: "I'd like to buy a tangerine"
     values:
       type: object
       properties:
@@ -1453,19 +1486,19 @@ components:
       x-nexmo-developer-collection-description-shown: true
       description: synonyms associated with this value
       example:
-        - mint
-        - lime
+        - navel
+        - tangerine
       items:
         type: string
-        example: mint
+        example: tangerine
     value_name:
       type: string
       description: The name of the value - a concrete instance of the entity
-      example: green
+      example: orange
     intent_name:
       type: string
       description: The name of the intent
-      example: Buy Dress
+      example: Buy fruit
     utterances:
       type: object
       properties:        
@@ -1488,7 +1521,7 @@ components:
     analyze_text:
       type: string
       description: the text to run the natural language analysis against
-      example: "I'd like to buy a red dress"
+      example: "I'd like to buy a tangerine"
     language_code:
       description: BCP-47 compliant language code of the language the submitted text is in - current supported languages are - `en-US`
       type: string
@@ -1543,7 +1576,7 @@ components:
                 description: the intents tagged in the analysis
                 x-nexmo-developer-collection-description-shown: true
                 items:
-                  $ref: '#/components/schemas/value'
+                  $ref: '#/components/schemas/intent'
               confidence:
                 type: number
                 description: the confidence the model has that this was the intent of the utterance. Lies in the range of [0,1]
@@ -1618,6 +1651,18 @@ components:
                 href:
                   type: string
                   example: https://api.nexmo.com/v0.1/athena/models/MOD-f972836a-550f-45fa-956c-12a2ab5b7d22
+            intents:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: https://api.nexmo.com/v0.1/athena/intents?model_id=MOD-f972836a-550f-45fa-956c-12a2ab5b7d22
+            entities:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: https://api.nexmo.com/v0.1/athena/entities?model_id=MOD-f972836a-550f-45fa-956c-12a2ab5b7d22
                 
     model_links:
       properties:
@@ -1632,19 +1677,19 @@ components:
           properties:
             href:
               type: string
-              example: 'https://api.nexmo.com/v0.1/athena/models?int_id=INT-f972836a-550f-45fa-956c-12a2ab5b7d22&order=desc&page_size=10'                  
+              example: 'https://api.nexmo.com/v0.1/athena/models?intent_id=INT-f972836a-550f-45fa-956c-12a2ab5b7d22&order=desc&page_size=10'                  
         next:
           type: object
           properties:
             href:
               type: string
-              example: 'https://api.nexmo.com/v0.1/athena/models?int_id=INT-f972836a-550f-45fa-956c-12a2ab5b7d22&order=desc&page_size=10&cursor=88b395c167da4d94e929705cbd63b829a650e69a39197bfd4c949f4243f60dc4babb696afa404d2f44e7775e32b967f2a1a0bb8fb259c0999ba5a4e501eaab55'
+              example: 'https://api.nexmo.com/v0.1/athena/models?intent_id=INT-f972836a-550f-45fa-956c-12a2ab5b7d22&order=desc&page_size=10&cursor=88b395c167da4d94e929705cbd63b829a650e69a39197bfd4c949f4243f60dc4babb696afa404d2f44e7775e32b967f2a1a0bb8fb259c0999ba5a4e501eaab55'
         prev:
           type: object
           properties:
             href:
               type: string
-              example: 'https://api.nexmo.com/v0.1/athena/models?int_id=INT-f972836a-550f-45fa-956c-12a2ab5b7d22&order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'
+              example: 'https://api.nexmo.com/v0.1/athena/models?intent_id=INT-f972836a-550f-45fa-956c-12a2ab5b7d22&order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'
     labeled_entity:
       type: object
       description: An entity labeled for an utterance
@@ -1720,19 +1765,19 @@ components:
           properties:
             href:
               type: string
-              example: 'https://api.nexmo.com/v0.1/athena/utterances?int_id=INT-f972836a-550f-45fa-956c-12a2ab5b7d22&order=desc&page_size=10'                  
+              example: 'https://api.nexmo.com/v0.1/athena/utterances?intent_id=INT-f972836a-550f-45fa-956c-12a2ab5b7d22&order=desc&page_size=10'                  
         next:
           type: object
           properties:
             href:
               type: string
-              example: 'https://api.nexmo.com/v0.1/athena/utterances?int_id=INT-f972836a-550f-45fa-956c-12a2ab5b7d22&order=desc&page_size=10&cursor=88b395c167da4d94e929705cbd63b829a650e69a39197bfd4c949f4243f60dc4babb696afa404d2f44e7775e32b967f2a1a0bb8fb259c0999ba5a4e501eaab55'
+              example: 'https://api.nexmo.com/v0.1/athena/utterances?intent_id=INT-f972836a-550f-45fa-956c-12a2ab5b7d22&order=desc&page_size=10&cursor=88b395c167da4d94e929705cbd63b829a650e69a39197bfd4c949f4243f60dc4babb696afa404d2f44e7775e32b967f2a1a0bb8fb259c0999ba5a4e501eaab55'
         prev:
           type: object
           properties:
             href:
               type: string
-              example: 'https://api.nexmo.com/v0.1/athena/utterances?int_id=INT-f972836a-550f-45fa-956c-12a2ab5b7d22&order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'
+              example: 'https://api.nexmo.com/v0.1/athena/utterances?intent_id=INT-f972836a-550f-45fa-956c-12a2ab5b7d22&order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'
             
     intent:
       type: object
@@ -1744,7 +1789,7 @@ components:
           example: INT-f972836a-550f-45fa-956c-12a2ab5b7d22
         name:
           type: string
-          example: Buy Dress
+          example: Buy fruit
           description: The name of the intent                
         _links:
           type: object
@@ -1797,8 +1842,8 @@ components:
           example: VAL-afe887d8-d587-4280-9aae-dfa4c9227d5e        
         name:
           type: string
-          description: the name of a value representing a concrete instance of an entity. e.g. `green` is a possible value of the entity `color`
-          example: green
+          description: the name of a value representing a concrete instance of an entity. e.g. `orange` is a possible value of the entity `fruit`
+          example: orange
         entity_id:
           $ref: "#/components/schemas/entity_id"        
         metadata:
@@ -1866,7 +1911,7 @@ components:
         name:
           type: string
           description: the synonym of a concrete value of an entity
-          example: mint
+          example: tangerine
         _links:
           type: object
           properties:            
