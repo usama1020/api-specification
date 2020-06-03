@@ -19,9 +19,9 @@ paths:
       description: List the utterances for a given intent
       parameters:
         - $ref: '#/components/parameters/search_intent_id'
-        - $ref: '#/components/parameters/page_size'
-        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/page_size'        
         - $ref: '#/components/parameters/order'
+        - $ref: '#/components/parameters/cursor'
       responses:
         '200':
           description: OK
@@ -175,9 +175,9 @@ paths:
           schema:
             type: string
           required: false
-        - $ref: '#/components/parameters/page_size'
-        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/page_size'        
         - $ref: '#/components/parameters/order'
+        - $ref: '#/components/parameters/cursor'
       responses:
         '200':
           description: OK
@@ -242,10 +242,10 @@ paths:
       tags:
         - Intents
       parameters:        
-        - $ref: '#/components/parameters/page_size'
-        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/page_size'        
         - $ref: '#/components/parameters/order'
         - $ref: '#/components/parameters/model_id_query'
+        - $ref: '#/components/parameters/cursor'
       responses:
         '200':
           description: OK
@@ -387,7 +387,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorNotFound"        
         '409':
-          description: Delete operation would orphan utterances, delete utterances or set force to true to continue with the delete operation
+          description: Conflict
           content:
             application/json:
               schema:
@@ -405,6 +405,10 @@ paths:
                     type: string
                     description: detailed description of the error
                     example: Delete operation would orphan child utterances - please delete child utterances or set force to true to cascade the delete to child entities
+                  instance:
+                    type: string
+                    description: Internal Trace ID
+                    example: bf0ca0bf927b3b52e3cb03217e1a1ddf
   /entities:
     get:
       operationId: list_entities
@@ -413,10 +417,10 @@ paths:
       summary: List entities
       description: List all Entities associated with your application. The endpoint requires a JWT.
       parameters:              
-        - $ref: '#/components/parameters/page_size'
-        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/page_size'        
         - $ref: '#/components/parameters/order'
         - $ref: '#/components/parameters/model_id_query'
+        - $ref: '#/components/parameters/cursor'
       responses:
         '200':
           description: OK
@@ -560,7 +564,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorNotFound"
         '409':
-          description: Delete operation would orphan child values. Set the force flag to true or delete the child values to delete
+          description: Conflict
           content:
             application/json:
               schema:
@@ -578,7 +582,10 @@ paths:
                     type: string
                     description: detailed description of the error
                     example: Delete operation would orphan child values - please delete child values or set force to true to cascade the delete to child entities
-    
+                  instance:
+                    type: string
+                    description: Internal Trace ID
+                    example: bf0ca0bf927b3b52e3cb03217e1a1ddf    
   '/synonyms':
     get:
       description: Lists synonyms available for analysis
@@ -588,9 +595,9 @@ paths:
       summary: List synonyms
       parameters:        
         - $ref: '#/components/parameters/search_value_id'
-        - $ref: '#/components/parameters/page_size'
-        - $ref: '#/components/parameters/cursor'
-        - $ref: '#/components/parameters/order'                
+        - $ref: '#/components/parameters/page_size'        
+        - $ref: '#/components/parameters/order'    
+        - $ref: '#/components/parameters/cursor'            
       responses:
         '200':
           description: OK
@@ -718,8 +725,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/search_entity_id'
         - $ref: '#/components/parameters/page_size'
-        - $ref: '#/components/parameters/cursor'
         - $ref: '#/components/parameters/order'        
+        - $ref: '#/components/parameters/cursor'
       responses:
         '200':
           description: Values Listed
@@ -781,7 +788,7 @@ paths:
         - Values
       summary: Get a value
       parameters:
-        - $ref: '#/components/parameters/value_id'        
+        - $ref: '#/components/parameters/value_id'
       responses:
         '200':
           description: Value found
@@ -807,6 +814,8 @@ paths:
       tags:
         - Values
       summary: Update a value
+      parameters:
+        - $ref: '#/components/parameters/value_id'
       requestBody:
         $ref: '#/components/requestBodies/ValueUpdate'
       responses:
@@ -859,7 +868,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorNotFound"
         '409':
-          description: Conflict - Delete would orphan child entities, delete the child entities or set the force flag to true to cascade the delete operation.
+          description: Conflict
           content:
             application/json:
               schema:
@@ -877,6 +886,10 @@ paths:
                     type: string
                     description: detailed description of the error
                     example: Delete operation would orphan child synonyms - please delete child synonyms or set force to true to cascade the delete to child entities                  
+                  instance:
+                    type: string
+                    description: Internal Trace ID
+                    example: bf0ca0bf927b3b52e3cb03217e1a1ddf
   '/models/{model_id}':
     parameters:
       - schema:
@@ -1089,7 +1102,7 @@ components:
       schema:
         type: integer
         default: 10
-        example: 10
+        example: 25
         minimum: 1
         maximum: 100
       required: false
@@ -1100,6 +1113,7 @@ components:
       schema:
         type: string
         default: asc
+        example: desc
         enum:
           - asc
           - desc
@@ -1152,20 +1166,41 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            required:
-              - text
-            properties:
-              text:
-                $ref: '#/components/schemas/analyze_text'
-              language_code:
-                $ref: '#/components/schemas/language_code'
-              model_id:
-                $ref: '#/components/schemas/model_id'
-              intent_ids:
-                $ref: '#/components/schemas/intent_ids'
-              entity_ids:
-                $ref: '#/components/schemas/entity_ids'
+            oneOf:
+              - title: With Model
+                x-tab-id: WithModel
+                type: object
+                required:
+                  - text
+                  - model_id
+                properties:
+                  text:
+                    $ref: '#/components/schemas/analyze_text'
+                  language_code:
+                    $ref: '#/components/schemas/language_code'
+                  model_id:
+                    $ref: '#/components/schemas/model_id'
+                  intent_ids:
+                    $ref: '#/components/schemas/intent_ids'
+                  entity_ids:
+                    $ref: '#/components/schemas/entity_ids'
+              - title: With Intent
+                x-tab-id: WithIntent
+                type: object
+                required:
+                  - text
+                  - intent_ids
+                properties:
+                  text:
+                    $ref: '#/components/schemas/analyze_text'
+                  language_code:
+                    $ref: '#/components/schemas/language_code'
+                  model_id:
+                    $ref: '#/components/schemas/model_id'
+                  intent_ids:
+                    $ref: '#/components/schemas/intent_ids'
+                  entity_ids:
+                    $ref: '#/components/schemas/entity_ids'
     Model:
       description: The model to run text analysis against.
       content:
@@ -1522,13 +1557,14 @@ components:
     language_code:
       description: BCP-47 compliant language code of the language the submitted text is in - current supported languages are - `en-US`
       type: string
+      default: en-US
       example: en-US
     model_id:
       type: string
       example: MOD-92a44c64-7e4e-485f-a0c4-1f2adfc44625
-      description: "The Model to be used in analysis \n> Note every analyze requests requires at least a model or an intent\n"
+      description: "The Model to be used in analysis"
     intent_ids:
-      description: "the list of intents to be used in analysis \n> Note every analyze requests requires at least a model or an intent\n"
+      description: "the list of intents to be used in analysis"
       type: array
       x-nexmo-developer-collection-description-shown: true
       items:
@@ -1674,19 +1710,19 @@ components:
           properties:
             href:
               type: string
-              example: 'https://api.nexmo.com/v0.1/athena/models?intent_id=INT-f972836a-550f-45fa-956c-12a2ab5b7d22&order=desc&page_size=10'                  
+              example: 'https://api.nexmo.com/v0.1/athena/models?order=desc&page_size=10'                  
         next:
           type: object
           properties:
             href:
               type: string
-              example: 'https://api.nexmo.com/v0.1/athena/models?intent_id=INT-f972836a-550f-45fa-956c-12a2ab5b7d22&order=desc&page_size=10&cursor=88b395c167da4d94e929705cbd63b829a650e69a39197bfd4c949f4243f60dc4babb696afa404d2f44e7775e32b967f2a1a0bb8fb259c0999ba5a4e501eaab55'
+              example: 'https://api.nexmo.com/v0.1/athena/models?order=desc&page_size=10&cursor=88b395c167da4d94e929705cbd63b829a650e69a39197bfd4c949f4243f60dc4babb696afa404d2f44e7775e32b967f2a1a0bb8fb259c0999ba5a4e501eaab55'
         prev:
           type: object
           properties:
             href:
               type: string
-              example: 'https://api.nexmo.com/v0.1/athena/models?intent_id=INT-f972836a-550f-45fa-956c-12a2ab5b7d22&order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'
+              example: 'https://api.nexmo.com/v0.1/athena/models?order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'
     labeled_entity:
       type: object
       description: An entity labeled for an utterance
@@ -1722,6 +1758,10 @@ components:
         id:
           description: The unique id of the utterance
           example: UTT-f972836a-550f-45fa-956c-12a2ab5b7d22
+          type: string
+        intent_id:
+          description: The intent id that this utterance relates to
+          example: INT-f972836a-550f-45fa-956c-12a2ab5b7d22
           type: string
         text:
           type: string
