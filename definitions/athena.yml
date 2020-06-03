@@ -70,6 +70,7 @@ paths:
   '/utterances/{utterance_id}':
     get:
       summary: Get Utterance
+      description: Retrieves the utterance at the given id
       operationId: getUtterance
       tags:
         - Utterances
@@ -156,6 +157,7 @@ paths:
     get:
       summary: List models
       operationId: list_models
+      description: Lists the models available for use in analysis
       tags:
         - Models
       parameters:        
@@ -235,6 +237,7 @@ paths:
   /intents:
     get:
       operationId: list_intents
+      description: Lists the intents available for analysis
       summary: List intents
       tags:
         - Intents
@@ -273,6 +276,7 @@ paths:
                 $ref: "#/components/schemas/ErrorUnauthorized"
     post:
       summary: Create Intent
+      description: Creates a new intent that you can detect with analysis
       operationId: create_intent
       tags:
         - Intents
@@ -471,6 +475,7 @@ paths:
   '/entities/{entity_id}':
     get:
       summary: Get an Entity
+      description: Retrieves the entity at the given entity ID
       operationId: get_entity
       tags:
         - Entities
@@ -498,6 +503,7 @@ paths:
     patch:
       summary: Update an entity
       operationId: update_entity
+      description: Updates the entity at the given entity ID
       tags:
         - Entities
       parameters:
@@ -532,6 +538,7 @@ paths:
     delete:
       summary: Delete an entity
       operationId: delete_entity
+      description: deletes the entity at the provided id
       tags:
         - Entities
       parameters:
@@ -574,6 +581,7 @@ paths:
     
   '/synonyms':
     get:
+      description: Lists synonyms available for analysis
       operationId: get_synonyms
       tags:
         - Synonyms
@@ -618,6 +626,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorNotFound"  
     post:
+      description: Creates a synonym for the provided value id
       operationId: create_synonym
       tags:
         - Synonyms
@@ -653,6 +662,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/synonym_id'   
     get:
+      description: Retrieves the synonym at the provided id
       summary: Get a synonym
       operationId: get_synonym
       tags:
@@ -678,6 +688,7 @@ paths:
                 $ref: "#/components/schemas/ErrorNotFound"
     delete:
       summary: Delete a synonym
+      description: Deletes the synonym at the provided id
       operationId: delete_synonym
       tags:
         - Synonyms
@@ -699,6 +710,7 @@ paths:
   '/values':
     summary: list_values
     get:
+      description: Lists the discrete set of values available for a given entity id.
       operationId: get_values
       tags:
         - Values
@@ -729,6 +741,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorNotFound"  
     post:
+      description: Creates a value for the provided entity id
       operationId: create_value
       tags:
         - Values
@@ -762,6 +775,7 @@ paths:
                 $ref: "#/components/schemas/ErrorNotFound"
   '/values/{value_id}':
     get:
+      description: Gets the value at the given value id
       operationId: get_value
       tags:
         - Values
@@ -788,6 +802,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorNotFound"
     patch:
+      description: Updates the value at the provided value id. Particularly useful if you need to edit a value but do not want to change it's underlying synonyms.
       operationId: update_value
       tags:
         - Values
@@ -820,6 +835,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorNotFound"
     delete:
+      description: Deletes the value at the provided id. Deletes will cascade to child synonyms if the `force` parameter is set to true.
       operationId: delete_value
       tags:
         - Values
@@ -1411,16 +1427,6 @@ components:
       type: string
       description: Unique id of an entity
       example: ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
-    value_request:
-      type: object
-      description: A possible value of an entity
-      properties:
-        name:
-          $ref: '#/components/schemas/value_name'
-        synonyms:
-          $ref: '#/components/schemas/synonyms'
-        metadata:
-          $ref: '#/components/schemas/metadata'
     start_idx:
       type: integer
       description: position in the utterance where the entity starts
@@ -1436,11 +1442,7 @@ components:
     synonym_name:
       type: string
       description: the detectable synonym of the entity type in this utterance
-      example: tangerine
-    intent_id:
-      type: string
-      description: the id of an intent
-      example: INT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+      example: tangerine    
     labeled_entities:
       x-nexmo-developer-collection-description-show: true
       type: array      
@@ -1467,7 +1469,7 @@ components:
           x-nexmo-developer-collection-description-shown: true
           type: array
           description: concrete representations of the entity in the real world
-          items:
+          items:            
             $ref: '#/components/schemas/value'
         _links:
           $ref: '#/components/schemas/value_links'
@@ -1480,17 +1482,12 @@ components:
       type: object
       x-nexmo-developer-collection-description-shown: true
       description: metadata for the value you might want your app to use Limit 4k in size
-      example: "{RGB:'00FF00'}"
-    synonyms:
-      type: array
-      x-nexmo-developer-collection-description-shown: true
-      description: synonyms associated with this value
-      example:
-        - navel
-        - tangerine
-      items:
-        type: string
-        example: tangerine
+      example: 
+        type: object
+        properties:
+          RGB:
+            type: string
+            example: '00FF00'
     value_name:
       type: string
       description: The name of the value - a concrete instance of the entity
@@ -1832,9 +1829,9 @@ components:
           properties:
             href:
               type: string
-              example: 'https://api.nexmo.com/v0.1/athena/intents?order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'            
-          
+              example: 'https://api.nexmo.com/v0.1/athena/intents?order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'
     value:
+      type: object
       properties:
         id:
           type: string
@@ -1849,7 +1846,12 @@ components:
         metadata:
           type: object
           description: Custom object of metadata that will be sent back to your app when this value is detected
-          example: '{custom:metadata}'
+          example:
+            type: object
+            properties:
+              RGB:
+                type: string
+                example: "00FF00"
         _links:
           type: object
           properties:
