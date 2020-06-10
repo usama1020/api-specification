@@ -585,135 +585,7 @@ paths:
                   instance:
                     type: string
                     description: Internal Trace ID
-                    example: bf0ca0bf927b3b52e3cb03217e1a1ddf    
-  '/synonyms':
-    get:
-      description: Lists synonyms available for analysis
-      operationId: get_synonyms
-      tags:
-        - Synonyms
-      summary: List synonyms
-      parameters:        
-        - $ref: '#/components/parameters/search_value_id'
-        - $ref: '#/components/parameters/page_size'        
-        - $ref: '#/components/parameters/order'    
-        - $ref: '#/components/parameters/cursor'            
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                properties:
-                  page_size:
-                    type: integer
-                    example: 10
-                    description: The number of results returned on this page.                  
-                  _embedded:
-                    type: object
-                    x-nexmo-developer-collection-description-shown: true
-                    properties:
-                      synonyms:
-                        type: array
-                        description: List of Synonyms matching provided filter
-                        items:
-                          $ref: '#/components/schemas/synonym'
-                  _links:
-                    $ref: '#/components/schemas/synonym_links'
-        '401':
-          description: Not Authorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorUnauthorized"
-        '404':
-          description: Resource Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorNotFound"  
-    post:
-      description: Creates a synonym for the provided value id
-      operationId: create_synonym
-      tags:
-        - Synonyms
-      summary: Add a synonym      
-      requestBody:
-        $ref: '#/components/requestBodies/Synonym'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/synonym'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorInvalidJson"
-        '401':
-          description: Not Authorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorUnauthorized"
-        '404':
-          description: Not Found    
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorNotFound"
-  '/synonyms/{synonym_id}':
-    parameters:
-      - $ref: '#/components/parameters/synonym_id'   
-    get:
-      description: Retrieves the synonym at the provided id
-      summary: Get a synonym
-      operationId: get_synonym
-      tags:
-        - Synonyms
-      responses:
-        '200':
-          description: Synonym retrieved
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/synonym'
-        '401':
-          description: Not Authorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorUnauthorized"
-        '404':
-          description: Synonym Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorNotFound"
-    delete:
-      summary: Delete a synonym
-      description: Deletes the synonym at the provided id
-      operationId: delete_synonym
-      tags:
-        - Synonyms
-      responses:
-        '204':
-          description: No Content
-        '401':
-          description: Not Authorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorUnauthorized"
-        '404':
-          description: Synonym Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorNotFound"
+                    example: bf0ca0bf927b3b52e3cb03217e1a1ddf
   '/values':
     summary: list_values
     get:
@@ -844,14 +716,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorNotFound"
     delete:
-      description: Deletes the value at the provided id. Deletes will cascade to child synonyms if the `force` parameter is set to true.
+      description: Deletes the value at the provided id.
       operationId: delete_value
       tags:
         - Values
       summary: Delete a value
       parameters:
-        - $ref: '#/components/parameters/value_id'
-        - $ref: "#/components/parameters/force_value_delete"
+        - $ref: '#/components/parameters/value_id'        
       responses:
         '204':
           description: No Content
@@ -866,30 +737,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorNotFound"
-        '409':
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  type:
-                    type: string
-                    description: Link to error / remediation options
-                    example: https://developer.nexmo.com/api-errors/athena#delete-conflict
-                  title:
-                    type: string
-                    description: title of the error
-                    example: Conflict
-                  detail:
-                    type: string
-                    description: detailed description of the error
-                    example: Delete operation would orphan child synonyms - please delete child synonyms or set force to true to cascade the delete to child entities                  
-                  instance:
-                    type: string
-                    description: Internal Trace ID
-                    example: bf0ca0bf927b3b52e3cb03217e1a1ddf
+                $ref: "#/components/schemas/ErrorNotFound"        
   '/models/{model_id}':
     parameters:
       - schema:
@@ -1012,19 +860,11 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-  parameters:
-    force_value_delete:
-      name: force
-      in: query
-      description: If set to `true` a delete will cascade to all child synonyms.
-      required: false
-      example: false
-      schema:
-        type: boolean
+  parameters:    
     force_entity_delete:
       name: force
       in: query
-      description: If set to `true` a delete will cascade to all child values and synonyms.
+      description: If set to `true` a delete will cascade to all child values.
       required: false
       example: false
       schema:
@@ -1127,15 +967,7 @@ components:
         You are not expected to provide this manually, but to follow the url provided in `_links.next.href` in the response which contains a `cursor` value
       schema:
         type: string
-      required: false
-    synonym_id:
-      name: synonym_id
-      in: path
-      description: The Id of the synonym
-      example: SYN-f972836a-550f-45fa-956c-12a2ab5b7d22
-      schema:
-        type: string
-      required: true
+      required: false    
     search_intent_id:
       name: intent_id
       description: the intent to search on
@@ -1223,7 +1055,9 @@ components:
             type: object
             properties:
               name:
-                $ref: '#/components/schemas/intent_name'              
+                $ref: '#/components/schemas/intent_name'
+              utterances:                
+                $ref: '#/components/schemas/utterance_list_update'                         
     Intent:
       description: A task or action a user intends for the agent
       x-nexmo-developer-collection-description-show: true
@@ -1235,7 +1069,10 @@ components:
               - name
             properties:
               name:
-                $ref: '#/components/schemas/intent_name'              
+                $ref: '#/components/schemas/intent_name'
+              utterances:
+                $ref: '#/components/schemas/utterance_list'
+                      
     Value:
       description: A possible value for an Entity
       content:
@@ -1254,6 +1091,8 @@ components:
                 $ref: '#/components/schemas/value_name'              
               metadata:
                 $ref: '#/components/schemas/metadata'
+              synonyms:
+                $ref: '#/components/schemas/synonyms'
     Entity:
       description: An entity representing a real world object
       content:
@@ -1264,7 +1103,9 @@ components:
               - name
             properties:
               name:
-                $ref: '#/components/schemas/entity_name'              
+                $ref: '#/components/schemas/entity_name'  
+              values:
+                $ref: '#/components/schemas/value_list'            
     ValueUpdate:
       description: A possible value for an Entity
       content:
@@ -1276,6 +1117,8 @@ components:
                 $ref: '#/components/schemas/value_name'
               metadata:
                 $ref: '#/components/schemas/metadata'
+              synonyms:
+                $ref: '#/components/schemas/synonyms'
     EntityUpdate:
       description: Update model of an entity.
       content:
@@ -1285,6 +1128,8 @@ components:
             properties:
               name:
                 $ref: '#/components/schemas/entity_name'
+              values:
+                $ref: '#/components/schemas/value_list_update'
     Utterance:
       description: An utterance labeled for a specific intent
       x-nexmo-developer-collection-description-show: true
@@ -1454,10 +1299,6 @@ components:
           type: string
           description: Internal Trace ID
           example: bf0ca0bf927b3b52e3cb03217e1a1ddf
-    value_id:
-      type: string
-      description: Unique id of a value
-      example: VAL-92a44c64-7e4e-485f-a0c4-1f2adfc44625
     entity_id:
       type: string
       description: Unique id of an entity
@@ -1477,7 +1318,71 @@ components:
     synonym_name:
       type: string
       description: the detectable synonym of the entity type in this utterance
-      example: tangerine    
+      example: tangerine
+    value_list:
+      type: array      
+      description: A list of intents for the entity
+      items:
+         type: object
+         properties:
+          name:
+            type: string
+            description: The name of the value - a concrete instance of the entity
+          metadata: 
+            $ref: "#/components/schemas/metadata"
+          synonyms:
+            $ref: "#/components/schemas/synonyms"
+    value_list_update:
+      type: array      
+      description: |
+        The list of values to set for the entity.
+        > NOTE: This will overwrite the values already associated with the entity
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+            description: The name of the value - a concrete instance of the entity
+          metadata: 
+            $ref: "#/components/schemas/metadata"
+          synonyms:
+            $ref: "#/components/schemas/synonyms"
+    utterance_list:
+      type: array
+      x-nexmo-developer-collection-description-show: true
+      description: A list of utterances for the intent      
+      items:
+        type: object
+        properties:
+          text:
+            type: string
+            example: I'd like to buy a tangerine
+            description: the text of the utterance
+          labeled_entities:
+            type: array
+            description: the entities tagged in the utterance
+            x-nexmo-developer-collection-description-shown: true
+            items:
+              $ref: '#/components/schemas/labeled_entity'
+    utterance_list_update:
+      type: array
+      x-nexmo-developer-collection-description-show: true      
+      description: | 
+        The list of utterances associated with the intent
+        > NOTE This will overwrite any utterances already associated with the intent
+      items:
+        type: object
+        properties:
+          text:
+            type: string
+            example: I'd like to buy a tangerine
+            description: the text of the utterance
+          labeled_entities:
+            type: array
+            description: the entities tagged in the utterance
+            x-nexmo-developer-collection-description-shown: true
+            items:
+              $ref: '#/components/schemas/labeled_entity'      
     labeled_entities:
       x-nexmo-developer-collection-description-show: true
       type: array      
@@ -1518,11 +1423,8 @@ components:
       x-nexmo-developer-collection-description-shown: true
       description: metadata for the value you might want your app to use Limit 4k in size
       example: 
-        type: object
-        properties:
-          RGB:
-            type: string
-            example: '00FF00'
+        RGB: '00FF00'
+                      
     value_name:
       type: string
       description: The name of the value - a concrete instance of the entity
@@ -1626,9 +1528,7 @@ components:
                   entity:
                     $ref: '#/components/schemas/entity'
                   value:
-                    $ref: '#/components/schemas/value'
-                  synonym:
-                    $ref: '#/components/schemas/synonym'
+                    $ref: '#/components/schemas/value'                  
                   text:
                     type: string
                     description: the text denoting the entity
@@ -1734,11 +1634,7 @@ components:
         value_id:
           type: string
           description: The unique id of the labeled value
-          example: VAL-92a44c64-7e4e-485f-a0c4-1f2adfc44625
-        synonym_id:
-          type: string
-          description: the synonym for the entity value that's been locked onto
-          example: SYN-afe887d8-d587-4280-9aae-dfa4c9227d5e        
+          example: VAL-92a44c64-7e4e-485f-a0c4-1f2adfc44625               
         text:
           type: string
           description: the text denoting the entity
@@ -1884,23 +1780,12 @@ components:
         entity_id:
           $ref: "#/components/schemas/entity_id"        
         metadata:
-          type: object
-          description: Custom object of metadata that will be sent back to your app when this value is detected
-          example:
-            type: object
-            properties:
-              RGB:
-                type: string
-                example: "00FF00"
+          $ref: "#/components/schemas/metadata"
+        synonyms:
+          $ref: "#/components/schemas/synonyms"
         _links:
           type: object
-          properties:
-            synonyms:
-              type: object
-              properties:
-                href:
-                  type: string
-                  example: https://api.nexmo.com/v0.1/athena/synonyms?value_id=VAL-f972836a-550f-45fa-956c-12a2ab5b7d22
+          properties:            
             entity:
               type: object
               properties:
@@ -1939,67 +1824,15 @@ components:
             href:
               type: string
               example: 'https://api.nexmo.com/v0.1/athena/values?entity_id=ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625&order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'
-              
-    synonym:
-      properties:        
-        id:
-          type: string
-          description: the unique ID for a synonym
-          example: SYN-afe887d8-d587-4280-9aae-dfa4c9227d5e
-        value_id:
-          $ref: "#/components/schemas/value_id"
-        entity_id:
-          $ref: "#/components/schemas/entity_id"
-        name:
-          type: string
-          description: the synonym of a concrete value of an entity
-          example: tangerine
-        _links:
-          type: object
-          properties:            
-            self:
-              type: object
-              properties:
-                href:
-                  type: string
-                  example: https://api.nexmo.com/v0.1/athena/synonyms/SYN-f972836a-550f-45fa-956c-12a2ab5b7d22
-            value:
-              type: object
-              properties:
-                href:
-                  type: string
-                  example: https://api.nexmo.com/v0.1/athena/values/VAL-f972836a-550f-45fa-956c-12a2ab5b7d22
-    synonym_links:      
-      properties:
-        _links:
-          type: object
-          properties:
-            self:
-              type: object
-              properties:
-                href:
-                  type: string
-                  example: 'https://api.nexmo.com/v0.1/athena/synonyms/SYN-f972836a-550f-45fa-956c-12a2ab5b7d22'
-            first:
-              type: object
-              properties:
-                href:
-                  type: string
-                  example: 'https://api.nexmo.com/v0.1/athena/synonyms?value_id=VAL-92a44c64-7e4e-485f-a0c4-1f2adfc44625&order=desc&page_size=10'
-            next:
-              type: object
-              properties:
-                href:
-                  type: string
-                  example: 'https://api.nexmo.com/v0.1/athena/synonyms?value_id=VAL-92a44c64-7e4e-485f-a0c4-1f2adfc44625&order=desc&page_size=10&cursor=88b395c167da4d94e929705cbd63b829a650e69a39197bfd4c949f4243f60dc4babb696afa404d2f44e7775e32b967f2a1a0bb8fb259c0999ba5a4e501eaab55'
-            prev:
-              type: object
-              properties:
-                href:
-                  type: string
-                  example: 'https://api.nexmo.com/v0.1/athena/synonyms?value_id=VAL-92a44c64-7e4e-485f-a0c4-1f2adfc44625&order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'
-
-
+    synonyms:
+      type: array
+      x-nexmo-developer-collection-description-shown: true
+      description: the synonyms for the value
+      items:
+        type: string
+      example:
+        - tangerine
+        - navel       
     entity:
       type: object
       properties:
@@ -2079,6 +1912,4 @@ tags:
   - name: Entities
     description: 'An entity representing a real world object e.g. Color, Location, persons, organizations'
   - name: Values
-    description: "A Value is a potential value of an entity - for example 'green' is a possible value of the entity 'color'"
-  - name: Synonyms
-    description: "A synonym is an alternative value for a discrete value of an entity - for example 'lime' or 'mint' can be thought of as a synonym for the 'green' value of the 'color' entity"
+    description: "A Value is a potential value of an entity - for example 'green' is a possible value of the entity 'color'"  
