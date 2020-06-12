@@ -304,6 +304,7 @@ paths:
   '/intents/{intent_id}':
     get:
       operationId: get_intent
+      summary: Get Intent
       description: Get an intent
       tags:
         - Intents
@@ -365,6 +366,7 @@ paths:
                 $ref: "#/components/schemas/ErrorNotFound"
     delete:
       operationId: delete_intent
+      summary: Delete Intent
       description: Delete an intent
       tags:
         - Intents
@@ -1038,14 +1040,31 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              name:
-                $ref: '#/components/schemas/model_name'
-              intent_ids:
-                $ref: '#/components/schemas/model_intent_ids'
-              entity_ids:
-                $ref: '#/components/schemas/entity_ids'
+            oneOf:
+              - title: With Intents
+                x-tab-id: WithIntents
+                required:
+                  - intent_ids                
+                type: object
+                properties:                  
+                  intent_ids:
+                    $ref: '#/components/schemas/model_intent_ids'
+                  entity_ids:
+                    $ref: '#/components/schemas/entity_ids'              
+                  name:
+                    $ref: '#/components/schemas/model_name'
+              - title: With Entities
+                x-tab-id: WithEntities
+                required:
+                  - entity_ids                
+                type: object
+                properties:                  
+                  intent_ids:
+                    $ref: '#/components/schemas/model_intent_ids'
+                  entity_ids:
+                    $ref: '#/components/schemas/entity_ids'
+                  name:
+                    $ref: '#/components/schemas/model_name'
     IntentUpdate:
       description: New name for the intent
       x-nexmo-developer-collection-description-show: true
@@ -1094,7 +1113,7 @@ components:
               synonyms:
                 $ref: '#/components/schemas/synonyms'
     Entity:
-      description: An entity representing a real world object
+      description: An entity representing a real world object      
       content:
         application/json:
           schema:
@@ -1324,9 +1343,11 @@ components:
       description: A list of intents for the entity
       items:
          type: object
+         x-nexmo-developer-collection-description-show: true
          properties:
           name:
             type: string
+            example: fruit
             description: The name of the value - a concrete instance of the entity
           metadata: 
             $ref: "#/components/schemas/metadata"
@@ -1342,6 +1363,7 @@ components:
         properties:
           name:
             type: string
+            example: fruit
             description: The name of the value - a concrete instance of the entity
           metadata: 
             $ref: "#/components/schemas/metadata"
@@ -1423,7 +1445,7 @@ components:
       x-nexmo-developer-collection-description-shown: true
       description: metadata for the value you might want your app to use Limit 4k in size
       example: 
-        RGB: '00FF00'
+        genus: 'citrus'
                       
     value_name:
       type: string
@@ -1501,50 +1523,33 @@ components:
           type: string
           example: "I'd like to buy a tangerine"
           description: the text that was analyzed
-        intents:
-          type: array
-          items:
-            type: object
-            properties:
-              _embedded:                
-                type: array
-                description: the intents tagged in the analysis
-                x-nexmo-developer-collection-description-shown: true
-                items:
-                  $ref: '#/components/schemas/intent'
-              confidence:
-                type: number
-                description: the confidence the model has that this was the intent of the utterance. Lies in the range of [0,1]
-                example: 0.95 
-        entities:
-          type: array
-          description: the entities tagged in the utterance
-          items:
-            type: object
-            properties:
-              _embedded:
+        _embedded:
+          type: object
+          properties:
+            intents:
+              type: array
+              items:
+                type: object
+                properties:
+                  intent:
+                    $ref: "#/components/schemas/intent"
+                  confidence:
+                    type: number
+                    description: the confidence the model has that this was the intent of the utterance. Lies in the range of [0,1]
+                    example: 0.95 
+            entities:
+              type: array
+              items:
                 type: object
                 properties:
                   entity:
-                    $ref: '#/components/schemas/entity'
+                    $ref: "#/components/schemas/entity"
                   value:
-                    $ref: '#/components/schemas/value'                  
-                  text:
-                    type: string
-                    description: the text denoting the entity
-                    example: tangerine
-                  start_word:
-                    type: integer
-                    example: 5
-                    description: position (in words) into the utterance where the entity starts - 0 based - setting start and end to the same value captures a single word
-                  end_word:
-                    type: integer
-                    example: 5
-                    description: position (in words) into the utterance where the entity ends - 0 based - setting start and end to the same value captures a single word        
+                    $ref: "#/components/schemas/value"
                   confidence:
                     type: number
-                    description: confidence the model has that the detected entity is present in the text - on a range of [0,1]
-                    example: 0.95
+                    description: the confidence the model has that this was the intent of the utterance. Lies in the range of [0,1]
+                    example: 0.95 
     model:
       type: object
       description: A model to run text analysis against
