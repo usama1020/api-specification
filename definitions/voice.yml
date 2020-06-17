@@ -1,7 +1,7 @@
 ---
 openapi: 3.0.0
 info:
-  version: 1.2.8
+  version: 1.2.9
   title: Voice API
   description: The Voice API lets you create outbound calls, control in-progress calls
     and get information about historical calls. More information about the Voice API
@@ -25,113 +25,14 @@ paths:
         content:
           application/json:
             schema:
-              required:
-                - to
-                - from
-              properties:
-                to:
-                  type: array
-                  items:
-                    oneOf:
-                    - "$ref": "#/components/schemas/EndpointPhone"
-                    - "$ref": "#/components/schemas/EndpointSip"
-                    - "$ref": "#/components/schemas/EndpointWebsocket"
-                    - "$ref": "#/components/schemas/EndpointVBCExtension"
-                from:
-                  "$ref": "#/components/schemas/EndpointPhone"
-                ncco:
-                  description: |
-                    **Required** unless `answer_url` is provided.
-
-                    The [Nexmo Call Control Object](/voice/voice-api/ncco-reference) to use for this call.
-                  type: array
-                  x-nexmo-developer-collection-description-shown: true
-                  example: |
-                      [
-                        {
-                          "action":"talk",
-                          "text": "Hello World"
-                        }
-                      ]
-                  items:
-                    type: object
-                answer_url:
-                  description: |
-                    **Required** unless `ncco` is provided.
-
-                    The webhook endpoint where you provide the [Nexmo Call Control Object](/voice/voice-api/ncco-reference) that governs this call.
-                  type: array
-                  x-nexmo-developer-collection-description-shown: true
-                  example: '["https://example.com/answer"]'
-                  items:
-                    type: string
-                answer_method:
-                  description: The HTTP method used to send event information to answer_url.
-                  type: string
-                  default: GET
-                  enum:
-                  - POST
-                  - GET
-                event_url:
-                  description: |
-                    **Required** unless `event_url` is configured at the application
-                    level, see [Create an Application](/api/application.v2#createApplication)
-
-                    The webhook endpoint where call progress events are
-                    sent to. For more information about the values sent, see
-                    [Event webhook](/voice/voice-api/webhook-reference#event-webhook).
-                  type: array
-                  x-nexmo-developer-collection-description-shown: true
-                  example: '["https://example.com/event"]'
-                  items:
-                    type: string
-                    format: uri
-                event_method:
-                  description: The HTTP method used to send event information to event_url.
-                  type: string
-                  default: POST
-                  enum:
-                  - POST
-                  - GET
-                machine_detection:
-                  description: Configure the behavior when Nexmo detects that the
-                    call is answered by voicemail. If Continue Nexmo sends an HTTP
-                    request to event_url with the Call event machine. hangup  end
-                    the call
-                  type: string
-                  enum:
-                  - continue
-                  - hangup
-                  example: continue
-                length_timer:
-                  description: Set the number of seconds that elapse before Nexmo
-                    hangs up after the call state changes to in_progress.
-                  minimum: 1
-                  maximum: 7200
-                  default: 7200
-                  type: integer
-                ringing_timer:
-                  description: Set the number of seconds that elapse before Nexmo
-                    hangs up after the call state changes to ‘ringing’.
-                  minimum: 1
-                  maximum: 120
-                  default: 60
-                  type: integer
+              "$ref": "#/components/schemas/CreateCallRequest"
       responses:
         '201':
           description: Created
           content:
             application/json:
               schema:
-                properties:
-                  uuid:
-                    $ref: '#/components/schemas/uuid'
-                  status:
-                    $ref: '#/components/schemas/status'
-                  direction:
-                    $ref: '#/components/schemas/direction'
-                  conversation_uuid:
-                    $ref: '#/components/schemas/conversation_uuid'
+                "$ref": "#/components/schemas/CreateCallResponse"
     get:
       security:
       - bearerAuth: []
@@ -201,80 +102,11 @@ paths:
           $ref: '#/components/schemas/conversation_uuid'
       responses:
         '200':
-          description: Ok
+          description: OK
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  count:
-                    type: integer
-                    title: The total number of records returned by your request.
-                    example: 100
-                  page_size:
-                    type: integer
-                    title: The amount of records returned in this response.
-                    example: 10
-                  record_index:
-                    type: integer
-                    title: The `record_index` used in your request.
-                    example: 0
-                  _links:
-                    type: object
-                    properties:
-                      self:
-                        type: object
-                        properties:
-                          href:
-                            type: string
-                            title: Link to the object
-                            example: "/calls?page_size=10&record_index=20&order=asc"
-                  _embedded:
-                    description: >-
-                        A list of call objects. See the
-                        [get details of a specific call](#getCall)
-                        response fields for a description of the nested objects
-                    type: object
-                    properties:
-                      calls:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            _links:
-                              type: object
-                              properties:
-                                self:
-                                  type: object
-                                  properties:
-                                    href:
-                                      type: string
-                                      title: The Link to the Call Object
-                                      example: "/calls/63f61863-4a51-4f6b-86e1-46edebcf9356"
-                            uuid:
-                              $ref: '#/components/schemas/uuid'
-                            conversation_uuid:
-                              $ref: '#/components/schemas/conversation_uuid'
-                            to:
-                              $ref: '#/components/schemas/to'
-                            from:
-                              $ref: '#/components/schemas/from'
-                            status:
-                              $ref: '#/components/schemas/status'
-                            direction:
-                              $ref: '#/components/schemas/direction'
-                            rate:
-                              $ref: '#/components/schemas/rate'
-                            price:
-                              $ref: '#/components/schemas/price'
-                            duration:
-                              $ref: '#/components/schemas/duration'
-                            start_time:
-                              $ref: '#/components/schemas/start_time'
-                            end_time:
-                              $ref: '#/components/schemas/end_time'
-                            network:
-                              $ref: '#/components/schemas/network'
+                "$ref": "#/components/schemas/GetCallsResponse"
   "/{uuid}":
     parameters:
     - in: path
@@ -296,6 +128,470 @@ paths:
           content:
             application/json:
               schema:
+                "$ref": "#/components/schemas/GetCallResponse"
+    put:
+      security:
+      - bearerAuth: []
+      summary: Modify an in progress call
+      description: Modify an in progress call
+      operationId: updateCall
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateCallRequest"
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+
+  "/{uuid}/stream":
+    parameters:
+    - in: path
+      name: uuid
+      schema:
+        type: string
+      required: true
+      description: UUID of the Call Leg
+      example: 63f61863-4a51-4f6b-86e1-46edebcf9356
+    put:
+      security:
+      - bearerAuth: []
+      summary: Play an audio file into a call
+      description: Play an audio file into a call
+      operationId: startStream
+      requestBody:
+        description: action to perform
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/StartStreamRequest"
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/StartStreamResponse"
+
+    delete:
+      security:
+      - bearerAuth: []
+      summary: Stop playing an audio file into a call
+      description: Stop playing an audio file into a call
+      operationId: stopStream
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/StopStreamResponse"
+
+  "/{uuid}/talk":
+    parameters:
+    - in: path
+      name: uuid
+      schema:
+        type: string
+      required: true
+      description: UUID of the Call Leg
+      example: 63f61863-4a51-4f6b-86e1-46edebcf9356
+    put:
+      security:
+      - bearerAuth: []
+      summary: Play text to speech into a call
+      description: Play text to speech into a call
+      operationId: startTalk
+      requestBody:
+        description: Action to perform
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/StartTalkRequest"
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/StartTalkResponse"
+
+    delete:
+      security:
+      - bearerAuth: []
+      summary: Stop text to speech in a call
+      description: Stop text to speech in a call
+      operationId: stopTalk
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/StopTalkResponse"
+
+  "/{uuid}/dtmf":
+    parameters:
+    - in: path
+      name: uuid
+      schema:
+        type: string
+      required: true
+      description: UUID of the Call Leg
+      example: 63f61863-4a51-4f6b-86e1-46edebcf9356
+    put:
+      security:
+      - bearerAuth: []
+      summary: Play DTMF tones into a call
+      description: Play DTMF tones into a call
+      operationId: startDTMF
+      requestBody:
+        description: action to perform
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/DTMFRequest"
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/DTMFResponse"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    DTMFRequest:
+      type: object
+      properties:
+        digits:
+          type: string
+          example: 1713
+          description: The digits to send
+
+    StartTalkRequest:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+          description: The text to read
+          example: Hello. How are you today?
+        voice_name:
+          $ref: "#/components/schemas/voice_name"
+        loop:
+          type: integer
+          description: The number of times to repeat the text the file, 0
+            for infinite
+          default: 1
+        level:
+          type: string
+          description: The volume level that the speech is played. This can be any value between `-1` to `1` in `0.1` increments, with `0` being the default.
+          example: "0.4"
+          default: "0"
+
+
+    StartStreamRequest:
+      type: object
+      required:
+        - stream_url
+      properties:
+        stream_url:
+          x-nexmo-developer-collection-description-shown: true
+          example: '["https://example.com/waiting.mp3"]'
+          type: array
+          items:
+            type: string
+        loop:
+          type: integer
+          description: the number of times to play the file, 0 for infinite
+          default: 1
+        level:
+          type: string
+          description: Set the audio level of the stream in the range `-1 >= level <= 1` with a precision of 0.1. The default value is 0.
+          example: "0.4"
+          default: "0"
+
+
+    UpdateCallRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          example: mute
+          enum:
+          - hangup
+          - mute
+          - unmute
+          - earmuff
+          - unearmuff
+          - transfer
+          description: The action to apply to the in-progress call
+        destination:
+          type: object
+          description: Required when `action` is `transfer`
+          x-nexmo-developer-collection-description-shown: true
+          properties:
+            type:
+              type: string
+              example: ncco
+              description: Always `ncco`
+              x-nexmo-developer-collection-description-shown: true
+            url:                      
+              example: '["https://example.com/ncco.json"]'
+              type: array
+              items:
+                type: string
+              description: The URL that Nexmo makes a request to. Must return an NCCO.
+              x-nexmo-developer-collection-description-shown: true
+            ncco:
+              example: '[{"action": "talk", "text": "hello world"}]'
+              type: array
+              items:
+                type: object
+              description: Can be used instead of `url` for the `transfer` action only.
+              x-nexmo-developer-collection-description-shown: true
+
+
+    CreateCallRequest:
+      type: object
+      required:
+        - to
+        - from
+      properties:
+        to:
+          type: array
+          items:
+            oneOf:
+            - "$ref": "#/components/schemas/EndpointPhone"
+            - "$ref": "#/components/schemas/EndpointSip"
+            - "$ref": "#/components/schemas/EndpointWebsocket"
+            - "$ref": "#/components/schemas/EndpointVBCExtension"
+        from:
+          "$ref": "#/components/schemas/EndpointPhone"
+        ncco:
+          description: |
+            **Required** unless `answer_url` is provided.
+
+            The [Nexmo Call Control Object](/voice/voice-api/ncco-reference) to use for this call.
+          type: array
+          x-nexmo-developer-collection-description-shown: true
+          example: |
+              [
+                {
+                  "action":"talk",
+                  "text": "Hello World"
+                }
+              ]
+          items:
+            type: object
+        answer_url:
+          description: |
+            **Required** unless `ncco` is provided.
+
+            The webhook endpoint where you provide the [Nexmo Call Control Object](/voice/voice-api/ncco-reference) that governs this call.
+          type: array
+          x-nexmo-developer-collection-description-shown: true
+          example: '["https://example.com/answer"]'
+          items:
+            type: string
+        answer_method:
+          description: The HTTP method used to send event information to answer_url.
+          type: string
+          default: GET
+          enum:
+          - POST
+          - GET
+        event_url:
+          description: |
+            **Required** unless `event_url` is configured at the application
+            level, see [Create an Application](/api/application.v2#createApplication)
+
+            The webhook endpoint where call progress events are
+            sent to. For more information about the values sent, see
+            [Event webhook](/voice/voice-api/webhook-reference#event-webhook).
+          type: array
+          x-nexmo-developer-collection-description-shown: true
+          example: '["https://example.com/event"]'
+          items:
+            type: string
+            format: uri
+        event_method:
+          description: The HTTP method used to send event information to event_url.
+          type: string
+          default: POST
+          enum:
+          - POST
+          - GET
+        machine_detection:
+          description: Configure the behavior when Nexmo detects that the
+            call is answered by voicemail. If Continue Nexmo sends an HTTP
+            request to event_url with the Call event machine. hangup  end
+            the call
+          type: string
+          enum:
+          - continue
+          - hangup
+          example: continue
+        length_timer:
+          description: Set the number of seconds that elapse before Nexmo
+            hangs up after the call state changes to in_progress.
+          minimum: 1
+          maximum: 7200
+          default: 7200
+          type: integer
+        ringing_timer:
+          description: Set the number of seconds that elapse before Nexmo
+            hangs up after the call state changes to ‘ringing’.
+          minimum: 1
+          maximum: 120
+          default: 60
+          type: integer
+
+
+    StopTalkResponse:
+      type: object
+      properties:
+        message:
+          description: Description of the action taken
+          type: string
+          example: Talk stopped
+        uuid:
+          $ref: '#/components/schemas/uuid'
+
+    StartTalkResponse:
+      type: object
+      properties:
+        message:
+          description: Description of the action taken
+          type: string
+          example: Talk started
+        uuid:
+          $ref: '#/components/schemas/uuid'
+
+    DTMFResponse:
+      type: object
+      properties:
+        message:
+          description: Description of the action taken
+          type: string
+          example: DTMF sent
+        uuid:
+          $ref: '#/components/schemas/uuid'
+
+
+    StopStreamResponse:
+      type: object
+      properties:
+        message:
+          description: Description of the action taken
+          type: string
+          example: Stream stopped
+        uuid:
+          $ref: '#/components/schemas/uuid'
+
+    StartStreamResponse:
+      type: object
+      properties:
+        message:
+          description: Description of the action taken
+          type: string
+          example: Stream started
+        uuid:
+          $ref: '#/components/schemas/uuid'
+
+
+    GetCallResponse:
+      type: object
+      properties:
+        _links:
+          type: object
+          properties:
+            self:
+              type: object
+              properties:
+                href:
+                  type: string
+                  title: Link to the object
+                  example: "/calls?page_size=10&record_index=20&order=asc"
+        uuid:
+          $ref: '#/components/schemas/uuid'
+        conversation_uuid:
+          $ref: '#/components/schemas/conversation_uuid'
+        to:
+          $ref: '#/components/schemas/to'
+        from:
+          $ref: '#/components/schemas/from'
+        status:
+          $ref: '#/components/schemas/status'
+        direction:
+          $ref: '#/components/schemas/direction'
+        rate:
+          $ref: '#/components/schemas/rate'
+        price:
+          $ref: '#/components/schemas/price'
+        duration:
+          $ref: '#/components/schemas/duration'
+        start_time:
+          $ref: '#/components/schemas/start_time'
+        end_time:
+          $ref: '#/components/schemas/end_time'
+        network:
+          $ref: '#/components/schemas/network'
+
+
+
+    GetCallsResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          title: The total number of records returned by your request.
+          example: 100
+        page_size:
+          type: integer
+          title: The amount of records returned in this response.
+          example: 10
+        record_index:
+          type: integer
+          title: The `record_index` used in your request.
+          example: 0
+        _links:
+          type: object
+          properties:
+            self:
+              type: object
+              properties:
+                href:
+                  type: string
+                  title: Link to the object
+                  example: "/calls?page_size=10&record_index=20&order=asc"
+        _embedded:
+          description: >-
+              A list of call objects. See the
+              [get details of a specific call](#getCall)
+              response fields for a description of the nested objects
+          type: object
+          properties:
+            calls:
+              type: array
+              items:
                 type: object
                 properties:
                   _links:
@@ -306,8 +602,8 @@ paths:
                         properties:
                           href:
                             type: string
-                            title: Link to the object
-                            example: "/calls?page_size=10&record_index=20&order=asc"
+                            title: The Link to the Call Object
+                            example: "/calls/63f61863-4a51-4f6b-86e1-46edebcf9356"
                   uuid:
                     $ref: '#/components/schemas/uuid'
                   conversation_uuid:
@@ -332,256 +628,20 @@ paths:
                     $ref: '#/components/schemas/end_time'
                   network:
                     $ref: '#/components/schemas/network'
-    put:
-      security:
-      - bearerAuth: []
-      summary: Modify an in progress call
-      description: Modify an in progress call
-      operationId: updateCall
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              required:
-                - action
-              properties:
-                action:
-                  type: string
-                  example: mute
-                  enum:
-                  - hangup
-                  - mute
-                  - unmute
-                  - earmuff
-                  - unearmuff
-                  - transfer
-                  description: The action to apply to the in-progress call
-                destination:
-                  type: object
-                  description: Required when `action` is `transfer`
-                  x-nexmo-developer-collection-description-shown: true
-                  properties:
-                    type:
-                      type: string
-                      example: ncco
-                      description: Always `ncco`
-                      x-nexmo-developer-collection-description-shown: true
-                    url:                      
-                      example: '["https://example.com/ncco.json"]'
-                      type: array
-                      items:
-                        type: string
-                      description: The URL that Nexmo makes a request to. Must return an NCCO.
-                      x-nexmo-developer-collection-description-shown: true
-                    ncco:
-                      example: '[{"action": "talk", "text": "hello world"}]'
-                      type: array
-                      items:
-                        type: object
-                      description: Can be used instead of `url` for the `transfer` action only.
-                      x-nexmo-developer-collection-description-shown: true
-      responses:
-        '204':
-          description: No Content
-        '401':
-          description: Unauthorized
-        '404':
-          description: Not Found
-  "/{uuid}/stream":
-    parameters:
-    - in: path
-      name: uuid
-      schema:
-        type: string
-      required: true
-      description: UUID of the Call Leg
-      example: 63f61863-4a51-4f6b-86e1-46edebcf9356
-    put:
-      security:
-      - bearerAuth: []
-      summary: Play an audio file into a call
-      description: Play an audio file into a call
-      operationId: startStream
-      requestBody:
-        description: action to perform
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - stream_url
-              properties:
-                stream_url:
-                  x-nexmo-developer-collection-description-shown: true
-                  example: '["https://example.com/waiting.mp3"]'
-                  type: array
-                  items:
-                    type: string
-                loop:
-                  type: integer
-                  description: the number of times to play the file, 0 for infinite
-                  default: 1
-                level:
-                  type: string
-                  description: Set the audio level of the stream in the range `-1 >= level <= 1` with a precision of 0.1. The default value is 0.
-                  example: "0.4"
-                  default: "0"
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    description: Description of the action taken
-                    type: string
-                    example: Stream started
-                  uuid:
-                    $ref: '#/components/schemas/uuid'
-    delete:
-      security:
-      - bearerAuth: []
-      summary: Stop playing an audio file into a call
-      description: Stop playing an audio file into a call
-      operationId: stopStream
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    description: Description of the action taken
-                    type: string
-                    example: Stream stopped
-                  uuid:
-                    $ref: '#/components/schemas/uuid'
-  "/{uuid}/talk":
-    parameters:
-    - in: path
-      name: uuid
-      schema:
-        type: string
-      required: true
-      description: UUID of the Call Leg
-      example: 63f61863-4a51-4f6b-86e1-46edebcf9356
-    put:
-      security:
-      - bearerAuth: []
-      summary: Play text to speech into a call
-      description: Play text to speech into a call
-      operationId: startTalk
-      requestBody:
-        description: Action to perform
-        content:
-          application/json:
-            schema:
-              required:
-                - text
-              properties:
-                text:
-                  type: string
-                  description: The text to read
-                  example: Hello. How are you today?
-                voice_name:
-                  $ref: "#/components/schemas/voice_name"
-                loop:
-                  type: integer
-                  description: The number of times to repeat the text the file, 0
-                    for infinite
-                  default: 1
-                level:
-                  type: string
-                  description: The volume level that the speech is played. This can be any value between `-1` to `1` in `0.1` increments, with `0` being the default.
-                  example: "0.4"
-                  default: "0"
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    description: Description of the action taken
-                    type: string
-                    example: Talk started
-                  uuid:
-                    $ref: '#/components/schemas/uuid'
-    delete:
-      security:
-      - bearerAuth: []
-      summary: Stop text to speech in a call
-      description: Stop text to speech in a call
-      operationId: stopTalk
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    description: Description of the action taken
-                    type: string
-                    example: Talk stopped
-                  uuid:
-                    $ref: '#/components/schemas/uuid'
-  "/{uuid}/dtmf":
-    parameters:
-    - in: path
-      name: uuid
-      schema:
-        type: string
-      required: true
-      description: UUID of the Call Leg
-      example: 63f61863-4a51-4f6b-86e1-46edebcf9356
-    put:
-      security:
-      - bearerAuth: []
-      summary: Play DTMF tones into a call
-      description: Play DTMF tones into a call
-      operationId: startDTMF
-      requestBody:
-        description: action to perform
-        required: true
-        content:
-          application/json:
-            schema:
-              properties:
-                digits:
-                  type: string
-                  example: 1713
-                  description: The digits to send
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    description: Description of the action taken
-                    type: string
-                    example: DTMF sent
-                  uuid:
-                    $ref: '#/components/schemas/uuid'
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-  schemas:
+
+
+    CreateCallResponse:
+      type: object
+      properties:
+        uuid:
+          $ref: '#/components/schemas/uuid'
+        status:
+          $ref: '#/components/schemas/status'
+        direction:
+          $ref: '#/components/schemas/direction'
+        conversation_uuid:
+          $ref: '#/components/schemas/conversation_uuid'
+
     network:
       description: >-
           The Mobile Country Code Mobile Network Code
