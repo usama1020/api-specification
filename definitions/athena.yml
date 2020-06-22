@@ -1411,7 +1411,6 @@ components:
       example:
         - type: fruit
           name: orange
-          text: tangerine
           start_idx: 18
           end_idx: 27
       items:
@@ -1494,7 +1493,7 @@ components:
       items:
         type: string
       example:
-        - INT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+        - INT-12345c64-7e4e-485f-a0c4-1f2adfcabcde
     model_intent_ids:
       description: "the list of intents to be used in the model"
       type: array
@@ -1502,7 +1501,7 @@ components:
       items:
         type: string
       example:
-        - INT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+        - INT-12345c64-7e4e-485f-a0c4-1f2adfcabcde
     entity_ids:
       description: The entities to use in analysis
       type: array
@@ -1578,8 +1577,8 @@ components:
           items:
             type: string
           example:
-            - INT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
-            - INT-92a44c64-7e4e-485f-a0c4-1f2adfc44626
+            - INT-12345c64-7e4e-485f-a0c4-1f2adfcabcde
+            - INT-12345c64-7e4e-485f-a0c4-1f2adfcabcdf
         _links:
           type: object
           properties:
@@ -1634,16 +1633,12 @@ components:
       properties:
         entity_id:
           type: string
-          description: the entity id of the labeled entity          
-          example: ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625                
+          description: the entity id of the labeled entity
+          example: ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
         value_id:
           type: string
           description: The unique id of the labeled value
-          example: VAL-92a44c64-7e4e-485f-a0c4-1f2adfc44625               
-        text:
-          type: string
-          description: the text denoting the entity
-          example: tangerine
+          example: VAL-92a44c64-7e4e-485f-a0c4-1f2adfc44625
         start_word:
           type: integer
           example: 5
