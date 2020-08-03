@@ -1,7 +1,7 @@
 ---
 openapi: 3.0.0
 info:
-  version: 1.3.2
+  version: 1.3.3
   title: Voice API
   description:
     The Voice API lets you create outbound calls, control in-progress calls
@@ -159,6 +159,7 @@ paths:
                 - "$ref": "#/components/schemas/UpdateCallRequestUnmute"
                 - "$ref": "#/components/schemas/UpdateCallRequestEarmuff"
                 - "$ref": "#/components/schemas/UpdateCallRequestUnearmuff"
+      requests:
       responses:
         "204":
           description: No Content
