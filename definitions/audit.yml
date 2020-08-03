@@ -1,26 +1,27 @@
 openapi: "3.0.0"
 
 info:
-  version: 1.0.2
+  version: 1.0.3
   title: Nexmo Audit API
   description: >
     Nexmo's Audit API allows you to view details of changes to your account. More information is available at <https://developer.nexmo.com/audit/overview>.
 
     _Please note that the Audit API is currently in Beta_
+  x-label: Beta
   contact:
     name: Nexmo DevRel
     email: devrel@nexmo.com
-    url: 'https://developer.nexmo.com/'
-  termsOfService: 'https://www.nexmo.com/terms-of-use'
+    url: "https://developer.nexmo.com/"
+  termsOfService: "https://www.nexmo.com/terms-of-use"
   license:
     name: The MIT License (MIT)
-    url: 'https://opensource.org/licenses/MIT'
+    url: "https://opensource.org/licenses/MIT"
 
 servers:
   - url: https://api.nexmo.com/beta/audit
 
 paths:
-  '/events':
+  "/events":
     get:
       operationId: getEvents
       summary: Retrieve audit events
@@ -32,7 +33,7 @@ paths:
           description: Filter results by this event type.
           in: query
           schema:
-            $ref: '#/components/schemas/EventTypes'
+            $ref: "#/components/schemas/EventTypes"
         - name: date_from
           schema:
             type: string
@@ -40,7 +41,7 @@ paths:
           in: query
         - name: date_to
           schema:
-            type: string  
+            type: string
           description: End of time range for audit events. DateTime in ISO-8601 format.
           in: query
         - name: search_text
@@ -64,31 +65,30 @@ paths:
       security:
         - basicAuth: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuditResp'
-        '401':
+                $ref: "#/components/schemas/AuditResp"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorUnauthorized'
-        '403':
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        "403":
           description: Forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorForbidden'
-        '404':
+                $ref: "#/components/schemas/ErrorForbidden"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorNotFound'
-
+                $ref: "#/components/schemas/ErrorNotFound"
 
     options:
       operationId: getEventsOptions
@@ -98,37 +98,36 @@ paths:
       security:
         - basicAuth: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuditEventTypesResp'
+                $ref: "#/components/schemas/AuditEventTypesResp"
 
-        '204':
+        "204":
           description: No Content
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NoContent'
+                $ref: "#/components/schemas/NoContent"
 
-        '401':
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorUnauthorized'
+                $ref: "#/components/schemas/ErrorUnauthorized"
 
-        '403':
+        "403":
           description: Forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorForbidden'
-
+                $ref: "#/components/schemas/ErrorForbidden"
 
   # GET event
-  '/events/{id}':
+  "/events/{id}":
     get:
       operationId: getEvent
       summary: Retrieve individual audit event
@@ -145,24 +144,24 @@ paths:
       security:
         - basicAuth: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuditEvent'
-        '401':
+                $ref: "#/components/schemas/AuditEvent"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorUnauthorized'
-        '404':
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorNotFound'
+                $ref: "#/components/schemas/ErrorNotFound"
 
 components:
   schemas:
@@ -209,11 +208,11 @@ components:
             events:
               type: array
               items:
-                $ref: '#/components/schemas/AuditEvent'
+                $ref: "#/components/schemas/AuditEvent"
         _links:
-          $ref: '#/components/schemas/PaginationLinks'
+          $ref: "#/components/schemas/PaginationLinks"
         page:
-          $ref: '#/components/schemas/PaginationData'
+          $ref: "#/components/schemas/PaginationData"
 
     AuditEvent:
       type: object
@@ -223,7 +222,7 @@ components:
           description: "UUID of the audit event"
           example: "aaaaaaaa-bbbb-cccc-dddd-0123456789ab"
         event_type:
-            $ref: '#/components/schemas/EventTypes'
+          $ref: "#/components/schemas/EventTypes"
         event_type_description:
           type: string
           description: "A description of the event type"
@@ -240,7 +239,7 @@ components:
           example: user@example.org
         user_id:
           type: integer
-          description: "The ID of the user that the audit event is associated with."  
+          description: "The ID of the user that the audit event is associated with."
           example: 1234567
         account_id:
           type: string
@@ -278,9 +277,9 @@ components:
           type: object
           description: A valid JSON object with information detailing the context of the audit event.
           oneOf:
-            - $ref: '#/components/schemas/ContextAppCreate'
-            - $ref: '#/components/schemas/ContextNumberLinking'
-            - $ref: '#/components/schemas/ContextNumberUpdate'
+            - $ref: "#/components/schemas/ContextAppCreate"
+            - $ref: "#/components/schemas/ContextNumberLinking"
+            - $ref: "#/components/schemas/ContextNumberUpdate"
             # TODO: there's a lot to add here!
           example:
             created:
@@ -295,7 +294,7 @@ components:
                 method: POST
                 url: https://example.org/event
         _links:
-          $ref: '#/components/schemas/EventLink'
+          $ref: "#/components/schemas/EventLink"
 
     AuditEventTypesResp:
       type: object
@@ -304,18 +303,18 @@ components:
           type: array
           description: An array of audit event types.
           items:
-            $ref: '#/components/schemas/AuditEventType'
+            $ref: "#/components/schemas/AuditEventType"
 
     AuditEventType:
       type: object
       properties:
         type:
-          $ref: '#/components/schemas/EventTypes'
+          $ref: "#/components/schemas/EventTypes"
         description:
           type: string
           example: "Application created."
           description: "A description of the event type"
- 
+
     EventLink:
       type: object
       description: A link to this audit event object if you were to retrieve it individually.
@@ -420,9 +419,9 @@ components:
               description: "The name of the application created"
               example: "My Voice App"
             answer_url:
-              $ref: '#/components/schemas/CallbackUrl'
+              $ref: "#/components/schemas/CallbackUrl"
             event_url:
-              $ref: '#/components/schemas/CallbackUrl'
+              $ref: "#/components/schemas/CallbackUrl"
             type:
               type: string
               example: "voice"
@@ -506,7 +505,7 @@ components:
           description: A human readable description of the error
         message:
           type: string
-          example: "Full authentication is required. JWT was not found in \"Authorization\" HTTP header."
+          example: 'Full authentication is required. JWT was not found in "Authorization" HTTP header.'
           description: A longer description of the error
 
     ErrorForbidden:
@@ -524,7 +523,7 @@ components:
           type: string
           example: "An example goes here"
           description: A longer description of the error
-  
+
     ErrorNotFound:
       type: object
       properties:

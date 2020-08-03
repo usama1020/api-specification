@@ -9,7 +9,7 @@ info:
     This API is backwards compatible with version 1. Applications created using version 1 of the API can also be managed using version 2 (this version) of the API.
   contact:
     name: Nexmo
-    url: 'https://developer.nexmo.com/'
+    url: "https://developer.nexmo.com/"
     email: devrel@nexmo.com
 servers:
   - url: https://api.nexmo.com/v2/applications
@@ -17,6 +17,87 @@ security:
   - basicAuth: []
 paths:
   /:
+    get:
+      operationId: listApplication
+      summary: List available applications
+      parameters:
+        - name: page_size
+          in: query
+          description: The number of applications per page
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: The current page number (starts at 1)
+          schema:
+            type: integer
+
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                properties:
+                  page_size:
+                    type: integer
+                    example: 10
+                    description: The number of applications per page
+                  page:
+                    type: integer
+                    example: 1
+                    description: The current page number (starts at 1)
+                  total_items:
+                    type: integer
+                    example: 6
+                    description: The total number of applications
+                  total_pages:
+                    type: integer
+                    example: 1
+                    description: The total number of pages returned
+                  _embedded:
+                    type: object
+                    description: A list of applications matching your existing filters
+                    properties:
+                      applications:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ApplicationResponse"
+        "400":
+          description: Invalid Request
+          content:
+            application/json:
+              schema:
+                properties:
+                  type:
+                    type: string
+                    example: "https://developer.nexmo.com/api-errors/application#list-validation"
+                  title:
+                    type: string
+                    example: Bad Request
+                  detail:
+                    type: string
+                    example: The request failed due to validation errors
+                  invalid_parameters:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          example: page_size
+                        reason:
+                          type: string
+                          example: must be between 1 and 100
+                  instance:
+                    $ref: "common/common_errors.yml#/components/fields/instance"
+        "401":
+          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
+        "405":
+          $ref: "common/common_errors.yml#/components/responses/InvalidRequestMethod"
+        "406":
+          $ref: "common/common_errors.yml#/components/responses/InvalidAcceptHeader"
+
     post:
       summary: Create an application
       operationId: createApplication
@@ -38,15 +119,15 @@ paths:
                     public_key:
                       type: string
                       example: |
-                          -----BEGIN PUBLIC KEY-----
-                          MIIBIjANBgkqhkiG9w0BAQEFAAOCA
-                          KOxjsU4pf/sMFi9N0jqcSLcjxu33G
-                          d/vynKnlw9SENi+UZR44GdjGdmfm1
-                          tL1eA7IBh2HNnkYXnAwYzKJoa4eO3
-                          0kYWekeIZawIwe/g9faFgkev+1xsO
-                          OUNhPx2LhuLmgwWSRS4L5W851Xe3f
-                          UQIDAQAB
-                          -----END PUBLIC KEY-----
+                        -----BEGIN PUBLIC KEY-----
+                        MIIBIjANBgkqhkiG9w0BAQEFAAOCA
+                        KOxjsU4pf/sMFi9N0jqcSLcjxu33G
+                        d/vynKnlw9SENi+UZR44GdjGdmfm1
+                        tL1eA7IBh2HNnkYXnAwYzKJoa4eO3
+                        0kYWekeIZawIwe/g9faFgkev+1xsO
+                        OUNhPx2LhuLmgwWSRS4L5W851Xe3f
+                        UQIDAQAB
+                        -----END PUBLIC KEY-----
                       description: Public key
                 capabilities:
                   type: object
@@ -78,8 +159,8 @@ paths:
                             fallback_answer_url:
                               type: object
                               description: |
-                                  If your `answer_url` is offline or returns a HTTP error code, Nexmo will make a request to a
-                                  `fallback_answer_url` if it is set. This URL must return an NCCO.
+                                If your `answer_url` is offline or returns a HTTP error code, Nexmo will make a request to a
+                                `fallback_answer_url` if it is set. This URL must return an NCCO.
                               x-nexmo-developer-collection-description-shown: true
                               properties:
                                 address:
@@ -164,15 +245,15 @@ paths:
                     vbc:
                       type: object
                       description: "Specify `vbc` capability to enable zero-rated calls for VBC number programmability service applications. This must be an empty object."
-                      x-nexmo-developer-collection-description-shown: true                                   
+                      x-nexmo-developer-collection-description-shown: true
       responses:
-        '201':
+        "201":
           description: Success
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/ApplicationResponse'
+                  - $ref: "#/components/schemas/ApplicationResponse"
                   - type: object
                     properties:
                       keys:
@@ -203,97 +284,16 @@ paths:
                               rw/CvrL6hXT1x7cGBZ4jPx\nqhjqY
                               uJPgZD7OVB69oYOV92vIIJ7JLYwqb
                               -----END PRIVATE KEY-----
-        '400':
-          $ref: '#/components/responses/InvalidPayloadError'
-        '401':
-          $ref: 'common/common_errors.yml#/components/responses/BadCredentialsError'
-        '405':
-          $ref: 'common/common_errors.yml#/components/responses/InvalidRequestMethod'
-        '406':
-          $ref: 'common/common_errors.yml#/components/responses/InvalidAcceptHeader'
-        '415':
-          $ref: 'common/common_errors.yml#/components/responses/UnsupportedContentTypeHeader'
-
-    get:
-      operationId: listApplication
-      summary: List available applications
-      parameters:
-        - name: page_size
-          in: query
-          description: The number of applications per page
-          schema:
-            type: integer
-        - name: page
-          in: query
-          description: The current page number (starts at 1)
-          schema:
-            type: integer
-
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                properties:
-                  page_size:
-                    type: integer
-                    example: 10
-                    description: The number of applications per page
-                  page:
-                    type: integer
-                    example: 1
-                    description: The current page number (starts at 1)
-                  total_items:
-                    type: integer
-                    example: 6
-                    description: The total number of applications
-                  total_pages:
-                    type: integer
-                    example: 1
-                    description: The total number of pages returned
-                  _embedded:
-                    type: object
-                    description: A list of applications matching your existing filters
-                    properties:
-                      applications:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/ApplicationResponse'
-        '400':
-          description: Invalid Request
-          content:
-            application/json:
-              schema:
-                properties:
-                  type:
-                    type: string
-                    example: 'https://developer.nexmo.com/api-errors/application#list-validation'
-                  title:
-                    type: string
-                    example: Bad Request
-                  detail:
-                    type: string
-                    example: The request failed due to validation errors
-                  invalid_parameters:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                          example: page_size
-                        reason:
-                          type: string
-                          example: must be between 1 and 100
-                  instance:
-                    $ref: 'common/common_errors.yml#/components/fields/instance'
-        '401':
-          $ref: 'common/common_errors.yml#/components/responses/BadCredentialsError'
-        '405':
-          $ref: 'common/common_errors.yml#/components/responses/InvalidRequestMethod'
-        '406':
-          $ref: 'common/common_errors.yml#/components/responses/InvalidAcceptHeader'
+        "400":
+          $ref: "#/components/responses/InvalidPayloadError"
+        "401":
+          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
+        "405":
+          $ref: "common/common_errors.yml#/components/responses/InvalidRequestMethod"
+        "406":
+          $ref: "common/common_errors.yml#/components/responses/InvalidAcceptHeader"
+        "415":
+          $ref: "common/common_errors.yml#/components/responses/UnsupportedContentTypeHeader"
 
   /{id}:
     parameters:
@@ -308,20 +308,20 @@ paths:
       operationId: getApplication
       summary: Get an application
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApplicationResponse'
-        '401':
-          $ref: 'common/common_errors.yml#/components/responses/BadCredentialsError'
-        '404':
-          $ref: 'common/common_errors.yml#/components/responses/NotFoundError'
-        '405':
-          $ref: 'common/common_errors.yml#/components/responses/InvalidRequestMethod'
-        '406':
-          $ref: 'common/common_errors.yml#/components/responses/InvalidAcceptHeader'
+                $ref: "#/components/schemas/ApplicationResponse"
+        "401":
+          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
+        "404":
+          $ref: "common/common_errors.yml#/components/responses/NotFoundError"
+        "405":
+          $ref: "common/common_errors.yml#/components/responses/InvalidRequestMethod"
+        "406":
+          $ref: "common/common_errors.yml#/components/responses/InvalidAcceptHeader"
 
     put:
       summary: Update an application
@@ -344,15 +344,15 @@ paths:
                     public_key:
                       type: string
                       example: |
-                          -----BEGIN PUBLIC KEY-----
-                          MIIBIjANBgkqhkiG9w0BAQEFAAOCA
-                          KOxjsU4pf/sMFi9N0jqcSLcjxu33G
-                          d/vynKnlw9SENi+UZR44GdjGdmfm1
-                          tL1eA7IBh2HNnkYXnAwYzKJoa4eO3
-                          0kYWekeIZawIwe/g9faFgkev+1xsO
-                          OUNhPx2LhuLmgwWSRS4L5W851Xe3f
-                          UQIDAQAB
-                          -----END PUBLIC KEY-----
+                        -----BEGIN PUBLIC KEY-----
+                        MIIBIjANBgkqhkiG9w0BAQEFAAOCA
+                        KOxjsU4pf/sMFi9N0jqcSLcjxu33G
+                        d/vynKnlw9SENi+UZR44GdjGdmfm1
+                        tL1eA7IBh2HNnkYXnAwYzKJoa4eO3
+                        0kYWekeIZawIwe/g9faFgkev+1xsO
+                        OUNhPx2LhuLmgwWSRS4L5W851Xe3f
+                        UQIDAQAB
+                        -----END PUBLIC KEY-----
                       description: Public key
                 capabilities:
                   type: object
@@ -384,8 +384,8 @@ paths:
                             fallback_answer_url:
                               type: object
                               description: |
-                                  If your `answer_url` is offline or returns a HTTP error code, Nexmo will make a request to a
-                                  `fallback_answer_url` if it is set. This URL must return an NCCO
+                                If your `answer_url` is offline or returns a HTTP error code, Nexmo will make a request to a
+                                `fallback_answer_url` if it is set. This URL must return an NCCO
                               x-nexmo-developer-collection-description-shown: true
                               properties:
                                 address:
@@ -397,7 +397,7 @@ paths:
                                   enum:
                                     - GET
                                     - POST
- 
+
                             event_url:
                               type: object
                               description: "Nexmo will send call events (e.g. `ringing`, `answered`) to this URL"
@@ -471,15 +471,15 @@ paths:
                     vbc:
                       type: object
                       description: "Specify the `vbc` capability to enable zero-rated calls for VBC number programmability service applications.  This must be an empty object."
-                      x-nexmo-developer-collection-description-shown: true                                      
+                      x-nexmo-developer-collection-description-shown: true
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/ApplicationResponse'
+                  - $ref: "#/components/schemas/ApplicationResponse"
                   - type: object
                     properties:
                       keys:
@@ -510,33 +510,33 @@ paths:
                               rw/CvrL6hXT1x7cGBZ4jPx\nqhjqY
                               uJPgZD7OVB69oYOV92vIIJ7JLYwqb
                               -----END PRIVATE KEY-----
-        '400':
-          $ref: '#/components/responses/InvalidPayloadError'
-        '401':
-          $ref: 'common/common_errors.yml#/components/responses/BadCredentialsError'
-        '404':
-          $ref: 'common/common_errors.yml#/components/responses/NotFoundError'
-        '405':
-          $ref: 'common/common_errors.yml#/components/responses/InvalidRequestMethod'
-        '406':
-          $ref: 'common/common_errors.yml#/components/responses/InvalidAcceptHeader'
-        '415':
-          $ref: 'common/common_errors.yml#/components/responses/UnsupportedContentTypeHeader'
+        "400":
+          $ref: "#/components/responses/InvalidPayloadError"
+        "401":
+          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
+        "404":
+          $ref: "common/common_errors.yml#/components/responses/NotFoundError"
+        "405":
+          $ref: "common/common_errors.yml#/components/responses/InvalidRequestMethod"
+        "406":
+          $ref: "common/common_errors.yml#/components/responses/InvalidAcceptHeader"
+        "415":
+          $ref: "common/common_errors.yml#/components/responses/UnsupportedContentTypeHeader"
     delete:
       operationId: deleteApplication
       summary: Delete an application
       description: Deleting an application **cannot be undone**.
       responses:
-        '204':
+        "204":
           description: Success
-        '401':
-          $ref: 'common/common_errors.yml#/components/responses/BadCredentialsError'
-        '404':
-          $ref: 'common/common_errors.yml#/components/responses/NotFoundError'
-        '405':
-          $ref: 'common/common_errors.yml#/components/responses/InvalidRequestMethod'
-        '406':
-          $ref: 'common/common_errors.yml#/components/responses/InvalidAcceptHeader'
+        "401":
+          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
+        "404":
+          $ref: "common/common_errors.yml#/components/responses/NotFoundError"
+        "405":
+          $ref: "common/common_errors.yml#/components/responses/InvalidRequestMethod"
+        "406":
+          $ref: "common/common_errors.yml#/components/responses/InvalidAcceptHeader"
 
 components:
   securitySchemes:
@@ -552,7 +552,7 @@ components:
             properties:
               type:
                 type: string
-                example: 'https://developer.nexmo.com/api-errors/application#payload-validation'
+                example: "https://developer.nexmo.com/api-errors/application#payload-validation"
               title:
                 type: string
                 example: Bad Request
@@ -569,10 +569,10 @@ components:
                       example: capabilities.voice.webhooks.answer_url.http_method
                     reason:
                       type: string
-                      example: 'must be one of: GET, POST'
+                      example: "must be one of: GET, POST"
               instance:
-                $ref: 'common/common_errors.yml#/components/fields/instance'
- 
+                $ref: "common/common_errors.yml#/components/fields/instance"
+
   schemas:
     ApplicationResponse:
       properties:
@@ -613,8 +613,8 @@ components:
                           type: string
                           example: https://fallback.example.com/webhooks/answer
                           description: |
-                                  If your `answer_url` is offline or returns a HTTP error code, Nexmo will make a request to a
-                                  `fallback_answer_url` if it is set. This URL must return an NCCO.
+                            If your `answer_url` is offline or returns a HTTP error code, Nexmo will make a request to a
+                            `fallback_answer_url` if it is set. This URL must return an NCCO.
                         http_method:
                           type: string
                           example: POST
