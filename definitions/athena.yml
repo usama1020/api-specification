@@ -1409,10 +1409,10 @@ components:
       x-nexmo-developer-collection-description-show: true
       type: array      
       example:
-        - type: fruit
-          name: orange
-          start_idx: 18
-          end_idx: 27
+        - entity_id: ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+          value_id: VAL-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+          start_word: 5
+          end_word: 5
       items:
         $ref: '#/components/schemas/labeled_entity'
     utterance_text:
