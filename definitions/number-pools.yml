@@ -541,9 +541,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/CreateOrUpdatePoolBase'
         - type: object
-          properties:
-            account_id:
-              $ref: '#/components/schemas/AccountId'
           required:
             - pool_id
             - fallback
