@@ -17,6 +17,21 @@ security:
 
 paths:
   /v2/pools:
+    get:
+      tags:
+        - Pools
+      operationId: listPools
+      summary: List all pools
+      description: Return all of the pools available on an account
+      parameters:
+        - $ref: '#/components/parameters/AccountId'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListPoolsResponse'
+        '401':
+          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
     post:
       tags:
         - Pools
@@ -38,21 +53,6 @@ paths:
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '409':
           $ref: '#/components/responses/ErrorPoolIdAlreadyExistsResponse'
-    get:
-      tags:
-        - Pools
-      operationId: listPools
-      summary: List all pools
-      description: Return all of the pools available on an account
-      parameters:
-        - $ref: '#/components/parameters/AccountId'
-        - $ref: '#/components/parameters/PageSize'
-        - $ref: '#/components/parameters/Page'
-      responses:
-        '200':
-          $ref: '#/components/responses/ListPoolsResponse'
-        '401':
-          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
 
   /v2/pools/{pool_id}:
     get:
@@ -71,29 +71,6 @@ paths:
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '404':
           $ref: "common/common_errors.yml#/components/responses/NotFoundError"
-    put:
-      tags:
-        - Pools
-      operationId: updatePool
-      parameters:
-        - $ref: '#/components/parameters/PoolId'
-      summary: Update a number pool
-      description: Update an existing pool with new information
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdatePool'
-      responses:
-        '201':
-          $ref: '#/components/responses/GetPoolResponse'
-        '400':
-          $ref: '#/components/responses/ErrorInvalidParametersResponse'
-        '401':
-          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
-        '409':
-          $ref: '#/components/responses/ErrorAccountIdMismatchResponse'
     patch:
       tags:
         - Pools
@@ -117,8 +94,49 @@ paths:
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '409':
           $ref: '#/components/responses/ErrorAccountIdMismatchResponse'
+    put:
+      tags:
+        - Pools
+      operationId: updatePool
+      parameters:
+        - $ref: '#/components/parameters/PoolId'
+      summary: Update a number pool
+      description: Update an existing pool with new information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePool'
+      responses:
+        '201':
+          $ref: '#/components/responses/GetPoolResponse'
+        '400':
+          $ref: '#/components/responses/ErrorInvalidParametersResponse'
+        '401':
+          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
+        '409':
+          $ref: '#/components/responses/ErrorAccountIdMismatchResponse'
   
   /v2/pools/{pool_id}/numbers:
+    get:
+      tags:
+        - Numbers
+      operationId: getPoolNumbers
+      description: Get numbers in a pool
+      summary: Get a list of numbers inside of a specific pool
+      parameters:
+        - $ref: '#/components/parameters/PoolId'
+        - $ref: '#/components/parameters/AccountId'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListNumbersResponse'
+        '401':
+          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
+        '404':
+          $ref: "common/common_errors.yml#/components/responses/NotFoundError"
     post:
       tags:
         - Numbers
@@ -172,24 +190,6 @@ paths:
           $ref: '#/components/responses/ErrorCouldNotDeleteFromPoolResponse'
         '401':
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
-    get:
-      tags:
-        - Numbers
-      operationId: getPoolNumbers
-      description: Get numbers in a pool
-      summary: Get a list of numbers inside of a specific pool
-      parameters:
-        - $ref: '#/components/parameters/PoolId'
-        - $ref: '#/components/parameters/AccountId'
-        - $ref: '#/components/parameters/PageSize'
-        - $ref: '#/components/parameters/Page'
-      responses:
-        '200':
-          $ref: '#/components/responses/ListNumbersResponse'
-        '401':
-          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
-        '404':
-          $ref: "common/common_errors.yml#/components/responses/NotFoundError"
   
   /v2/pools/{pool_id}/numbers/{number}:
     delete:
@@ -706,7 +706,7 @@ components:
         $ref: '#/components/schemas/PoolId'
 
     PreferHeader:
-      name: Prefer
+      name: prefer
       in: header
       description: |
         Choose preferred processing mode.
