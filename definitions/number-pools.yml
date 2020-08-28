@@ -187,6 +187,7 @@ paths:
         '207':
           $ref: '#/components/responses/ErrorCouldNotDeleteFromPoolResponse'
         '400':
+          description: "General validation errors"
           content:
             application/json:
               schema:
