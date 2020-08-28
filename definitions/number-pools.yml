@@ -204,7 +204,7 @@ paths:
         '204':
           description: No Content
         '400':
-          $ref: '#/components/responses/ErrorInvalidParametersResponse'
+          $ref: '#/components/responses/ErrorDeleteSingleNumberResponse'
         '401':
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '404':
@@ -345,6 +345,25 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorCouldNotDeleteFromPoolPartial'
+
+    ErrorDeleteSingleNumberResponse:
+      descrption: Error when a single number is being deleted
+      content:
+        application/json:
+          schema:
+            allOf: 
+              - $ref: '#/components/schemas/Error'
+              - type: object
+                properties:
+                  title:
+                    description: Generic error message
+                    example: Could not delete number
+                  type:
+                    description: Link to error / remediation options
+                    example: 'https://developer.nexmo.com/api-errors/number-pools#number-deletion-error'
+                  detail:
+                    description: Additional information about the error
+                    example: An error occurred while removing the number from the pool
 
     ErrorResponse:
       description: Error response for most errors
