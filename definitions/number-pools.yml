@@ -35,7 +35,7 @@ paths:
         '400':
           $ref: '#/components/responses/ErrorInvalidParametersResponse'
         '401':
-          $ref: '../shared_errors.yml#/components/responses/BadCredentialsError'
+          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '409':
           $ref: '#/components/responses/ErrorPoolIdAlreadyExistsResponse'
     get:
@@ -52,7 +52,7 @@ paths:
         '200':
           $ref: '#/components/responses/ListPoolsResponse'
         '401':
-          $ref: '../shared_errors.yml#/components/responses/BadCredentialsError'
+          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
 
   /v2/pools/{pool_id}:
     get:
@@ -68,9 +68,9 @@ paths:
         '200':
           $ref: '#/components/responses/GetPoolResponse'
         '401':
-          $ref: '../shared_errors.yml#/components/responses/BadCredentialsError'
+          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '404':
-          $ref: '#/components/responses/ErrorResourceNotFoundResponse'
+          $ref: "common/common_errors.yml#/components/responses/NotFoundError"
     put:
       tags:
         - Pools
@@ -91,7 +91,7 @@ paths:
         '400':
           $ref: '#/components/responses/ErrorInvalidParametersResponse'
         '401':
-          $ref: '../shared_errors.yml#/components/responses/BadCredentialsError'
+          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '409':
           $ref: '#/components/responses/ErrorAccountIdMismatchResponse'
     patch:
@@ -114,7 +114,7 @@ paths:
         '400':
           $ref: '#/components/responses/ErrorInvalidParametersResponse'
         '401':
-          $ref: '../shared_errors.yml#/components/responses/BadCredentialsError'
+          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '409':
           $ref: '#/components/responses/ErrorAccountIdMismatchResponse'
   
@@ -146,9 +146,9 @@ paths:
         '400':
           $ref: '#/components/responses/ErrorInvalidParametersResponse'
         '401':
-          $ref: '../shared_errors.yml#/components/responses/BadCredentialsError'
+          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '404':
-          $ref: '#/components/responses/ErrorResourceNotFoundResponse'
+          $ref: "common/common_errors.yml#/components/responses/NotFoundError"
     delete:
       tags:
         - Numbers
@@ -171,7 +171,7 @@ paths:
         '400':
           $ref: '#/components/responses/ErrorCouldNotDeleteFromPoolResponse'
         '401':
-          $ref: '../shared_errors.yml#/components/responses/BadCredentialsError'
+          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
     get:
       tags:
         - Numbers
@@ -187,9 +187,9 @@ paths:
         '200':
           $ref: '#/components/responses/ListNumbersResponse'
         '401':
-          $ref: '../shared_errors.yml#/components/responses/BadCredentialsError'
+          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '404':
-          $ref: '#/components/responses/ErrorResourceNotFoundResponse'
+          $ref: "common/common_errors.yml#/components/responses/NotFoundError"
   
   /v2/pools/{pool_id}/numbers/{number}:
     delete:
@@ -208,9 +208,9 @@ paths:
         '400':
           $ref: '#/components/responses/ErrorInvalidParametersResponse'
         '401':
-          $ref: '../shared_errors.yml#/components/responses/BadCredentialsError'
+          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '404':
-          $ref: '#/components/responses/ErrorResourceNotFoundResponse'
+          $ref: "common/common_errors.yml#/components/responses/NotFoundError"
 
 components:
   responses:
@@ -268,14 +268,6 @@ components:
           schema:
             allOf:
               - $ref: '#/components/schemas/ErrorPoolIdAlreadyExists'
-
-    ErrorResourceNotFoundResponse:
-      description: Error to handle 404's
-      content:
-        application/json:
-          schema:
-            allOf:
-              - $ref: '#/components/schemas/ErrorResourceNotFound'
 
     ErrorInvalidParametersResponse:
       description: Error that has additional information attached
@@ -486,7 +478,7 @@ components:
           description: Additional information about the error
           example: "API key 'ABC123' does not exist, or you do not have access"
         instance:
-          $ref: '../shared_errors.yml#/components/fields/instance'
+          $ref: "common/common_errors.yml#/components/fields/instance"
 
     ErrorAccountIdMismatch:
       allOf:
@@ -532,21 +524,6 @@ components:
             detail:
               description: Additional information about the error
               example: A pool with the specified ID already exists
-
-    ErrorResourceNotFound:
-      allOf:
-        - $ref: '#/components/schemas/Error'
-        - type: object
-          properties:
-            title:
-              description: Generic error message
-              example: The requested resource could not be found
-            type:
-              description: Link to error / remediation options
-              example: 'https://developer.nexmo.com/api-errors/number-pools#resource-not-found'
-            detail:
-              description: Additional information about the error
-              example: The requested resource could not be found
 
     Fallback:
       type: string
