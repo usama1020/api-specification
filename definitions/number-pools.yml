@@ -1,4 +1,5 @@
 openapi: 3.0.0
+
 info:
   version: 2.0.0
   title: Number Pools
@@ -7,187 +8,117 @@ info:
     url: 'https://developer.nexmo.com/'
     email: devrel@nexmo.com
   description: Number Pools API
+
 servers:
   - url: 'https://api.nexmo.com'
+
 security:
   - basicAuth: []
+
 paths:
   /v2/pools:
-    get:
-      tags:
-        - Pools
-      operationId: listPool
-      summary: List all pools
-      description: Return all the pools associated with the account_id
-      parameters:
-        - $ref: '#/components/parameters/accountId'
-        - $ref: '#/components/parameters/pageSize'
-        - $ref: '#/components/parameters/page'
-      responses:
-        '200':
-          $ref: '#/components/responses/ListPoolsResponse'
-        '401':
-          $ref: '#/components/responses/ErrorUnauthorized'
-        '404':
-          $ref: '#/components/responses/ErrorInvalidSubAccount'
     post:
       tags:
         - Pools
       operationId: createPool
-      summary: Create a new pool
-      description: Create a new pool
+      summary: Create a new pool of numbers
+      description: Create a pool that will contain a list of numbers to send or call from
       requestBody:
-        description: Update Pool Description
         required: true
         content:
           application/json:
             schema:
-              allOf:
-                - $ref: '#/components/schemas/pool'
-                - required:
-                    - fallback
-                    - localised_sender_preferred
-                    - predictable_sender_preferred
+               $ref: '#/components/schemas/CreatePool'
       responses:
         '201':
-          $ref: '#/components/responses/CreateOrUpdatePoolResponse'
+          $ref: '#/components/responses/GetPoolResponse'
         '400':
-          $ref: '#/components/responses/ErrorPoolValidation'
+          $ref: '#/components/responses/ErrorInvalidParametersResponse'
         '401':
-          $ref: '#/components/responses/ErrorUnauthorized'
-        '404':
-          $ref: '#/components/responses/ErrorInvalidSubAccount'
+          $ref: '../shared_errors.yml#/components/responses/BadCredentialsError'
         '409':
-          $ref: '#/components/responses/ErrorPoolIdAlreadyExists'
-      parameters:
-        - $ref: '#/components/parameters/accountId'
-  '/v2/pools/{pool_id}':
-    parameters:
-      - $ref: '#/components/parameters/poolId'
-    patch:
+          $ref: '#/components/responses/ErrorPoolIdAlreadyExistsResponse'
+    get:
       tags:
         - Pools
-      operationId: updatePool
-      summary: Update a pool
-      description: Update the specified pool with new information
-      requestBody:
-        description: Update Pool Description
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/pool'
+      operationId: listPools
+      summary: List all pools
+      description: Return all of the pools available on an account
+      parameters:
+        - $ref: '#/components/parameters/AccountId'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/Page'
       responses:
         '200':
-          $ref: '#/components/responses/CreateOrUpdatePoolResponse'
-        '400':
-          $ref: '#/components/responses/ErrorPoolValidation'
+          $ref: '#/components/responses/ListPoolsResponse'
         '401':
-          $ref: '#/components/responses/ErrorUnauthorized'
-        '404':
-          $ref: '#/components/responses/ErrorInvalidSubAccount'
-      parameters:
-        - $ref: '#/components/parameters/accountId'
+          $ref: '../shared_errors.yml#/components/responses/BadCredentialsError'
+
+  /v2/pools/{pool_id}:
     get:
       tags:
         - Pools
       operationId: getPool
-      summary: Get information about a pool
-      description: Returns configuration information about a pool of numbers
+      description: Get information about a specific pool
+      summary: Get information about a specific pool
+      parameters:
+        - $ref: '#/components/parameters/AccountId'
+        - $ref: '#/components/parameters/PoolId'
       responses:
         '200':
-          $ref: '#/components/responses/PoolResponse'
-        '400':
-          $ref: '#/components/responses/ErrorPoolValidation'
+          $ref: '#/components/responses/GetPoolResponse'
         '401':
-          $ref: '#/components/responses/ErrorUnauthorized'
+          $ref: '../shared_errors.yml#/components/responses/BadCredentialsError'
         '404':
-          $ref: '#/components/responses/ErrorInvalidSubAccount'
-      parameters:
-        - $ref: '#/components/parameters/accountId'
-  '/v2/pools/{pool_id}/numbers':
-    parameters:
-      - $ref: '#/components/parameters/poolId'
-    get:
+          $ref: '#/components/responses/ErrorResourceNotFoundResponse'
+    put:
       tags:
-        - Numbers
-      operationId: listNumbersInPool
-      summary: List numbers in pool
-      description: Returns a list of numbers from the pool
+        - Pools
+      operationId: updatePool
       parameters:
-        - $ref: '#/components/parameters/accountId'
-        - $ref: '#/components/parameters/pageSize'
-        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/PoolId'
+      summary: Update a number pool
+      description: Update an existing pool with new information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePool'
       responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  account_id:
-                    $ref: '#/components/schemas/accountId'
-                  page_size:
-                    $ref: '#/components/schemas/pageSize'
-                  page:
-                    $ref: '#/components/schemas/page'
-                  total_pages:
-                    $ref: '#/components/schemas/totalPages'
-                  total_items:
-                    $ref: '#/components/schemas/totalItems'
-                  _links:
-                    type: object
-                    properties:
-                      self:
-                        type: object
-                        properties:
-                          href:
-                            type: string
-                            description: Link to the current page
-                            example: /v2/pools/custom_user_pool_id/numbers
-                      next:
-                        type: object
-                        properties:
-                          href:
-                            type: string
-                            description: Link to the next available page
-                            example: /v2/pools/custom_user_pool_id/numbers?page=2
-                      previous:
-                        type: object
-                        properties:
-                          href:
-                            type: string
-                            description: Link to the previous available page
-                            example: /v2/pools/custom_user_pool_id/numbers?page=1
-                      first:
-                        type: object
-                        properties:
-                          href:
-                            type: string
-                            description: Link to the first available page
-                            example: /v2/pools/custom_user_pool_id/numbers?page=1
-                      last:
-                        type: object
-                        properties:
-                          href:
-                            type: string
-                            description: Link to the last available page
-                            example: /v2/pools/custom_user_pool_id/numbers?page=10
-                  _embedded:
-                    type: object
-                    properties:
-                      numbers:
-                        type: array
-                        example:
-                          - '14155550100'
-                          - '14155550101'
-                        items:
-                          $ref: '#/components/schemas/msisdn'
+        '201':
+          $ref: '#/components/responses/GetPoolResponse'
+        '400':
+          $ref: '#/components/responses/ErrorInvalidParametersResponse'
         '401':
-          $ref: '#/components/responses/ErrorUnauthorized'
-        '404':
-          $ref: '#/components/responses/ErrorInvalidPoolId'
+          $ref: '../shared_errors.yml#/components/responses/BadCredentialsError'
+        '409':
+          $ref: '#/components/responses/ErrorAccountIdMismatchResponse'
+    patch:
+      tags:
+        - Pools
+      operationId: patchPool
+      parameters:
+        - $ref: '#/components/parameters/PoolId'
+      summary: Update part of a number pool
+      description: Update an existing pool with new information without requiring all information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchPool'
+      responses:
+        '201':
+          $ref: '#/components/responses/GetPoolResponse'
+        '400':
+          $ref: '#/components/responses/ErrorInvalidParametersResponse'
+        '401':
+          $ref: '../shared_errors.yml#/components/responses/BadCredentialsError'
+        '409':
+          $ref: '#/components/responses/ErrorAccountIdMismatchResponse'
+  
+  /v2/pools/{pool_id}/numbers:
     post:
       tags:
         - Numbers
@@ -199,151 +130,200 @@ paths:
 
         If all items succeed, you will receive a `200`. If all items fail, you will receive a `400`.
       parameters:
-        - $ref: '#/components/parameters/preferHeader'
-        - $ref: '#/components/parameters/accountId'
+        - $ref: '#/components/parameters/PreferHeader'
+        - $ref: '#/components/parameters/PoolId'
       requestBody:
-        description: Number In Pool Description
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                numbers:
-                  type: array
-                  x-nexmo-developer-collection-description-shown: true
-                  example:
-                    - 14155550100
-                    - 14155550101
-                  items:
-                    type: number
-                account_id:
-                  $ref: '#/components/schemas/accountId'
-              required:
-                - numbers
+              $ref: '#/components/schemas/AddNumbersToPool'
       responses:
         '201':
-          $ref: '#/components/responses/AddOrDeleteNumberInPoolResponse'
+          $ref: '#/components/responses/AddNumberResponse'
         '207':
-          $ref: '#/components/responses/AddOrDeleteNumberInPoolResponsePartialSuccess'
+          $ref: '#/components/responses/AddNumberResponse'
         '400':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - $ref: '#/components/responses/ErrorAddNumberValidation'
-                  - $ref: '#/components/responses/ErrorNumberNotSubscribed'
+          $ref: '#/components/responses/ErrorInvalidParametersResponse'
         '401':
-          $ref: '#/components/responses/ErrorUnauthorized'
+          $ref: '../shared_errors.yml#/components/responses/BadCredentialsError'
         '404':
-          $ref: '#/components/responses/ErrorInvalidPoolId'
+          $ref: '#/components/responses/ErrorResourceNotFoundResponse'
     delete:
       tags:
         - Numbers
-      summary: Remove a number from a pool
+      summary: Remove a series of number from a pool
       operationId: deleteNumbersFromPool
       description: |
-        Add a number to a pool. This endpoint supports _partial successes_. If a request is partially
+        Remove a series of numbers from a pool. This endpoint supports _partial successes_. If a request is partially
         successful, the response code will be `207` and details can be found in the response body.
 
         If all items succeed, you will receive a `200`. If all items fail, you will receive a `400`.
       parameters:
-        - $ref: '#/components/parameters/preferHeader'
-        - schema:
-            type: string
-            pattern: '([0-9]{7,15})[,]*'
-            example: '111111111111111,222222222222222,333333333333333'
-          in: query
-          name: ids
-          description: Comma separated list of numbers to delete from the pool
-          required: true
-        - $ref: '#/components/parameters/accountId'
+        - $ref: '#/components/parameters/PreferHeader'
+        - $ref: '#/components/parameters/MultipleNumbers'
+        - $ref: '#/components/parameters/PoolId'
       responses:
         '204':
           description: No Content
         '207':
-          description: Multi-Status (WebDAV)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/ErrorCouldNotDeleteFromPool'
-              examples:
-                partial-deletion:
-                  value:
-                    type: 'https://developer.nexmo.com/api-errors#partial-delete-failure'
-                    title: One or more numbers could not be deleted
-                    detail: One or more numbers could not be deleted. Please re-query the pool for the latest data set
-                    instance: 797a8f199c45014ab7b08bfe9cc1c12c
+          $ref: '#/components/responses/ErrorCouldNotDeleteFromPoolResponse'
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/ErrorCouldNotDeleteFromPool'
-              examples:
-                example-error:
-                  value:
-                    type: 'https://developer.nexmo.com/api-errors#delete-failure'
-                    title: Unable to remove numbers from pool
-                    detail: Requested numbers could not be removed from the specified pool.
-                    instance: 797a8f199c45014ab7b08bfe9cc1c12c
-  '/v2/pools/{pool_id}/numbers/{number}':
-    parameters:
-      - schema:
-          type: string
-        name: pool_id
-        in: path
-        required: true
-      - schema:
-          type: string
-        name: number
-        in: path
-        required: true
-    delete:
-      tags:
-        - Numbers
-      operationId: deleteNumberFromPool
-      responses:
-        '204':
-          description: No Content
-          content:
-            application/json:
-              schema:
-                anyOf:
-                  - $ref: '#/components/responses/ErrorCouldNotDeleteFromPool'
-        '207':
-          description: Multi-Status (WebDAV)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/ErrorCouldNotDeleteFromPool'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/ErrorCouldNotDeleteFromPool'
-      description: Remove an individual number from the pool
-      parameters:
-        - $ref: '#/components/parameters/accountId'
+          $ref: '#/components/responses/ErrorCouldNotDeleteFromPoolResponse'
+        '401':
+          $ref: '../shared_errors.yml#/components/responses/BadCredentialsError'
     get:
       tags:
         - Numbers
-      summary: ''
-      operationId: getNumberInPool
+      operationId: getPoolNumbers
+      description: Get numbers in a pool
+      summary: Get a list of numbers inside of a specific pool
+      parameters:
+        - $ref: '#/components/parameters/PoolId'
+        - $ref: '#/components/parameters/AccountId'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/Page'
       responses:
         '200':
-          description: OK
-          content:
-            application/json:
-              schema:
+          $ref: '#/components/responses/ListNumbersResponse'
+        '401':
+          $ref: '../shared_errors.yml#/components/responses/BadCredentialsError'
+        '404':
+          $ref: '#/components/responses/ErrorResourceNotFoundResponse'
+  
+  /v2/pools/{pool_id}/numbers/{number}:
+    delete:
+      tags:
+        - Numbers
+      summary: Remove a specific of number from a pool
+      operationId: deleteNumberFromPool
+      description: |
+        Remove a single number from a pool. 
+      parameters:
+        - $ref: '#/components/parameters/Number'
+        - $ref: '#/components/parameters/PoolId'
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/ErrorInvalidParametersResponse'
+        '401':
+          $ref: '../shared_errors.yml#/components/responses/BadCredentialsError'
+        '404':
+          $ref: '#/components/responses/ErrorResourceNotFoundResponse'
+
+components:
+  responses:
+    AddNumberResponse:
+      description: Numbers successfully added to pool
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              numbers:
+                type: array
+                description: Numbers added to pool
+                items:
+                  $ref: '#/components/schemas/Number'
+                example:
+                  - '15556660001'
+              _links:
                 type: object
                 properties:
-                  msisdn:
-                    $ref: '#/components/schemas/msisdn'
-                  pool_id:
-                    $ref: '#/components/schemas/poolId'
+                  self:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                        description: Link back to the number pool
+                        example: /v2/pools/custom_user_pool_id/numbers
+
+    ErrorAccountIdMismatchResponse:
+      description: Error response when an account ID does not match original during update
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ErrorAccountIdMismatch'
+
+    ErrorCouldNotDeleteFromPoolResponse:
+      description: Error handle full or partial deletion errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorCouldNotDeleteFromPool'
+
+    ErrorResponse:
+      description: Error response for most errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    ErrorPoolIdAlreadyExistsResponse:
+      description: Error response when a pool ID already exists
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ErrorPoolIdAlreadyExists'
+
+    ErrorResourceNotFoundResponse:
+      description: Error to handle 404's
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ErrorResourceNotFound'
+
+    ErrorInvalidParametersResponse:
+      description: Error that has additional information attached
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Error'
+              - type: object
+                properties:
+                  invalid_parameters:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Name of the invalid key
+                        reason:
+                          type: string
+                          description: Additional validation information
+
+    GetPoolResponse:
+      description: Information about a specific pool
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Pool'
+
+    ListNumbersResponse:
+      description: List of numbers that exist in a pool
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/PagedResponseSchema'
+              - type: object
+                properties:
+                  _embedded:
+                    type: object
+                    properties:
+                      numbers:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Number'
+                        example:
+                          - '15556660001'
+                          - '15556660002'
                   _links:
                     type: object
                     properties:
@@ -352,459 +332,291 @@ paths:
                         properties:
                           href:
                             type: string
-                            example: /v2/pools/pool_id/numbers/918369110173
-                      pool:
+                            description: Link to the current page
+                            example: /v2/pools/pool_id/numbers?page=3
+                      next:
                         type: object
                         properties:
                           href:
                             type: string
-                            example: /v2/pools/pool_id
-              examples:
-                number-in-pool:
-                  value:
-                    msisdn: '918369110173'
-                    pool_id: my_pool
-                    _links:
-                      self:
-                        href: /v2/pools/my_pool/numbers/918369110173
-                      pool:
-                        href: /v2/pools/my_pool
-        '404':
-          description: Not Found
-      parameters:
-        - $ref: '#/components/parameters/accountId'
-      description: Get number in pool
-components:
-  securitySchemes:
-    basicAuth:
-      type: http
-      scheme: basic
-  responses:
-    CreateOrUpdatePoolResponse:
-      description: Created
-      content:
-        application/json:
-          schema:
-            properties:
-              account_id:
-                $ref: '#/components/schemas/accountId'
-              fallback:
-                $ref: '#/components/schemas/fallback'
-              localised_sender_preferred:
-                $ref: '#/components/schemas/localisedSenderPreferred'
-              predictable_sender_preferred:
-                $ref: '#/components/schemas/predictableSenderPreferred'
-              _links:
-                type: object
-                properties:
-                  self:
-                    type: object
-                    properties:
-                      href:
-                        type: string
-                        description: Link to the current pool
-                        example: /v2/pools/custom_user_pool_id
+                            description: Link to the next available page
+                            example: /v2/pools/pool_id/numbers?page=4
+                      previous:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            description: Link to the previous available page
+                            example: /v2/pools/pool_id/numbers?page=2
+                      first:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            description: Link to the first available page
+                            example: /v2/pools/pool_id/numbers?page=1
+                      last:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            description: Link to the last available page
+                            example: /v2/pools/pool_id/numbers?page=10
+
     ListPoolsResponse:
-      description: Success
-      content:
-        application/json:
-          schema:
-            properties:
-              page_size:
-                $ref: '#/components/schemas/pageSize'
-              page:
-                $ref: '#/components/schemas/page'
-              total_pages:
-                $ref: '#/components/schemas/totalPages'
-              total_items:
-                $ref: '#/components/schemas/totalItems'
-              _links:
-                type: object
-                properties:
-                  self:
-                    type: object
-                    properties:
-                      href:
-                        type: string
-                        description: Link to the current page
-                        example: /v2/pools?page=3
-                  next:
-                    type: object
-                    properties:
-                      href:
-                        type: string
-                        description: Link to the next available page
-                        example: /v2/pools?page=4
-                  previous:
-                    type: object
-                    properties:
-                      href:
-                        type: string
-                        description: Link to the previous available page
-                        example: /v2/pools?page=2
-                  first:
-                    type: object
-                    properties:
-                      href:
-                        type: string
-                        description: Link to the first available page
-                        example: /v2/pools?page=1
-                  last:
-                    type: object
-                    properties:
-                      href:
-                        type: string
-                        description: Link to the last available page
-                        example: /v2/pools?page=10
-              _embedded:
-                type: object
-                properties:
-                  pools:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/pool'
-    PoolResponse:
-      description: Success
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/pool'
-    AddOrDeleteNumberInPoolResponse:
-      description: Added / Deleted
-      content:
-        application/json:
-          schema:
-            properties:
-              account_id:
-                $ref: '#/components/schemas/accountId'
-              numbers:
-                type: array
-                example:
-                  - '14155550100'
-                  - '14155550102'
-                description: The numbers added/removed from the pool
-                items:
-                  type: string
-              _links:
-                type: object
-                properties:
-                  self:
-                    type: object
-                    properties:
-                      href:
-                        type: string
-                        description: Link to the numbers in the current pool
-                        example: /v2/pools/custom_user_pool_id/numbers
-    AddOrDeleteNumberInPoolResponsePartialSuccess:
-      x-expand-response: false
-      description: Partial Success
+      description: List of pools that are available
       content:
         application/json:
           schema:
             allOf:
-              - $ref: '#/components/responses/AddOrDeleteNumberInPoolResponse/content/application~1json/schema'
-              - properties:
-                  errors:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        error:
-                          $ref: '#/components/responses/ErrorNumberNotSubscribed'
-                        numbers:
-                          type: array
-                          example:
-                            - '14155550101'
-                          description: The numbers that could not be processed
-                          items:
+              - $ref: '#/components/schemas/PagedResponseSchema'
+              - type: object
+                properties:
+                  _embedded:
+                    type: object
+                    properties:
+                      pools:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Pool'
+                  _links:
+                    type: object
+                    properties:
+                      self:
+                        type: object
+                        properties:
+                          href:
                             type: string
-    ErrorPoolValidation:
-      description: Pool Validation Error
-      content:
-        application/json:
-          schema:
-            oneOf:
-              - description: Invalid fallback type
-                type: object
-                properties:
-                  type:
-                    type: string
-                    example: 'https://developer.nexmo.com/api-errors/number-pools#validation'
-                  title:
-                    type: string
-                    example: Bad Request
-                  detail:
-                    type: string
-                    example: The request failed due to validation errors
-                  invalid_parameters:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                          example: fallback
-                        reason:
-                          type: string
-                          example: "Must be one of: 'Pool', 'Custom' or 'Reject'"
-                  instance:
-                    $ref: '#/components/schemas/instance'
-              - description: Missing required field
-                type: object
-                properties:
-                  type:
-                    type: string
-                    example: 'https://developer.nexmo.com/api-errors/number-pools#validation'
-                  title:
-                    type: string
-                    example: Bad Request
-                  detail:
-                    type: string
-                    example: The request failed due to validation errors
-                  invalid_parameters:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                          example: predictable_sender_preferred
-                        reason:
-                          type: string
-                          example: required
-                  instance:
-                    $ref: '#/components/schemas/instance'
-    ErrorUnauthorized:
-      description: Authentication failure
-      content:
-        application/json:
-          schema:
-            type: object
-            required:
-              - type
-              - error_title
-            properties:
-              type:
-                type: string
-                description: Machine readable error type
-                example: UNAUTHORIZED
-              error_title:
-                type: string
-                description: Error title
-                example: Unauthorized
-    ErrorInvalidPoolId:
-      description: Invalid Pool ID
-      content:
-        application/json:
-          schema:
-            required:
-              - type
-              - title
-              - detail
-              - instance
-            properties:
-              type:
-                type: string
-                description: Link to error / remediation options
-                example: 'https://developer.nexmo.com/api-errors/number-pools#invalid-pool-id'
-              title:
-                type: string
-                description: Generic error message
-                example: Invalid Pool ID
-              detail:
-                type: string
-                description: Additional information about the error
-                example: 'The pool ID specified does not exist, or you do not have access to it'
-              instance:
-                $ref: '#/components/schemas/instance'
-    ErrorInvalidSubAccount:
-      description: Resource could not be found
-      content:
-        application/json:
-          schema:
-            required:
-              - type
-              - title
-              - detail
-            properties:
-              type:
-                type: string
-                description: Link to error / remediation options
-                example: 'https://developer.nexmo.com/api-errors#invalid-api-key'
-              title:
-                type: string
-                description: Generic error message
-                example: Invalid API Key
-              detail:
-                type: string
-                description: Additional information about the error
-                example: "API key 'ABC123' does not exist, or you do not have access"
-              instance:
-                $ref: '#/components/schemas/instance'
-    ErrorPoolIdAlreadyExists:
-      description: Resource could not be found
-      content:
-        application/json:
-          schema:
-            required:
-              - type
-              - title
-              - detail
-              - instance
-            properties:
-              type:
-                type: string
-                description: Link to error / remediation options
-                example: 'https://developer.nexmo.com/api-errors/number-pools#pool-id-exists'
-              title:
-                type: string
-                description: Generic error message
-                example: Pool ID already exists
-              detail:
-                type: string
-                description: Additional information about the error
-                example: A pool with the specified Pool ID already exists
-              instance:
-                $ref: '#/components/schemas/instance'
-    ErrorAddNumberValidation:
-      description: Validation Error
+                            description: Link to the current page
+                            example: /v2/pools?page=3
+                      next:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            description: Link to the next available page
+                            example: /v2/pools?page=4
+                      previous:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            description: Link to the previous available page
+                            example: /v2/pools?page=2
+                      first:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            description: Link to the first available page
+                            example: /v2/pools?page=1
+                      last:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            description: Link to the last available page
+                            example: /v2/pools?page=10
+
+  schemas:
+    AccountId:
+      description: Account ID to work against
+      example: abcd1234
+      type: string
+      pattern: ^[a-z0-9]{8}$
+
+    AddNumbersToPool:
+      description: Add numbers to a number pool
+      type: object
       properties:
-        type:
-          type: string
-          example: 'https://developer.nexmo.com/api-errors/number-pools#number-validation'
-        title:
-          type: string
-          example: Bad Request
-        detail:
-          type: string
-          example: The request failed due to validation errors
-        invalid_parameters:
+        numbers:
           type: array
           items:
-            type: object
-            properties:
-              name:
-                type: string
-                example: numbers
-              reason:
-                type: string
-                example: must be an array of strings
-        instance:
-          $ref: '#/components/schemas/instance'
-      title: errorAddNumberValidation
-    ErrorNumberNotSubscribed:
-      description: No Number Subscription
-      properties:
-        type:
-          type: string
-          description: Link to error / remediation options
-          example: 'https://developer.nexmo.com/api-errors/number-pools#missing-number-subscription'
-        title:
-          type: string
-          description: Generic error message
-          example: No such number subscription
-        detail:
-          type: string
-          description: Additional information about the error
-          example: One or more numbers being added are not subscribed to on this account
-        instance:
-          $ref: '#/components/schemas/instance'
-    ErrorNumberExists:
-      description: Number already exists in the random pool
-      properties:
-        type:
-          type: string
-          description: Link to error / remediation options
-          example: 'https://developer.nexmo.com/api-errors/number-pools#number-already-exists'
-        title:
-          type: string
-          description: Generic error message
-          example: Number already exists in the random pool
-        detail:
-          type: string
-          description: Additional information about the error
-          example: One or more numbers being added already exist in this pool
-        instance:
-          $ref: '#/components/schemas/instance'
-    ErrorCouldNotDeleteFromPool:
-      description: Could not delete number from pool
-      properties:
-        type:
-          type: string
-          description: Link to error / remediation options
-          example: 'https://developer.nexmo.com/api-errors/number-pools#could-not-delete-from-pool'
-        title:
-          type: string
-          description: Generic error message
-          example: Number not found in pool
-        detail:
-          type: string
-          description: Additional information about the error
-          example: One or more numbers being deleted could not be removed from this pool
-        instance:
-          $ref: '#/components/schemas/instance'
-  parameters:
-    preferHeader:
-      name: Prefer
-      in: header
-      description: |
-        Choose preferred processing mode.
+            $ref: '#/components/schemas/Number'
+          example:
+            - '15556660001'
+            - '15556660002'
+      required:
+        - numbers
 
-        `strict` will reject the request if there are any validation errors. No numbers will be added<br />
-        `partial-success` will process as many numbers as possible, returning any errors in the response
-      schema:
-        type: string
-        enum:
-          - strict
-          - partial-success
-        default: strict
-    poolId:
-      name: pool_id
-      required: true
-      in: path
-      description: ID of the pool
-      example: POOL_UUID
-      schema:
-        type: string
-    accountId:
-      name: account_id
-      in: query
-      description: ID of the account
-      example: abcd1234
-      required: true
-      schema:
-        type: string
-    page:
-      name: page
-      in: query
-      description: Page offset
-      example: 11
-      schema:
-        type: integer
-    pageSize:
-      name: page_size
-      in: query
+    CreateOrUpdatePoolBase:
+      description: Base data needed to create or update a pool
+      type: object
+      properties:
+        fallback:
+          $ref: '#/components/schemas/Fallback'
+        localized_sender_preferred:
+          $ref: '#/components/schemas/LocalizedSenderPreferred'
+        predictable_sender_preferred:
+          $ref: '#/components/schemas/PredictableSenderPreferred'
+        pool_id:
+          $ref: '#/components/schemas/PoolId'
+
+    CreatePool:
+      description: Create a new pool
+      allOf:
+        - $ref: '#/components/schemas/CreateOrUpdatePoolBase'
+        - type: object
+          properties:
+            target_account_id:
+              $ref: '#/components/schemas/AccountId'
+          required:
+            - fallback
+            - localized_sender_preferred
+            - predictable_sender_preferred
+
+    Error:
+      description: Generic RFC 7807 response
+      type: object
+      required:
+        - type
+        - title
+        - detail
+      properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: 'https://developer.nexmo.com/api-errors#invalid-api-key'
+        title:
+          type: string
+          description: Generic error message
+          example: Invalid API Key
+        detail:
+          type: string
+          description: Additional information about the error
+          example: "API key 'ABC123' does not exist, or you do not have access"
+        instance:
+          $ref: '../shared_errors.yml#/components/fields/instance'
+
+    ErrorAccountIdMismatch:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          properties:
+            title:
+              description: Generic error message
+              example: The Account ID does not match the original Account ID
+            type:
+              description: Link to error / remediation options
+              example: 'https://developer.nexmo.com/api-errors/number-pools#account-id-mismatch'
+            detail:
+              description: Additional information about the error
+              example: When updating a number pool, the account ID is read-only and cannot change
+
+    ErrorCouldNotDeleteFromPool:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          properties:
+            title:
+              description: Generic error message
+              example: Number not found in pool
+            type:
+              description: Link to error / remediation options
+              example: 'https://developer.nexmo.com/api-errors/number-pools#could-not-delete-from-pool'
+            detail:
+              description: Additional information about the error
+              example: One or more numbers being deleted could not be removed from this pool
+
+    ErrorPoolIdAlreadyExists:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          properties:
+            title:
+              description: Generic error message
+              example: Pool ID already exists
+            type:
+              description: Link to error / remediation options
+              example: 'https://developer.nexmo.com/api-errors/number-pools#pool-id-exists'
+            detail:
+              description: Additional information about the error
+              example: A pool with the specified ID already exists
+
+    ErrorResourceNotFound:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          properties:
+            title:
+              description: Generic error message
+              example: The requested resource could not be found
+            type:
+              description: Link to error / remediation options
+              example: 'https://developer.nexmo.com/api-errors/number-pools#resource-not-found'
+            detail:
+              description: Additional information about the error
+              example: The requested resource could not be found
+
+    Fallback:
+      type: string
+      description: Specifies the behaviour when no number with matching prefix
+      example: Pool
+      enum:
+        - Pool
+        - CustomFrom
+        - Reject
+
+    LocalizedSenderPreferred:
+      type: boolean
+      description: 'If set to true and such a number is available, select a number at random from within this pool with the same country prefix as the destination.'
+      example: true
+
+    MultipleNumbers:
+      description: Comma separated list of numbers in a pool
+      type: string
+      pattern: '([0-9]{7,15})[,]*'
+      example: '111111111111111,222222222222222,333333333333333'
+
+    Number:
+      description: Number inside a number pool
+      example: '14155550110'
+      type: string
+      minLength: 7
+      maxLength: 15
+      pattern: '[0-9]{7,15}'
+
+    Page:
+      description: Page Offset
+      example: 2
+      type: integer
+      minimum: 1
+
+    PagedResponseSchema:
+      type: object
+      properties:
+        page_size:
+          $ref: '#/components/schemas/PageSize'
+        page:
+          $ref: '#/components/schemas/Page'
+        total_pages:
+          $ref: '#/components/schemas/TotalPages'
+        total_items:
+          $ref: '#/components/schemas/TotalItems'
+
+    PageSize:
       description: Items per page
       example: 10
-      schema:
-        type: integer
-  schemas:
-    instance:
-      description: Internal Trace ID
-      type: string
-      example: 797a8f199c45014ab7b08bfe9cc1c12c
-    pool:
+      type: integer
+      minimum: 0
+
+    PatchPool:
+      description: Partially update an existing pool
+      allOf:
+        - $ref: '#/components/schemas/CreateOrUpdatePoolBase'
+
+    Pool:
       properties:
-        pool_id:
-          $ref: '#/components/schemas/poolId'
         fallback:
-          $ref: '#/components/schemas/fallback'
-        localised_sender_preferred:
-          $ref: '#/components/schemas/localisedSenderPreferred'
+          $ref: '#/components/schemas/Fallback'
+        localized_sender_preferred:
+          $ref: '#/components/schemas/LocalizedSenderPreferred'
         predictable_sender_preferred:
-          $ref: '#/components/schemas/predictableSenderPreferred'
+          $ref: '#/components/schemas/PredictableSenderPreferred'
+        pool_id:
+          $ref: '#/components/schemas/PoolId'
         account_id:
-          $ref: '#/components/schemas/accountId'
+          $ref: '#/components/schemas/AccountId'
         _links:
           type: object
           properties:
@@ -822,57 +634,111 @@ components:
                   type: string
                   description: Link to the numbers in the pool
                   example: /v2/pools/custom_user_pool_id/numbers
-    page:
-      type: integer
-      description: The current page
-      example: 4
-      minimum: 1
-    pageSize:
-      type: integer
-      description: Items per page
-      example: 10
-    totalPages:
-      type: integer
-      description: Total number of pages
-      example: 11
-    totalItems:
-      type: integer
-      description: Total number of items
-      example: 108
-    fallback:
+
+    PoolId:
+      description: ID assigned to a pool of numbers
+      example: pool_name
       type: string
-      description: Specifies the behaviour when no number with matching prefix
-      example: Pool
-      enum:
-        - Pool
-        - CustomFrom
-        - Reject
-    localisedSenderPreferred:
+
+    PredictableSenderPreferred:
       type: boolean
-      description: 'If set to true and such a number is available, select a number at random from within this pool with the same country prefix as the destination.'
-      example: true
-    predictableSenderPreferred:
-      type: string
       description: 'When true, select the same Sender ID on any subsequent messages to a given destination.'
-      example: 'true'
-    accountId:
+      example: true
+
+    PreferHeader:
+      description: Header to control how deletes are handled
       type: string
-      description: "If specified we'll act on this API key rather than the one taken from the authentication"
-      example: account_id
-    poolId:
-      type: string
-      description: An identifier for this pool to be created — it may be alpha-numeric but MUST be unique to the account
-      example: pool_id
-      pattern: '^[A-Za-z0-9_-]+'
-    msisdn:
-      type: string
-      title: msisdn
-      minLength: 7
-      maxLength: 15
-      pattern: '[0-9]'
-      x-examples:
-        generic-msisdn: 918369110173
-      example: '918369110173'
+      pattern: (?:(?:strict|partial-success)|[a-zA-Z0-9]+=[a-zA-Z0-9]+)
+
+    TotalItems:
+      description: Number of items in the entire result set
+      example: 100
+      type: integer
+      minimum: 0
+
+    TotalPages:
+      description: Number of pages in the entire result set
+      example: 100
+      type: integer
+      minimum: 1
+
+    UpdatePool:
+      description: Update an existing pool
+      allOf:
+        - $ref: '#/components/schemas/CreateOrUpdatePoolBase'
+        - type: object
+          properties:
+            account_id:
+              $ref: '#/components/schemas/AccountId'
+          required:
+            - fallback
+            - localized_sender_preferred
+            - predictable_sender_preferred
+            - pool_id
+            - account_id
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+
+  parameters:
+    AccountId:
+      name: account_id
+      in: query
+      description: Account ID to filter for search
+      schema:
+        $ref: '#/components/schemas/AccountId'
+
+    MultipleNumbers:
+      in: query
+      name: ids
+      description: Comma separated list of numbers to delete from the pool
+      required: true
+      schema:
+        $ref: '#/components/schemas/MultipleNumbers'
+
+    Number:
+      in: path
+      name: number
+      description: Number to work with inside a pool
+      required: true
+      schema:
+        $ref: '#/components/schemas/Number'
+
+    Page:
+      name: page
+      in: query
+      description: Page to offset the result to
+      schema:
+        $ref: '#/components/schemas/Page'
+
+    PageSize:
+      name: page_size
+      in: query
+      description: Number of objects to return on page
+      schema:
+        $ref: '#/components/schemas/PageSize'
+
+    PoolId:
+      name: pool_id
+      in: path
+      required: true
+      description: Pool ID to work with
+      schema:
+        $ref: '#/components/schemas/PoolId'
+
+    PreferHeader:
+      name: Prefer
+      in: header
+      description: |
+        Choose preferred processing mode.
+
+        `strict` will reject the request if there are any validation errors. No numbers will be added<br />
+        `partial-success` will process as many numbers as possible, returning any errors in the response
+      schema:
+        $ref: '#/components/schemas/PreferHeader'
+
 tags:
   - name: Pools
     description: Pool management
