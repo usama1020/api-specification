@@ -16,7 +16,10 @@ security:
   - basicAuth: []
 
 paths:
-  /v2/pools:
+  /v2/pools/{account_id}:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+
     get:
       tags:
         - Pools
@@ -24,7 +27,6 @@ paths:
       summary: List all pools
       description: Return all of the pools available on an account
       parameters:
-        - $ref: '#/components/parameters/AccountId'
         - $ref: '#/components/parameters/PageSize'
         - $ref: '#/components/parameters/Page'
       responses:
@@ -54,16 +56,17 @@ paths:
         '409':
           $ref: '#/components/responses/ErrorPoolIdAlreadyExistsResponse'
 
-  /v2/pools/{pool_id}:
+  /v2/pools/{account_id}/{pool_id}:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+      - $ref: '#/components/parameters/PoolId'
+
     get:
       tags:
         - Pools
       operationId: getPool
       description: Get information about a specific pool
       summary: Get information about a specific pool
-      parameters:
-        - $ref: '#/components/parameters/AccountId'
-        - $ref: '#/components/parameters/PoolId'
       responses:
         '200':
           $ref: '#/components/responses/GetPoolResponse'
@@ -75,8 +78,6 @@ paths:
       tags:
         - Pools
       operationId: patchPool
-      parameters:
-        - $ref: '#/components/parameters/PoolId'
       summary: Update part of a number pool
       description: Update an existing pool with new information without requiring all information
       requestBody:
@@ -94,31 +95,12 @@ paths:
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '409':
           $ref: '#/components/responses/ErrorAccountIdMismatchResponse'
-    put:
-      tags:
-        - Pools
-      operationId: updatePool
-      parameters:
-        - $ref: '#/components/parameters/PoolId'
-      summary: Update a number pool
-      description: Update an existing pool with new information
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdatePool'
-      responses:
-        '201':
-          $ref: '#/components/responses/GetPoolResponse'
-        '400':
-          $ref: '#/components/responses/ErrorInvalidUpdatePoolResponse'
-        '401':
-          $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
-        '409':
-          $ref: '#/components/responses/ErrorAccountIdMismatchResponse'
-  
-  /v2/pools/{pool_id}/numbers:
+
+  /v2/pools/{account_id}/{pool_id}/numbers:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+      - $ref: '#/components/parameters/PoolId'
+
     get:
       tags:
         - Numbers
@@ -126,8 +108,6 @@ paths:
       description: Get numbers in a pool
       summary: Get a list of numbers inside of a specific pool
       parameters:
-        - $ref: '#/components/parameters/PoolId'
-        - $ref: '#/components/parameters/AccountId'
         - $ref: '#/components/parameters/PageSize'
         - $ref: '#/components/parameters/Page'
       responses:
@@ -140,16 +120,15 @@ paths:
     post:
       tags:
         - Numbers
-      summary: Add a number to a pool
-      operationId: addNumberToPool
+      summary: Add numbers to a pool
+      operationId: addNumbersToPool
       description: |
-        Add a number to a pool. This endpoint supports _partial successes_. If a request is partially
+        Add a series of numbers to a pool. This endpoint supports _partial successes_. If a request is partially
         successful, the response code will be `207` and information will be returned in the body.
 
         If all items succeed, you will receive a `200`. If all items fail, you will receive a `400`.
       parameters:
         - $ref: '#/components/parameters/PreferHeader'
-        - $ref: '#/components/parameters/PoolId'
       requestBody:
         required: true
         content:
@@ -160,14 +139,20 @@ paths:
         '201':
           $ref: '#/components/responses/AddNumberResponse'
         '207':
-          $ref: '#/components/responses/AddNumberResponse'
+          $ref: '#/components/responses/AddNumberPartialResponse'
         '400':
-          $ref: '#/components/responses/ErrorInvalidParametersResponse'
+          $ref: '#/components/responses/ErrorAddNumbersResponse'
         '401':
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '404':
           $ref: "common/common_errors.yml#/components/responses/NotFoundError"
-    delete:
+
+  /v2/pools/{account_id}/{pool_id}/numbers/delete:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+      - $ref: '#/components/parameters/PoolId'
+
+    post:
       tags:
         - Numbers
       summary: Remove a series of number from a pool
@@ -177,15 +162,19 @@ paths:
         successful, the response code will be `207` and details can be found in the response body.
 
         If all items succeed, you will receive a `200`. If all items fail, you will receive a `400`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddNumbersToPool'
       parameters:
         - $ref: '#/components/parameters/PreferHeader'
-        - $ref: '#/components/parameters/MultipleNumbers'
-        - $ref: '#/components/parameters/PoolId'
       responses:
         '204':
           description: No Content
         '207':
-          $ref: '#/components/responses/ErrorCouldNotDeleteFromPoolResponse'
+          $ref: '#/components/responses/ErrorCouldNotDeleteFromPoolPartialResponse'
         '400':
           description: "General validation errors"
           content:
@@ -197,7 +186,11 @@ paths:
         '401':
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
   
-  /v2/pools/{pool_id}/numbers/{number}:
+  /v2/pools/{account_id}/{pool_id}/numbers/{number}:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+      - $ref: '#/components/parameters/PoolId'
+
     delete:
       tags:
         - Numbers
@@ -207,7 +200,6 @@ paths:
         Remove a single number from a pool. 
       parameters:
         - $ref: '#/components/parameters/Number'
-        - $ref: '#/components/parameters/PoolId'
       responses:
         '204':
           description: No Content
@@ -245,6 +237,52 @@ components:
                         description: Link back to the number pool
                         example: /v2/pools/custom_user_pool_id/numbers
 
+    AddNumberPartialResponse:
+      description: Only part of a number list was added to a pool
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/responses/AddNumberResponse/content/application~1json/schema'
+              - type: object
+                properties:
+                  error:
+                    allOf:
+                      - $ref: '#/components/schemas/Error'
+                      - type: object
+                        properties:
+                          title:
+                            description: Generic error message
+                            example: Could not add all numbers to pool
+                          type:
+                            description: Link to error / remediation options
+                            example: 'https://developer.nexmo.com/api-errors/number-pools#add-numbers-partial-failure'
+                          detail:
+                            description: Additional information about the error
+                            example: One or more numbers encountered issues being added to the pool
+                          errors:
+                            type: array
+                            items:
+                              allOf:
+                                - $ref: '#/components/schemas/Error'
+                                - type: object
+                                  properties:
+                                    title:
+                                      description: Generic error message
+                                      example: No such number subscription
+                                    type:
+                                      description: Link to error / remediation options
+                                      example: 'https://developer.nexmo.com/api-errors/number-pools#missing-number-subscription'
+                                    detail:
+                                      description: Additional information about the error
+                                      example: One or more numbers being added are not subscribed to on this account
+                                    numbers:
+                                      type: array
+                                      items:
+                                        $ref: '#/components/schemas/Number'
+                                      example:
+                                        - '15556660001'
+
     ErrorAccountIdMismatchResponse:
       description: Error response when an account ID does not match original during update
       content:
@@ -253,12 +291,60 @@ components:
             allOf:
               - $ref: '#/components/schemas/ErrorAccountIdMismatch'
 
+    ErrorAddNumbersResponse:
+      description: If all numbers fail to be added
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Error'
+              - type: object
+                properties:
+                  title:
+                    description: Generic error message
+                    example: Numbers could not be added to the pool
+                  type:
+                    description: Link to error / remediation options
+                    example: 'https://developer.nexmo.com/api-errors/number-pools#add-number-failure'
+                  detail:
+                    description: Additional information about the error
+                    example: None of the numbers could be added the pool
+                  errors:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/Error'
+                        - type: object
+                          properties:
+                            title:
+                              description: Generic error message
+                              example: No such number subscription
+                            type:
+                              description: Link to error / remediation options
+                              example: 'https://developer.nexmo.com/api-errors/number-pools#missing-number-subscription'
+                            detail:
+                              description: Additional information about the error
+                              example: One or more numbers being added are not subscribed to on this account
+                            numbers:
+                              type: array
+                              items:
+                                $ref: '#/components/schemas/Number'
+                              example:
+                                - '15556660001'
+
     ErrorCouldNotDeleteFromPoolResponse:
       description: Error handle full or partial deletion errors
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorCouldNotDeleteFromPool'
+
+    ErrorCouldNotDeleteFromPoolPartialResponse:
+      description: Error handle full or partial deletion errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorCouldNotDeleteFromPoolPartial'
 
     ErrorResponse:
       description: Error response for most errors
@@ -456,9 +542,10 @@ components:
         - $ref: '#/components/schemas/CreateOrUpdatePoolBase'
         - type: object
           properties:
-            target_account_id:
+            account_id:
               $ref: '#/components/schemas/AccountId'
           required:
+            - pool_id
             - fallback
             - localized_sender_preferred
             - predictable_sender_preferred
@@ -501,6 +588,62 @@ components:
               description: Additional information about the error
               example: When updating a number pool, the account ID is read-only and cannot change
 
+    ErrorCouldNotAddPool:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          properties:
+            title:
+              description: Generic error message
+              example: Number could not be added to pool
+            type:
+              description: Link to error / remediation options
+              example: 'https://developer.nexmo.com/api-errors/number-pools#could-not-add-to-pool'
+            detail:
+              description: Additional information about the error
+              example: One or more numbers could not be added to the specified pool
+            errors:
+              type: array
+              items:
+                $ref: '#/components/schemas/Number'
+              example:
+                - '15556660001'
+                - '15556660002'
+
+    ErrorCouldNotDeleteFromPoolPartial:
+      allOf:
+        - $ref: '#/components/schemas/AddNumbersToPool'
+        - type: object
+          properties:
+            error:
+              allOf:
+                - $ref: '#/components/schemas/Error'
+                - type: object
+                  properties:
+                    errors:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          error:
+                              type: object
+                              properties:
+                                title:
+                                  description: Generic error message
+                                  example: Number not found
+                                type:
+                                  description: Link to error / remediation options
+                                  example: 'https://developer.nexmo.com/api-errors/number-pools#missing-number'
+                                detail:
+                                  description: Additional information about the error
+                                  example: One or more numbers being deleted are not available in the pool
+                          numbers:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Number'
+                            example:
+                              - '15556660001'
+
     ErrorCouldNotDeleteFromPool:
       allOf:
         - $ref: '#/components/schemas/Error'
@@ -508,13 +651,33 @@ components:
           properties:
             title:
               description: Generic error message
-              example: Number not found in pool
+              example: There were errors removing numbers from the pool
             type:
               description: Link to error / remediation options
-              example: 'https://developer.nexmo.com/api-errors/number-pools#could-not-delete-from-pool'
+              example: 'https://developer.nexmo.com/api-errors/number-pools#number-deletion-failure'
             detail:
               description: Additional information about the error
-              example: One or more numbers being deleted could not be removed from this pool
+              example: We were unable to remove any of the numbers from the pool.
+            errors:
+              type: array
+              items:
+                type: object
+                properties:
+                  title:
+                    description: Generic error message
+                    example: Number not found
+                  type:
+                    description: Link to error / remediation options
+                    example: 'https://developer.nexmo.com/api-errors/number-pools#missing-number'
+                  detail:
+                    description: Additional information about the error
+                    example: One or more numbers being deleted are not available in the pool
+                  numbers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Number'
+                    example:
+                      - '15556660001'
 
     ErrorInvalidParameters:
       allOf:
@@ -550,16 +713,10 @@ components:
             invalid_parameters:
               type: array
               items:
-                type: object
-                properties:
-                  name:
-                    type: string
-                    description: Name of the invalid key
-                    example: pool_id
-                  reason:
-                    type: string
-                    description: Additional validation information
-                    example: Pool ID contains invalid characters
+                $ref: '#/components/schemas/Number'
+              example:
+                name: 'localized_sender_preferred'
+                reason: 'Must be a boolean value'
 
     ErrorPoolIdAlreadyExists:
       allOf:
@@ -617,12 +774,6 @@ components:
       type: boolean
       description: 'If set to true and such a number is available, select a number at random from within this pool with the same country prefix as the destination.'
       example: true
-
-    MultipleNumbers:
-      description: Comma separated list of numbers in a pool
-      type: string
-      pattern: '([0-9]{7,15})[,]*'
-      example: '111111111111111,222222222222222,333333333333333'
 
     Number:
       description: Number inside a number pool
@@ -741,18 +892,11 @@ components:
   parameters:
     AccountId:
       name: account_id
-      in: query
-      description: Account ID to filter for search
-      schema:
-        $ref: '#/components/schemas/AccountId'
-
-    MultipleNumbers:
-      in: query
-      name: ids
-      description: Comma separated list of numbers to delete from the pool
+      in: path
+      description: Account ID to filter to
       required: true
       schema:
-        $ref: '#/components/schemas/MultipleNumbers'
+        $ref: '#/components/schemas/AccountId'
 
     Number:
       in: path
