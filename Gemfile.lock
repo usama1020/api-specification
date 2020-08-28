@@ -114,7 +114,7 @@ GEM
     nio4r (2.5.2)
     nokogiri (1.10.10)
       mini_portile2 (~> 2.4.0)
-    oas_parser (0.25.2)
+    oas_parser (0.25.1)
       activesupport (>= 4.0.0)
       addressable (~> 2.3)
       builder (~> 3.2.3)
