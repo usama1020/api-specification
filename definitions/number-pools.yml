@@ -634,12 +634,12 @@ components:
                                 detail:
                                   description: Additional information about the error
                                   example: One or more numbers being deleted are not available in the pool
-                          numbers:
-                            type: array
-                            items:
-                              $ref: '#/components/schemas/Number'
-                            example:
-                              - '15556660001'
+                                numbers:
+                                  type: array
+                                  items:
+                                    $ref: '#/components/schemas/Number'
+                                  example:
+                                    - '15556660001'
 
     ErrorCouldNotDeleteFromPool:
       allOf:
