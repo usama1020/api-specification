@@ -89,7 +89,7 @@ paths:
         '201':
           $ref: '#/components/responses/GetPoolResponse'
         '400':
-          $ref: '#/components/responses/ErrorInvalidParametersResponse'
+          $ref: '#/components/responses/ErrorInvalidUpdatePoolResponse'
         '401':
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '409':
@@ -112,7 +112,7 @@ paths:
         '201':
           $ref: '#/components/responses/GetPoolResponse'
         '400':
-          $ref: '#/components/responses/ErrorInvalidParametersResponse'
+          $ref: '#/components/responses/ErrorInvalidUpdatePoolResponse'
         '401':
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '409':
@@ -187,7 +187,12 @@ paths:
         '207':
           $ref: '#/components/responses/ErrorCouldNotDeleteFromPoolResponse'
         '400':
-          $ref: '#/components/responses/ErrorCouldNotDeleteFromPoolResponse'
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/responses/ErrorCouldNotDeleteFromPoolResponse/content/application~1json/schema'
+                  - $ref: '#/components/responses/ErrorTooManyNumbersResponse/content/application~1json/schema'
         '401':
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
   
@@ -274,21 +279,21 @@ components:
       content:
         application/json:
           schema:
-            allOf:
-              - $ref: '#/components/schemas/Error'
-              - type: object
-                properties:
-                  invalid_parameters:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                          description: Name of the invalid key
-                        reason:
-                          type: string
-                          description: Additional validation information
+            $ref: '#/components/schemas/ErrorInvalidParameters'
+
+    ErrorInvalidUpdatePoolResponse:
+      description: Errors for when updating a Pool has problems
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorInvalidUpdatePool'
+
+    ErrorTooManyNumbersResponse:
+      description: Error for when there are too many numbers
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorTooManyNumbers'
 
     GetPoolResponse:
       description: Information about a specific pool
@@ -510,6 +515,51 @@ components:
               description: Additional information about the error
               example: One or more numbers being deleted could not be removed from this pool
 
+    ErrorInvalidParameters:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          properties:
+            invalid_parameters:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Name of the invalid key
+                  reason:
+                    type: string
+                    description: Additional validation information
+
+    ErrorInvalidUpdatePool:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          properties:
+            title:
+              description: Generic error message
+              example: Bad Request
+            type:
+              description: Link to error / remediation options
+              example: 'https://developer.nexmo.com/api-errors/number-pools#validation'
+            detail:
+              description: Additional information about the error
+              example: The request failed due to validation errors
+            invalid_parameters:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Name of the invalid key
+                    example: pool_id
+                  reason:
+                    type: string
+                    description: Additional validation information
+                    example: Pool ID contains invalid characters
+
     ErrorPoolIdAlreadyExists:
       allOf:
         - $ref: '#/components/schemas/Error'
@@ -524,6 +574,34 @@ components:
             detail:
               description: Additional information about the error
               example: A pool with the specified ID already exists
+
+    ErrorTooManyNumbers:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          properties:
+            title:
+              description: Generic error message
+              example: Bad Request
+            type:
+              description: Link to error / remediation options
+              example: 'https://developer.nexmo.com/api-errors/number-pools#bulk-number-delete-limit'
+            detail:
+              description: Additional information about the error
+              example: The request failed due to validation errors
+            invalid_parameters:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Name of the invalid key
+                    example: ids
+                  reason:
+                    type: string
+                    description: Additional validation information
+                    example: Limit of 50 numbers exceeded
 
     Fallback:
       type: string
