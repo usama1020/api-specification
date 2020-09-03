@@ -133,8 +133,6 @@ paths:
         successful, the response code will be `207` and information will be returned in the body.
 
         If all items succeed, you will receive a `200`. If all items fail, you will receive a `400`.
-      parameters:
-        - $ref: '#/components/parameters/PreferHeader'
       requestBody:
         required: true
         content:
@@ -174,8 +172,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AddNumbersToPool'
-      parameters:
-        - $ref: '#/components/parameters/PreferHeader'
       responses:
         '204':
           description: No Content
@@ -876,11 +872,6 @@ components:
       description: 'When true, select the same Sender ID on any subsequent messages to a given destination.'
       example: true
 
-    PreferHeader:
-      description: Header to control how deletes are handled
-      type: string
-      pattern: (?:(?:strict|partial-success)|[a-zA-Z0-9]+=[a-zA-Z0-9]+)
-
     TotalItems:
       description: Number of items in the entire result set
       example: 100
@@ -951,17 +942,6 @@ components:
       description: Pool ID to work with
       schema:
         $ref: '#/components/schemas/PoolId'
-
-    PreferHeader:
-      name: prefer
-      in: header
-      description: |
-        Choose preferred processing mode.
-
-        `strict` will reject the request if there are any validation errors. No numbers will be added<br />
-        `partial-success` will process as many numbers as possible, returning any errors in the response
-      schema:
-        $ref: '#/components/schemas/PreferHeader'
 
 tags:
   - name: Pools
