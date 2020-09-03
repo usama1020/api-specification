@@ -34,6 +34,8 @@ paths:
           $ref: '#/components/responses/ListPoolsResponse'
         '401':
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
+        '404':
+          $ref: "common/common_errors.yml#/components/responses/NotFoundError"
     post:
       tags:
         - Pools
@@ -53,6 +55,8 @@ paths:
           $ref: '#/components/responses/ErrorInvalidParametersResponse'
         '401':
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
+        '404':
+          $ref: "common/common_errors.yml#/components/responses/NotFoundError"
         '409':
           $ref: '#/components/responses/ErrorPoolIdAlreadyExistsResponse'
 
@@ -93,6 +97,8 @@ paths:
           $ref: '#/components/responses/ErrorInvalidUpdatePoolResponse'
         '401':
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
+        '404':
+          $ref: "common/common_errors.yml#/components/responses/NotFoundError"
         '409':
           $ref: '#/components/responses/ErrorAccountIdMismatchResponse'
 
@@ -185,6 +191,8 @@ paths:
                   - $ref: '#/components/responses/ErrorTooManyNumbersResponse/content/application~1json/schema'
         '401':
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
+        '404':
+          $ref: "common/common_errors.yml#/components/responses/NotFoundError"
   
   /v2/pools/{account_id}/{pool_id}/numbers/{number}:
     parameters:
@@ -347,7 +355,7 @@ components:
             $ref: '#/components/schemas/ErrorCouldNotDeleteFromPoolPartial'
 
     ErrorDeleteSingleNumberResponse:
-      descrption: Error when a single number is being deleted
+      description: Error when a single number is being deleted
       content:
         application/json:
           schema:
