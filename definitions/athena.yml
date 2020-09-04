@@ -588,6 +588,65 @@ paths:
                     type: string
                     description: Internal Trace ID
                     example: bf0ca0bf927b3b52e3cb03217e1a1ddf
+  '/labels':
+    summary: list_labels
+    get:
+      description: List the labels applicable to a given intent
+      operationId: getLabels
+      tags:
+        - Labels
+      summary: List Labels
+      parameters:
+        - $ref: '#/components/parameters/search_intent_id'
+        - $ref: '#/components/parameters/page_size'
+        - $ref: '#/components/parameters/order'
+        - $ref: '#/components/parameters/cursor'
+      responses:
+        '200':
+          description: Labels Listed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/labels'
+        '401':
+          description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+    post:
+      description: Create a label
+      operationId: createLabel
+      tags:
+        - Labels
+      summary: Create a Label
+      requestBody:
+        $ref: "#/components/requestBodies/Label"
+      responses:
+        '200':
+          description: Label created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/label"
+        '401':
+          description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
   '/values':
     summary: list_values
     get:
@@ -607,8 +666,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/values'
-                          
+                $ref: '#/components/schemas/values' 
         '401':
           description: Not Authorized
           content:
@@ -620,7 +678,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorNotFound"  
+                $ref: "#/components/schemas/ErrorNotFound"
     post:
       description: Creates a value for the provided entity id
       operationId: create_value
@@ -1091,7 +1149,29 @@ components:
                 $ref: '#/components/schemas/intent_name'
               utterances:
                 $ref: '#/components/schemas/utterance_list'
-                      
+    Label:
+      description: A label of an entity in the context of an intent
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - label_name
+              - entity_id
+              - intent_id
+            properties:
+              label_name:
+                type: string
+                description: The name of the label for the entity.
+                example: caller
+              entity_id:
+                type: string
+                description: The id of the entity associated with this label
+                example: ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+              intent_id:
+                type: string
+                description: The id of the intent that this label is appropriate for
+                example: INT-fda44c64-7e4e-485f-a0c4-234567c44627
     Value:
       description: A possible value for an Entity
       content:
@@ -1409,8 +1489,7 @@ components:
       x-nexmo-developer-collection-description-show: true
       type: array      
       example:
-        - entity_id: ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
-          value_id: VAL-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+          label_id: LAB-92a44c64-7e4e-485f-a0c4-1f2adfc44625
           start_word: 5
           end_word: 5
       items:
@@ -1419,6 +1498,21 @@ components:
       type: string
       description: The Text of the utterance
       example: "I'd like to buy a tangerine"
+    labels:
+      type: object
+      properties:
+        page_size:
+          type: integer
+          description: the number of records returned in the response
+          example: 10
+        _embedded:
+          x-nexmo-developer-collection-description-shown: true
+          type: array
+          description: The labels applicable to the intent
+          items:
+            $ref: '#/components/schemas/label'
+        _links:
+          $ref: '#/components/schemas/label_links'
     values:
       type: object
       properties:
@@ -1545,6 +1639,8 @@ components:
                     $ref: "#/components/schemas/entity"
                   value:
                     $ref: "#/components/schemas/value"
+                  label:
+                    $ref: "#/components/schemas/label"
                   confidence:
                     type: number
                     description: the confidence the model has that this was the intent of the utterance. Lies in the range of [0,1]
@@ -1631,14 +1727,10 @@ components:
       type: object
       description: An entity labeled for an utterance
       properties:
-        entity_id:
+        label_id:
           type: string
-          description: the entity id of the labeled entity
-          example: ENT-92a44c64-7e4e-485f-a0c4-1f2adfc44625
-        value_id:
-          type: string
-          description: The unique id of the labeled value
-          example: VAL-92a44c64-7e4e-485f-a0c4-1f2adfc44625
+          description: the label id of the labeled entity.
+          example: LAB-92a44c64-7e4e-485f-a0c4-1f2adfc44625
         start_word:
           type: integer
           example: 5
@@ -1766,13 +1858,51 @@ components:
             href:
               type: string
               example: 'https://api.nexmo.com/v0.1/athena/intents?order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'
+    label:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The label applied to an entity to denote it's context within an intent
+          example: merchandise
+        id:
+          type: string
+          description: Unique identifier of the label for an entity in an intent
+          example: LAB-afe887d8-d587-4280-9aae-dfa4c9227d5f
+        entity_id:
+          $ref: "#/components/schemas/entity_id"
+        intent_id:
+          type: string
+          description: the identity of the intent
+          example: INT-f972836a-550f-45fa-956c-12a2ab5b7d22
+        _links:
+          type: object
+          properties:
+            entity:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: https://api.nexmo.com/v0.1/athena/entities/ENT-f972836a-550f-45fa-956c-12a2ab5b7d22
+            intent:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: https://api.nexmo.com/v0.1/athena/entities/INT-f972836a-550f-45fa-956c-12a2ab5b7d25
+            self:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: https://api.nexmo.com/v0.1/athena/entities/LAB-f972836a-550f-45fa-956c-12a2ab5b7d23
     value:
       type: object
       properties:
         id:
           type: string
           description: Unique identifier of a concrete value of an entity
-          example: VAL-afe887d8-d587-4280-9aae-dfa4c9227d5e        
+          example: VAL-afe887d8-d587-4280-9aae-dfa4c9227d5e
         name:
           type: string
           description: the name of a value representing a concrete instance of an entity. e.g. `orange` is a possible value of the entity `fruit`
@@ -1798,6 +1928,32 @@ components:
                 href:
                   type: string
                   example: https://api.nexmo.com/v0.1/athena/values/VAL-f972836a-550f-45fa-956c-12a2ab5b7d22
+    label_links:
+      properties:
+        self:
+          type: object
+          properties:
+            href:
+              type: string
+              example: 'https://api.nexmo.com/v0.1/athena/labels/LAB-f972836a-550f-45fa-956c-12a2ab5b7d22'
+        first:
+          type: object
+          properties:
+            href:
+              type: string
+              example: 'https://api.nexmo.com/v0.1/athena/labels?entity_id=INT-92a44c64-7e4e-485f-a0c4-1f2adfc44625&order=desc&page_size=10'                
+        next:
+          type: object
+          properties:
+            href:
+              type: string
+              example: 'https://api.nexmo.com/v0.1/athena/labels?entity_id=INT-92a44c64-7e4e-485f-a0c4-1f2adfc44625&order=desc&page_size=10&cursor=88b395c167da4d94e929705cbd63b829a650e69a39197bfd4c949f4243f60dc4babb696afa404d2f44e7775e32b967f2a1a0bb8fb259c0999ba5a4e501eaab55'
+        prev:
+          type: object
+          properties:
+            href:
+              type: string
+              example: 'https://api.nexmo.com/v0.1/athena/labels?entity_id=INT-92a44c64-7e4e-485f-a0c4-1f2adfc44625&order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb'
     value_links:
       properties:
         self:
@@ -1907,6 +2063,8 @@ tags:
     description: Models are used to compose different Intents and Entities from a knowledge base into a model that will be used to perform intent and entity detection on text inputs
   - name: Intents
     description: An intent of an utterance
+  - name: Labels
+    description: A label is a particular identifier of a given entity in the context of an intent. For example, someone might call in and say "Hi this is Steve, I'm calling for Michael." The intent may be `connectCall` but there are two separate noun's which might be of the entity type `sys.Name`, `Steve` and `Michael`. To provide more context you might label `Steve` as a `caller` and `Michael` as the `recipient` so as to allow your app to more intelligently handle the entities detected in the intent.
   - name: Utterances
     description: Utterances are real speech phrases corresponding to a given user intent. In addition to intents, they can be tagged with various entities denoting the entities present within the utterance.
   - name: Entities
