@@ -649,7 +649,7 @@ paths:
                 $ref: "#/components/schemas/ErrorNotFound"
   '/labels/{label_id}':
     get:
-      sumary: Get Label
+      summary: Get Label
       description: Retrieve the label for the given ID
       operationId: getLabel
       tags:
