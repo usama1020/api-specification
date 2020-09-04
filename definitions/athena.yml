@@ -67,6 +67,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorNotFound"
+        '422':
+          description: Label does not match
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorLabelDoesNotMatch"
   '/utterances/{utterance_id}':
     get:
       summary: Get Utterance
@@ -129,7 +135,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorNotFound"        
+                $ref: "#/components/schemas/ErrorNotFound"
+        '422':
+          description: Label does not match
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorLabelDoesNotMatch"
     delete:
       description: deletes the utterances
       tags:
@@ -1409,6 +1421,29 @@ components:
           type: string
           description: Internal Trace ID
           example: bf0ca0bf927b3b52e3cb03217e1a1ddf
+    ErrorLabelDoesNotMatch:
+      description: Label does not match
+      type: object
+      required:
+        - title
+        - detail
+      properties:
+        type:
+          type: string
+          description: Link to error / remediation options
+          example: https://developer.nexmo.com/api-errors/athena#label-does-not-match
+        title:
+          type: string
+          description: Title of the error
+          example: Request could not be processed
+        detail:
+          type: string
+          description: More granular explanation of the error
+          example: The supplied label's associated entity and intent does not match the intent or entity of the labeled entity
+        instance:
+          type: string
+          description: Internal Trace ID
+          example: bf0ca0bf927b3b52e3cb03217e1a1ddf
     ErrorUnprocessable:
       description: Unprocessable entity
       type: object
@@ -1422,7 +1457,7 @@ components:
           example: https://developer.nexmo.com/api-errors/athena#missing-model
         title:
           type: string
-          description: Title of "The Model to be used in analysis \n> Note every analyze requests requires at least a model or an intent\n"
+          description: Title of the error
           example: Request is Unprocessable
         detail:
           type: string
@@ -1675,23 +1710,31 @@ components:
           type: string
           example: "I'd like to buy a tangerine"
           description: the text that was analyzed
-        _embedded:
-          type: object
-          properties:
-            intents:
-              type: array
-              items:
+        intents:
+          type: array
+          description: Intent's detected by the model in order of confidence.
+          items:
+            type: object
+            properties:
+              confidence:
+                type: number
+                description: the confidence the model has that this was the intent of the utterance. Lies in the range of [0,1]
+                example: 0.95 
+              _embedded:
                 type: object
                 properties:
                   intent:
                     $ref: "#/components/schemas/intent"
-                  confidence:
-                    type: number
-                    description: the confidence the model has that this was the intent of the utterance. Lies in the range of [0,1]
-                    example: 0.95 
-            entities:
-              type: array
-              items:
+        entities:
+          type: array
+          items:
+            type: object
+            properties:
+              confidence:
+                type: number
+                description: the confidence the model has that this was the intent of the utterance. Lies in the range of [0,1]
+                example: 0.95
+              _embedded:
                 type: object
                 properties:
                   entity:
@@ -1700,10 +1743,6 @@ components:
                     $ref: "#/components/schemas/value"
                   label:
                     $ref: "#/components/schemas/label"
-                  confidence:
-                    type: number
-                    description: the confidence the model has that this was the intent of the utterance. Lies in the range of [0,1]
-                    example: 0.95 
     model:
       type: object
       description: A model to run text analysis against
@@ -2110,6 +2149,11 @@ x-errors:
     resolution: Add either a model id or an intent id to your request
     link:
       url: /api/athena/#missing-model
+  label-does-not-match:
+    description: supplied label does not match the entity or intent
+    resolution: Ensure supplied label matches the intent and entity it is being registered with.
+    link:
+      url: /api/athena/#label-does-not-match
   delete-conflict:
     description: Delete operation would orphan child entities
     resolution: Delete the child entities or set force tag to true
