@@ -640,6 +640,15 @@ components:
                 - $ref: '#/components/schemas/Error'
                 - type: object
                   properties:
+                    title:
+                      description: Generic error message
+                      example: Could not remove all numbers to pool
+                    type:
+                      description: Link to error / remediation options
+                      example: 'https://developer.nexmo.com/api-errors/number-pools#delete-numbers-partial-failure'
+                    detail:
+                      description: Additional information about the error
+                      example: One or more numbers encountered issues being removed from the pool
                     errors:
                       type: array
                       items:
