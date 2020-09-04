@@ -647,6 +647,57 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorNotFound"
+  '/labels/{label_id}':
+    get:
+      sumary: Get Label
+      description: Retrieve the label for the given ID
+      operationId: getLabel
+      tags:
+        - Labels
+      parameters:
+        - $ref: "#/components/parameters/label_id"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/label"
+        '401':
+          description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"    
+    delete:
+      summary: Delete label
+      description: Delete an entity label
+      operationId: deleteLabel
+      tags:
+        - Labels
+      parameters:
+        - $ref: "#/components/parameters/label_id"
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Not Authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"        
   '/values':
     summary: list_values
     get:
@@ -1041,6 +1092,14 @@ components:
       in: query
       description: the value to search on
       example: VAL-f972836a-550f-45fa-956c-12a2ab5b7d22
+      schema:
+        type: string
+      required: true
+    label_id:
+      name: label_id
+      in: path
+      description: The Id of the label
+      example: LAB-f972836a-550f-45fa-956c-12a2ab5b7d22
       schema:
         type: string
       required: true
