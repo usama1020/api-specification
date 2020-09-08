@@ -145,7 +145,12 @@ paths:
         '207':
           $ref: '#/components/responses/AddNumberPartialResponse'
         '400':
-          $ref: '#/components/responses/ErrorAddNumbersResponse'
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/responses/ErrorAddNumbersResponse/content/application~1json/schema'
+                  - $ref: '#/components/responses/ErrorTooManyNumbersResponse/content/application~1json/schema'
         '401':
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '404':
@@ -178,7 +183,6 @@ paths:
         '207':
           $ref: '#/components/responses/ErrorCouldNotDeleteFromPoolPartialResponse'
         '400':
-          description: "General validation errors"
           content:
             application/json:
               schema:
@@ -303,6 +307,7 @@ components:
             allOf:
               - $ref: '#/components/schemas/Error'
               - type: object
+                description: "Addition Errors"
                 properties:
                   title:
                     description: Generic error message
@@ -639,6 +644,7 @@ components:
               allOf:
                 - $ref: '#/components/schemas/Error'
                 - type: object
+                  description: "Partial errors when deleting"
                   properties:
                     title:
                       description: Generic error message
@@ -677,6 +683,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/Error'
         - type: object
+          description: "Deletion Errors"
           properties:
             title:
               description: Generic error message
@@ -712,6 +719,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/Error'
         - type: object
+          description: "Validation Errors"
           properties:
             invalid_parameters:
               type: array
@@ -729,6 +737,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/Error'
         - type: object
+          description: "Validation errors"
           properties:
             title:
               description: Generic error message
@@ -766,6 +775,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/Error'
         - type: object
+          description: "Limit Exceeded"
           properties:
             title:
               description: Generic error message
