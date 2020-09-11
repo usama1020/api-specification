@@ -52,7 +52,13 @@ paths:
         '201':
           $ref: '#/components/responses/GetPoolResponse'
         '400':
-          $ref: '#/components/responses/ErrorInvalidParametersResponse'
+          description: Client errors
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/responses/ErrorInvalidParametersResponse/content/application~1json/schema'
+                  - $ref: '#/components/responses/ErrorUnableToParseRequestResponse/content/application~1json/schema'
         '401':
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '404':
@@ -94,7 +100,13 @@ paths:
         '201':
           $ref: '#/components/responses/GetPoolResponse'
         '400':
-          $ref: '#/components/responses/ErrorInvalidUpdatePoolResponse'
+          description: Client errors
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/responses/ErrorInvalidUpdatePoolResponse/content/application~1json/schema'
+                  - $ref: '#/components/responses/ErrorUnableToParseRequestResponse/content/application~1json/schema'
         '401':
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '404':
@@ -145,12 +157,14 @@ paths:
         '207':
           $ref: '#/components/responses/AddNumberPartialResponse'
         '400':
+          description: Client errors
           content:
             application/json:
               schema:
                 oneOf:
                   - $ref: '#/components/responses/ErrorAddNumbersResponse/content/application~1json/schema'
                   - $ref: '#/components/responses/ErrorTooManyNumbersResponse/content/application~1json/schema'
+                  - $ref: '#/components/responses/ErrorUnableToParseRequestResponse/content/application~1json/schema'
         '401':
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '404':
@@ -183,12 +197,14 @@ paths:
         '207':
           $ref: '#/components/responses/ErrorCouldNotDeleteFromPoolPartialResponse'
         '400':
+          description: Client errors
           content:
             application/json:
               schema:
                 oneOf:
                   - $ref: '#/components/responses/ErrorCouldNotDeleteFromPoolResponse/content/application~1json/schema'
                   - $ref: '#/components/responses/ErrorTooManyNumbersResponse/content/application~1json/schema'
+                  - $ref: '#/components/responses/ErrorUnableToParseRequestResponse'
         '401':
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '404':
@@ -409,6 +425,25 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorTooManyNumbers'
+
+    ErrorUnableToParseRequestResponse:
+      description: Error for when we cannot parse the client-supplied request
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Error'
+              - type: object
+                properties:
+                  title:
+                    description: Generic error message
+                    example: Unable to parse incoming request
+                  type:
+                    description: Link to error / remediation options
+                    example: 'https://developer.nexmo.com/api-errors/number-pools#invalid-json'
+                  detail:
+                    description: Additional information about the error
+                    example: invalid character 'f' after object key:value pair
 
     GetPoolResponse:
       description: Information about a specific pool
