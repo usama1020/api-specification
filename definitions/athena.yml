@@ -1987,13 +1987,13 @@ components:
               properties:
                 href:
                   type: string
-                  example: https://api.nexmo.com/v0.1/athena/entities/INT-f972836a-550f-45fa-956c-12a2ab5b7d25
+                  example: https://api.nexmo.com/v0.1/athena/intents/INT-f972836a-550f-45fa-956c-12a2ab5b7d25
             self:
               type: object
               properties:
                 href:
                   type: string
-                  example: https://api.nexmo.com/v0.1/athena/entities/LAB-f972836a-550f-45fa-956c-12a2ab5b7d23
+                  example: https://api.nexmo.com/v0.1/athena/labels/LAB-f972836a-550f-45fa-956c-12a2ab5b7d23
     value:
       type: object
       properties:
