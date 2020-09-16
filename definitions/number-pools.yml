@@ -434,6 +434,7 @@ components:
             allOf:
               - $ref: '#/components/schemas/Error'
               - type: object
+                description: Unable To Parse Request
                 properties:
                   title:
                     description: Generic error message
@@ -603,6 +604,12 @@ components:
       description: Create a new pool
       allOf:
         - $ref: '#/components/schemas/CreateOrUpdatePoolBase'
+        - type: object
+          required:
+            - pool_id
+            - fallback
+            - localized_sender_preferred
+            - predictable_sender_preferred
 
     Error:
       description: Generic RFC 7807 response
@@ -849,7 +856,7 @@ components:
       type: string
       minLength: 7
       maxLength: 15
-      pattern: '[0-9]{7,15}'
+      pattern: '^[0-9]{7,15}$'
 
     Page:
       description: Page Offset
@@ -914,6 +921,7 @@ components:
       description: ID assigned to a pool of numbers
       example: pool_name
       type: string
+      pattern: '^[a-z0-9]$'
 
     PredictableSenderPreferred:
       type: boolean
