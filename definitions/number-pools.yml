@@ -204,7 +204,7 @@ paths:
                 oneOf:
                   - $ref: '#/components/responses/ErrorCouldNotDeleteFromPoolResponse/content/application~1json/schema'
                   - $ref: '#/components/responses/ErrorTooManyNumbersResponse/content/application~1json/schema'
-                  - $ref: '#/components/responses/ErrorUnableToParseRequestResponse'
+                  - $ref: '#/components/responses/ErrorUnableToParseRequestResponse/content/application~1json/schema'
         '401':
           $ref: "common/common_errors.yml#/components/responses/BadCredentialsError"
         '404':
@@ -603,12 +603,6 @@ components:
       description: Create a new pool
       allOf:
         - $ref: '#/components/schemas/CreateOrUpdatePoolBase'
-        - type: object
-          required:
-            - pool_id
-            - fallback
-            - localized_sender_preferred
-            - predictable_sender_preferred
 
     Error:
       description: Generic RFC 7807 response
