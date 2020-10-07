@@ -53,6 +53,38 @@ paths:
                   application/json:
                     schema:
                       $ref: "#/components/schemas/MessageStatus"
+                    examples:
+                      delivered:
+                        summary: Delivered
+                        value:
+                          message_uuid: aaaaaaaa-bbbb-cccc-dddd-0123456789ab
+                          to:
+                            type: sms
+                            id: 0123456789012345
+                            number: 447700900000
+                          from:
+                            type: sms
+                            id: 0123456789012345
+                            number: 447700900000
+                          timestamp: 2020-01-01T14:00:00.000Z
+                          status: delivered
+                          usage:
+                            currency: EUR
+                            price: 0.0333
+                          client-ref: my-personal-reference
+                      no-provider:
+                        summary: Not in network
+                        value:
+                          error:
+                            code: 1300
+                            reason: Not part of the provider network
+                      unsuitable-device:
+                        summary: Unsuitable device
+                        value:
+                          error:
+                            code: 1310
+                            reason: Not suitable device  -  The user's device can't receive the message.
+
               responses:
                 "200":
                   description: Your server returns this code if it accepts the callback.
@@ -1415,6 +1447,9 @@ components:
             code:
               type: integer
               example: 1300
+              enum:
+                - 1300
+                - 1310
               description: The error code. See [our errors list](https://developer.nexmo.com/api-errors/messages-olympus) for a list of possible errors
             reason:
               type: string
