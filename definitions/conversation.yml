@@ -1,6 +1,6 @@
 openapi: 3.0.0
 servers:
-  - url: "https://api.nexmo.com/beta"
+  - url: "https://api.nexmo.com/v0.1"
 info:
   version: 1.7.9
   title: Nexmo Conversation API
@@ -21,7 +21,7 @@ paths:
         <div class="Vlt-callout Vlt-callout--warning">
         <i></i>
         <div class="Vlt-callout__content">
-        <p><strong>This API endpoint is deprecated. Please use <a href="/api/conversation.v2#get-conversations">/beta2/conversations</a></strong>.<br />This endpoint will return a maximum of 100 items.</p>
+        <p><strong>This API endpoint is deprecated. Please use <a href="/api/conversation.v2#get-conversations">/v0.2/conversations</a></strong>.<br />This endpoint will return a maximum of 100 items.</p>
         </div>
         </div>
 
@@ -65,8 +65,14 @@ paths:
                               $ref: "#/components/schemas/conversation_id"
                             name:
                               $ref: "#/components/schemas/name_conversation"
-                            href:
-                              $ref: "#/components/schemas/href_conversation"
+                            _links:
+                              type: object
+                              properties:
+                                self:
+                                  type: object
+                                  properties:
+                                    href:
+                                      $ref: "#/components/schemas/href_conversation"
                           required:
                             - uuid
                             - name
@@ -201,7 +207,7 @@ paths:
         <div class="Vlt-callout Vlt-callout--warning">
         <i></i>
         <div class="Vlt-callout__content">
-        <p><strong>This API endpoint is deprecated. Please use <a href="/api/conversation.v2#get-events">/beta2/events</a></strong><br />This endpoint will return a maximum of 100 items.</p>
+        <p><strong>This API endpoint is deprecated. Please use <a href="/api/conversation.v2#get-events">/v0.2/events</a></strong><br />This endpoint will return a maximum of 100 items.</p>
         </div>
         </div>
 
@@ -288,7 +294,7 @@ paths:
         <div class="Vlt-callout Vlt-callout--warning">
         <i></i>
         <div class="Vlt-callout__content">
-        <p><strong>This API endpoint is deprecated. Please use <a href="/api/conversation.v2#get-members">/beta2/members</a></strong><br />This endpoint will return a maximum of 100 items.</p>
+        <p><strong>This API endpoint is deprecated. Please use <a href="/api/conversation.v2#get-members">/v0.2/members</a></strong><br />This endpoint will return a maximum of 100 items.</p>
         </div>
         </div>
       tags:
@@ -428,7 +434,7 @@ paths:
         <div class="Vlt-callout Vlt-callout--warning">
         <i></i>
         <div class="Vlt-callout__content">
-        <strong>This API endpoint is deprecated. Please use <a href="/api/conversation.v2#get-users">/beta2/users</a><br />This endpoint will return a maximum of 100 items.</strong>
+        <strong>This API endpoint is deprecated. Please use <a href="/api/conversation.v2#get-users">/v0.2/users</a><br />This endpoint will return a maximum of 100 items.</strong>
         </div>
         </div>
       tags:
@@ -464,7 +470,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  user_id:
+                  id:
                     $ref: "#/components/schemas/user_id"
                   href:
                     $ref: "#/components/schemas/href_user"
@@ -502,7 +508,7 @@ paths:
                     $ref: "#/components/schemas/name_user"
                   href:
                     type: string
-                    example: "https://api.nexmo.com/beta/users/USR-63f61863-4a51-4f6b-86e1-46edebio0391"
+                    example: "https://api.nexmo.com/v0.1/users/USR-63f61863-4a51-4f6b-86e1-46edebio0391"
     put:
       operationId: updateUser
       tags:
@@ -662,7 +668,7 @@ paths:
                   record_index: 0
                   _links:
                     self:
-                      href: "https://api.nexmo.com/beta/legs"
+                      href: "https://api.nexmo.com/v0.1/legs"
                   _embedded:
                     legs:
                       - uuid: 2a71f8a1-b6f1-42b3-9eef-c69729e17513
@@ -680,7 +686,7 @@ paths:
                           state: terminated
                         _links:
                           self:
-                            href: "https://api.nexmo.com/beta/legs/2a71f8a1-b6f1-42b3-9eef-c69729e17513"
+                            href: "https://api.nexmo.com/v0.1/legs/2a71f8a1-b6f1-42b3-9eef-c69729e17513"
   "/legs/{leg_id}":
     parameters:
       - $ref: "#/components/parameters/leg_id"
@@ -789,37 +795,37 @@ components:
     href:
       type: string
       format: url
-      example: "https://api.nexmo.com/beta/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391"
+      example: "https://api.nexmo.com/v0.1/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391"
       description: A link towards a resources included in Conversation API
     href_conversation:
       type: string
       format: url
-      example: "https://api.nexmo.com/beta/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391"
+      example: "https://api.nexmo.com/v0.1/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391"
       description: A link towards a conversation included in Conversation API
     href_conversations_list:
       type: string
       format: url
-      example: "https://api.nexmo.com/beta/conversations?page_size=2&record_index=10&"
+      example: "https://api.nexmo.com/v0.1/conversations?page_size=2&record_index=10&"
       description: A link towards a conversations list included in Conversation API
     href_member:
       type: string
       format: url
-      example: "https://api.nexmo.com/beta/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391/members/MEM-63f61863-4a51-4f6b-86e1-46edebio0391"
+      example: "https://api.nexmo.com/v0.1/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391/members/MEM-63f61863-4a51-4f6b-86e1-46edebio0391"
       description: A link towards a member included in Conversation API
     href_user:
       type: string
       format: url
-      example: "https://api.nexmo.com/beta/users/USR-63f61863-4a51-4f6b-86e1-46edebio0391"
+      example: "https://api.nexmo.com/v0.1/users/USR-63f61863-4a51-4f6b-86e1-46edebio0391"
       description: A link towards a user included in Conversation API
     href_event:
       type: string
       format: url
-      example: "https://api.nexmo.com/beta/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391/events/1"
+      example: "https://api.nexmo.com/v0.1/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391/events/1"
       description: A link towards a conversation event included in Conversation API
     href_rtc:
       type: string
       format: url
-      example: "https://api.nexmo.com/beta/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391/rtc/7777777777777"
+      example: "https://api.nexmo.com/v0.1/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391/rtc/7777777777777"
       description: A link towards a rtc (leg) included in Conversation API
     event_id:
       type: string
