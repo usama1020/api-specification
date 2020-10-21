@@ -1,8 +1,8 @@
 openapi: 3.0.0
 servers:
-  - url: "https://api.nexmo.com/v0.1"
+  - url: "https://api.nexmo.com/v0.3"
 info:
-  version: 2.0.0
+  version: 0.0.1
   title: Nexmo Conversation API
   description: "The Nexmo Conversation API enables you to build conversation features where communication can take place across multiple mediums including IP Messaging, PSTN Voice, SMS and WebRTC Audio and Video. The context of the conversations is maintained though each communication event taking place within a conversation, no matter the medium."
   contact:
@@ -17,74 +17,78 @@ paths:
       tags:
         - conversation
       summary: List conversations
-      description: >
-        <div class="Vlt-callout Vlt-callout--warning">
-        <i></i>
-        <div class="Vlt-callout__content">
-        <p><strong>This API endpoint is deprecated. Please use <a href="/api/conversation.v2#get-conversations">/v0.2/conversations</a></strong>.<br />This endpoint will return a maximum of 100 items.</p>
-        </div>
-        </div>
-
-        List all conversations associated with your application. 
-        This endpoint required an admin JWT. To find all conversations for
-        the currently logged in user, see [GET /users/:id/conversations](#getuserConversations)
+      description: |
+        Please note that not all data is available in the list endpoint. Once 
+        you've identified the conversation you need to work with, use the 
+        [GET /conversations/:id](#get-conversation) endpoint to fetch all of the conversation details
       parameters:
         - $ref: "#/components/parameters/date_start"
         - $ref: "#/components/parameters/date_end"
         - $ref: "#/components/parameters/page_size"
-        - $ref: "#/components/parameters/record_index"
         - $ref: "#/components/parameters/order"
+        - $ref: "#/components/parameters/cursor"
       responses:
         "200":
-          description: List Conversations Response Payload Object.
+          description: OK
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  count:
-                    type: number
-                    example: "100"
-                    description: The total number of records returned by your request.
                   page_size:
                     $ref: "#/components/schemas/page_size"
-                  record_index:
-                    $ref: "#/components/schemas/record_index"
-                  _links:
-                    $ref: "#/components/schemas/_links_conversations_list"
                   _embedded:
                     description: "A list of conversation objects. See the [get details of a specific conversation](#retrieveConversation) response fields for a description of the nested objects"
                     type: object
+                    x-nexmo-developer-collection-description-shown: true
                     properties:
                       conversations:
                         type: array
+                        description: List of conversations matching the provided filter
                         items:
-                          type: object
-                          properties:
-                            uuid:
-                              $ref: "#/components/schemas/conversation_id"
-                            name:
-                              $ref: "#/components/schemas/name_conversation"
-                            _links:
-                              type: object
-                              properties:
-                                self:
-                                  type: object
-                                  properties:
-                                    href:
-                                      $ref: "#/components/schemas/href_conversation"
-                          required:
-                            - uuid
-                            - name
-                            - href
+                          $ref: "#/components/schemas/conversation_list"
                     required:
                       - conversations
+                  _links:
+                    type: object
+                    description: "A series of links between resources in this API in the http://stateless.co/hal_specification.html."
+                    properties:
+                      self:
+                        type: object
+                        properties:
+                          first:
+                            type: object
+                            properties:
+                              href:
+                                type: string
+                                example: "https://api.nexmo.com/v0.3/conversations?order=desc&page_size=10"
+                          self:
+                            type: object
+                            properties:
+                              href:
+                                type: string
+                                example: "https://api.nexmo.com/v0.3/conversations?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
+                          next:
+                            type: object
+                            properties:
+                              href:
+                                type: string
+                                example: "https://api.nexmo.com/v0.3/conversations?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
+                          prev:
+                            type: object
+                            properties:
+                              href:
+                                type: string
+                                example: "https://api.nexmo.com/v0.3/conversations?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
+                        required:
+                          - href
+                    required:
+                      - self
                 required:
-                  - count
+                  - coursor
                   - page_size
-                  - record_index
-                  - _links
                   - _embedded
+                  - _links
     post:
       operationId: createConversation
       tags:
@@ -167,7 +171,7 @@ paths:
                     type: string
                     description: The API key for your account
                   _links:
-                    $ref: "#/components/schemas/_links_conversation"
+                    $ref: "#/components/schemas/conversation_links"
                 required:
                   - uuid
     delete:
@@ -207,7 +211,7 @@ paths:
         <div class="Vlt-callout Vlt-callout--warning">
         <i></i>
         <div class="Vlt-callout__content">
-        <p><strong>This API endpoint is deprecated. Please use <a href="/api/conversation.v2#get-events">/v0.2/events</a></strong><br />This endpoint will return a maximum of 100 items.</p>
+        <p><strong>This API endpoint is deprecated. Please use <a href="/api/conversation.v2#get-events">/v0.3/events</a></strong><br />This endpoint will return a maximum of 100 items.</p>
         </div>
         </div>
 
@@ -294,7 +298,7 @@ paths:
         <div class="Vlt-callout Vlt-callout--warning">
         <i></i>
         <div class="Vlt-callout__content">
-        <p><strong>This API endpoint is deprecated. Please use <a href="/api/conversation.v2#get-members">/v0.2/members</a></strong><br />This endpoint will return a maximum of 100 items.</p>
+        <p><strong>This API endpoint is deprecated. Please use <a href="/api/conversation.v2#get-members">/v0.3/members</a></strong><br />This endpoint will return a maximum of 100 items.</p>
         </div>
         </div>
       tags:
@@ -434,7 +438,7 @@ paths:
         <div class="Vlt-callout Vlt-callout--warning">
         <i></i>
         <div class="Vlt-callout__content">
-        <strong>This API endpoint is deprecated. Please use <a href="/api/conversation.v2#get-users">/v0.2/users</a><br />This endpoint will return a maximum of 100 items.</strong>
+        <strong>This API endpoint is deprecated. Please use <a href="/api/conversation.v2#get-users">/v0.3/users</a><br />This endpoint will return a maximum of 100 items.</strong>
         </div>
         </div>
       tags:
@@ -700,6 +704,58 @@ paths:
           $ref: "#/components/responses/SuccessEmptyJSON"
 components:
   schemas:
+
+
+    conversation_list:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/conversation_id"
+        name:
+          $ref: "#/components/schemas/conversation_name"
+        display_name:
+          $ref: "#/components/schemas/conversation_display_name"
+        image_url:
+          $ref: "#/components/schemas/conversation_image_url"
+        timestamp:
+          $ref: "#/components/schemas/conversation_timestamp"
+        _links:
+          $ref: "#/components/schemas/conversation_links"
+    conversation_id:
+      type: string
+      example: CON-d66d47de-5bcb-4300-94f0-0c9d4b948e9a
+      description: The unique identifier for this conversation
+    conversation_name:
+      type: string
+      example: my-conversation
+      description: Your internal conversation name. Must be unique
+    conversation_display_name:
+      type: string
+      example: Conversation with Alice
+      description: The public facing name of the conversation
+    conversation_image_url:
+      type: string
+      example: https://example.com/my-image.png
+      description: An image URL that you associate with the conversation  
+    conversation_timestamp:
+      type: object
+      properties:
+        created:
+          type: string
+          example: "2019-09-03T18:40:24.324Z"
+          description: The time that the conversation was created
+    conversation_links:
+      type: object
+      properties:
+        self:
+          type: object
+          properties:
+            href:
+              type: string
+              example: "https://api.nexmo.com/v0.3/conversations/CON-d66d47de-5bcb-4300-94f0-0c9d4b948e9a"
+
+
+
     initiator:
       type: object
       properties:
@@ -753,10 +809,9 @@ components:
       description: Leg Status
       enum:
         - terminated
-    conversation_id:
-      type: string
-      example: CON-63f61863-4a51-4f6b-86e1-46edebio0391
-      description: The unique identifier for this conversation
+
+    
+    
     member_id:
       type: string
       example: MEM-63f61863-4a51-4f6b-86e1-46edebio0391
@@ -852,34 +907,13 @@ components:
           type: number
           example: 60
           description: "Time to leave. After how many seconds an empty conversation is deleted."
-    _links_conversations_list:
-      type: object
-      description: "A series of links between resources in this API in the http://stateless.co/hal_specification.html."
-      properties:
-        self:
-          type: object
-          properties:
-            href:
-              $ref: "#/components/schemas/href_conversations_list"
-          required:
-            - href
-      required:
-        - self
-    _links_conversation:
-      type: object
-      properties:
-        self:
-          type: object
-          properties:
-            href:
-              $ref: "#/components/schemas/href_conversation"
     page_size:
       type: number
       description: The amount of records returned in this response
       minimum: 1
       maximum: 100
       default: 10
-      example: 50
+      example: 10
     record_index:
       type: number
       description: "Return `page_size` amount of conversations from this index in the response. That is, if your request returns 300 conversations, set `record_index` to 5 in order to return conversations 50 to 59. The default value is 0. That is, the first `page_size` calls."
@@ -1127,6 +1161,17 @@ components:
           - desc
           - ASC
           - DESC
+    cursor:
+      name: cursor
+      in: query
+      description: |
+        The cursor to start returning results from.
+
+        You are not expected to provide this manually, but to follow the url provided in `_links.next.href` or `_links.prev.href` in the response which contains a `cursor` value.
+      schema:
+        type: string
+      required: false
+      
   responses:
     ConversationLite:
       description: Create / Update Conversation Response Payload Object
