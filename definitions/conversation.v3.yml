@@ -89,6 +89,12 @@ paths:
                   - page_size
                   - _embedded
                   - _links
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/responses/Conversation400ValidationFailDateStart"
         '401':
           $ref: "#/components/responses/General401ExpiredToken"
         '403':
@@ -108,24 +114,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/conversation"
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/responses/Conversation400ValidationFail"
         '401':
           $ref: "#/components/responses/General401ExpiredToken"
+        '403':
+          $ref: "#/components/responses/General403MissingToken"
         '409':
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/responses/Conversation409DuplicateName"
+          $ref: "#/components/responses/Conversation409DuplicateName"
         '500':
           $ref: "#/components/responses/General500InternalError"
       requestBody:
-        $ref: "#/components/requestBodies/Conversation"
+        $ref: "#/components/requestBodies/conversation"
   "/conversations/{conversation_id}":
     parameters:
       - $ref: "#/components/parameters/conversation_id"
@@ -136,9 +134,29 @@ paths:
       summary: Update a conversation
       responses:
         "200":
-          $ref: "#/components/schemas/conversation_lite"
+          description: Update a conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/conversation"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/responses/Conversation400ValidationFailName"
+        '401':
+          $ref: "#/components/responses/General401ExpiredToken"
+        '403':
+          $ref: "#/components/responses/General403MissingToken"
+        '404':
+          $ref: "#/components/responses/Conversation404"
+        '409':
+          $ref: "#/components/responses/Conversation409DuplicateName"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
       requestBody:
-        $ref: "#/components/requestBodies/Conversation"
+        $ref: "#/components/requestBodies/conversation"
     get:
       operationId: retrieveConversation
       tags:
@@ -150,65 +168,33 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                description: Conversation Object
-                properties:
-                  uuid:
-                    $ref: "#/components/schemas/conversation_id"
-                  name:
-                    $ref: "#/components/schemas/name_conversation"
-                  numbers:
-                    type: object
-                    properties: {}
-                  properties:
-                    type: object
-                    properties:
-                      video:
-                        type: boolean
-                        example: false
-                  display_name:
-                    $ref: "#/components/schemas/display_name"
-                  timestamp:
-                    $ref: "#/components/schemas/timestamp_res_conversation"
-                  sequence_number:
-                    type: string
-                    example: "1"
-                    description: "The last Event ID in this conversation. This ID can be used to [retrieve a specific event](#getEvent)"
-                  members:
-                    type: array
-                    description: Users associated to this conversation as members
-                    items:
-                      type: object
-                      properties:
-                        member_id:
-                          $ref: "#/components/schemas/member_id"
-                        user_id:
-                          $ref: "#/components/schemas/user_id"
-                        name:
-                          $ref: "#/components/schemas/name_user"
-                        state:
-                          $ref: "#/components/schemas/member_state"
-                        timestamp:
-                          $ref: "#/components/schemas/timestamp_res_member"
-                        initiator:
-                          $ref: "#/components/schemas/initiator"
-                        channel:
-                          $ref: "#/components/schemas/channel"
-                  api_key:
-                    type: string
-                    description: The API key for your account
-                  _links:
-                    $ref: "#/components/schemas/conversation_links"
-                required:
-                  - uuid
+                $ref: "#/components/schemas/conversation"
+        '401':
+          $ref: "#/components/responses/General401ExpiredToken"
+        '403':
+          $ref: "#/components/responses/General403MissingToken"
+        '404':
+          $ref: "#/components/responses/Conversation404"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
     delete:
       operationId: deleteConversation
       tags:
         - conversation
       summary: Delete a conversation
       responses:
-        "200":
-          $ref: "#/components/responses/General200EmptyJSON"
+        '204':
+          $ref: "#/components/responses/General204"
+        '401':
+          $ref: "#/components/responses/General401ExpiredToken"
+        '403':
+          $ref: "#/components/responses/General403MissingToken"
+        '404':
+          $ref: "#/components/responses/Conversation404"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
+  
+  
   "/conversations/{conversation_id}/record":
     servers:
       - url: "https://api.nexmo.com/v1"
@@ -229,19 +215,13 @@ paths:
           description: "Bad Request"
       requestBody:
         $ref: "#/components/requestBodies/RecordConversation"
+  
+
   "/conversations/{conversation_id}/events":
     parameters:
       - $ref: "#/components/parameters/conversation_id"
     get:
       operationId: getEvents
-      description: >
-        <div class="Vlt-callout Vlt-callout--warning">
-        <i></i>
-        <div class="Vlt-callout__content">
-        <p><strong>This API endpoint is deprecated. Please use <a href="/api/conversation.v2#get-events">/v0.3/events</a></strong><br />This endpoint will return a maximum of 100 items.</p>
-        </div>
-        </div>
-
       tags:
         - event
       summary: List events
@@ -750,6 +730,7 @@ components:
     
     conversation:
       type: object
+      description: Conversation Object
       properties:
         id:
           $ref: "#/components/schemas/conversation_id"
@@ -767,6 +748,11 @@ components:
           $ref: "#/components/schemas/conversation_timestamp"
         properties:
           $ref: "#/components/schemas/conversation_properties"
+        numbers:
+          type: object
+          properties: {}
+        members:
+          $ref: "#/components/schemas/conversation_members"
         _links:
           $ref: "#/components/schemas/conversation_links"
     
@@ -801,7 +787,7 @@ components:
     conversation_sequence_number:
       type: integer
       example: 0
-      description: The currrent conversation sequence number.
+      description: The last Event ID in this conversation. This ID can be used to [retrieve a specific event](#getEvent).
     conversation_properties:
       type: object
       description: Conversation properties
@@ -810,7 +796,26 @@ components:
           type: number
           example: 60
           description: "Time to leave. After how many seconds an empty conversation is deleted."
-
+    conversation_members:
+      type: array
+      description: Users associated to this conversation as members
+      items:
+        type: object
+        properties:
+          member_id:
+            $ref: "#/components/schemas/member_id"
+          user_id:
+            $ref: "#/components/schemas/user_id"
+          name:
+            $ref: "#/components/schemas/name_user"
+          state:
+            $ref: "#/components/schemas/member_state"
+          timestamp:
+            $ref: "#/components/schemas/timestamp_res_member"
+          initiator:
+            $ref: "#/components/schemas/initiator"
+          channel:
+            $ref: "#/components/schemas/channel"
     conversation_links:
       type: object
       properties:
@@ -1241,6 +1246,10 @@ components:
             type: object
             description: Empty JSON payload
             example: {}
+    General204:
+      description: Success response with no content
+      
+
 
     General401ExpiredToken:
       description: Unauthorized
@@ -1309,7 +1318,7 @@ components:
                 type: string
                 example: 00a5916655d650e920ccf0daf40ef4ee
 
-    Conversation400ValidationFail:
+    Conversation400ValidationFailDateStart:
       type: object
       properties:
         title:
@@ -1340,24 +1349,82 @@ components:
                 type: string
                 example: "\"date_start\" must be a valid ISO 8601 date"
 
-    Conversation409DuplicateName:
+    Conversation400ValidationFailName:
       type: object
       properties:
         title:
           type: string
-          example: Conflict.
+          example: Bad request.
         type:
           type: string
-          example: https://developer.nexmo.com/api/conversation#conversation:error:duplicate-name
+          example: https://developer.nexmo.com/api/conversation#http:error:validation-fail
         code:
           type: string
-          example: conversation:error:duplicate-name
+          example: http:error:validation-fail
         detail:
           type: string
-          example: The request failed because the conversation name already exists. Please provide a unique conversation name and try again.
+          example: Input validation failure.
         instance: 
           type: string
           example: 00a5916655d650e920ccf0daf40ef4ee
+        invalid_parameters:
+          type: array
+          description: List of invalid parameters
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: name
+              reason:
+                type: string
+                example: "\"name\" must be a string"
+
+    Conversation404:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: Not found.
+              type:
+                type: string
+                example: https://developer.nexmo.com/api/conversation#conversation:error:not-found
+              code:
+                type: string
+                example: conversation:error:not-found
+              detail:
+                type: string
+                example: Conversation does not exist, or you do not have access.
+              instance: 
+                type: string
+                example: 00a5916655d650e920ccf0daf40ef4ee
+
+    Conversation409DuplicateName:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: Conflict.
+              type:
+                type: string
+                example: https://developer.nexmo.com/api/conversation#conversation:error:duplicate-name
+              code:
+                type: string
+                example: conversation:error:duplicate-name
+              detail:
+                type: string
+                example: The request failed because the conversation name already exists. Please provide a unique conversation name and try again.
+              instance: 
+                type: string
+                example: 00a5916655d650e920ccf0daf40ef4ee
     
 
     
@@ -1370,7 +1437,7 @@ components:
           schema:
             type: object
             example: {}
-    Conversation:
+    conversation:
       description: Conversation Request Payload Object
       content:
         application/json:
