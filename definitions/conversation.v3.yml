@@ -46,7 +46,7 @@ paths:
                         type: array
                         description: List of conversations matching the provided filter
                         items:
-                          $ref: "#/components/schemas/conversation_list"
+                          $ref: "#/components/schemas/conversation_lite"
                     required:
                       - conversations
                   _links:
@@ -103,7 +103,11 @@ paths:
       summary: Create a conversation
       responses:
         "201":
-          $ref: "#/components/schemas/conversation_lite"
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/conversation"
         '400':
           description: Bad Request
           content:
@@ -118,6 +122,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/responses/Conversation409DuplicateName"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
       requestBody:
         $ref: "#/components/requestBodies/Conversation"
   "/conversations/{conversation_id}":
@@ -726,7 +732,7 @@ paths:
 components:
   schemas:
 
-    conversation_list:
+    conversation_lite:
       type: object
       properties:
         id:
@@ -742,35 +748,44 @@ components:
         _links:
           $ref: "#/components/schemas/conversation_links"
     
-    conversation_lite:
-      description: Create / Update Conversation Response Payload Object
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              id:
-                $ref: "#/components/schemas/conversation_id"
-              href:
-                $ref: "#/components/schemas/href_conversation"
-            required:
-              - id
-              - href
+    conversation:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/conversation_id"
+        name:
+          $ref: "#/components/schemas/conversation_name"
+        display_name:
+          $ref: "#/components/schemas/conversation_display_name"
+        image_url:
+          $ref: "#/components/schemas/conversation_image_url"
+        state:
+          $ref: "#/components/schemas/conversation_state"
+        sequence_number:
+          $ref: "#/components/schemas/conversation_sequence_number"
+        timestamp:
+          $ref: "#/components/schemas/conversation_timestamp"
+        properties:
+          $ref: "#/components/schemas/conversation_properties"
+        _links:
+          $ref: "#/components/schemas/conversation_links"
+    
+
     conversation_id:
       type: string
       example: CON-d66d47de-5bcb-4300-94f0-0c9d4b948e9a
       description: The unique identifier for this conversation
     conversation_name:
       type: string
-      example: conversation-alice
+      example: customer_chat
       description: Your internal conversation name. Must be unique
     conversation_display_name:
       type: string
-      example: Conversation with Alice
+      example: Customer Chat
       description: The public facing name of the conversation
     conversation_image_url:
       type: string
-      example: https://example.com/my-image.png
+      example: https://example.com/image.png
       description: An image URL that you associate with the conversation  
     conversation_timestamp:
       type: object
@@ -779,6 +794,23 @@ components:
           type: string
           example: "2019-09-03T18:40:24.324Z"
           description: The time that the conversation was created
+    conversation_state:
+      type: string
+      example: ACTIVE
+      description: The state the conversation is in.
+    conversation_sequence_number:
+      type: integer
+      example: 0
+      description: The currrent conversation sequence number.
+    conversation_properties:
+      type: object
+      description: Conversation properties
+      properties:
+        ttl:
+          type: number
+          example: 60
+          description: "Time to leave. After how many seconds an empty conversation is deleted."
+
     conversation_links:
       type: object
       properties:
@@ -934,14 +966,6 @@ components:
       type: string
       example: My User Name
       description: A string to be displayed as user name. It does not need to be unique
-    conversation_properties:
-      type: object
-      description: Conversation properties
-      properties:
-        ttl:
-          type: number
-          example: 60
-          description: "Time to leave. After how many seconds an empty conversation is deleted."
     page_size:
       type: number
       description: The amount of records returned in this response
@@ -1239,7 +1263,7 @@ components:
                 example: You provided an expired token. Please provide a valid token.
               instance: 
                 type: string
-                example: 43eca67c-3118-45d0-b64f-eeab16a59720
+                example: 00a5916655d650e920ccf0daf40ef4ee
     General403MissingToken:
       description: Unauthorized
       content:
@@ -1261,9 +1285,9 @@ components:
                 example: Please provide a valid token.
               instance: 
                 type: string
-                example: 43eca67c-3118-45d0-b64f-eeab16a59720
+                example: 00a5916655d650e920ccf0daf40ef4ee
     General500InternalError:
-      description: Unauthorized
+      description: Internal Error
       content:
         application/json:
           schema:
@@ -1271,19 +1295,19 @@ components:
             properties:
               title:
                 type: string
-                example: Unauthorized.
+                example: Internal Error.
               type:
                 type: string
-                example: https://developer.nexmo.com/api/conversation#system:error:missing-token
+                example: https://developer.nexmo.com/api/conversation#system:error:internal-error
               code:
                 type: string
-                example: system:error:missing-token
+                example: system:error:internal-error
               detail:
                 type: string
-                example: Please provide a valid token.
+                example: Something went wrong.
               instance: 
                 type: string
-                example: 43eca67c-3118-45d0-b64f-eeab16a59720
+                example: 00a5916655d650e920ccf0daf40ef4ee
 
     Conversation400ValidationFail:
       type: object
@@ -1302,7 +1326,7 @@ components:
           example: Input validation failure.
         instance: 
           type: string
-          example: 43eca67c-3118-45d0-b64f-eeab16a59720
+          example: 00a5916655d650e920ccf0daf40ef4ee
         invalid_parameters:
           type: array
           description: List of invalid parameters
@@ -1333,7 +1357,7 @@ components:
           example: The request failed because the conversation name already exists. Please provide a unique conversation name and try again.
         instance: 
           type: string
-          example: 43eca67c-3118-45d0-b64f-eeab16a59720
+          example: 00a5916655d650e920ccf0daf40ef4ee
     
 
     
@@ -1354,11 +1378,11 @@ components:
             type: object
             properties:
               name:
-                $ref: "#/components/schemas/name_conversation"
+                $ref: "#/components/schemas/conversation_name"
               display_name:
-                $ref: "#/components/schemas/display_name"
+                $ref: "#/components/schemas/conversation_display_name"
               image_url:
-                $ref: "#/components/schemas/image_url"
+                $ref: "#/components/schemas/conversation_image_url"
               properties:
                 $ref: "#/components/schemas/conversation_properties"
     RecordConversation:
@@ -1380,11 +1404,15 @@ components:
                 $ref: "#/components/schemas/format"
             required:
               - action
+
+
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
+
 security:
   - bearerAuth: []
 
