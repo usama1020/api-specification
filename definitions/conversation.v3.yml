@@ -90,11 +90,7 @@ paths:
                   - _embedded
                   - _links
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/responses/Conversation400ValidationFailDateStart"
+          $ref: "#/components/responses/General400ValidationFailDateStart"
         '401':
           $ref: "#/components/responses/General401ExpiredToken"
         '403':
@@ -140,11 +136,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/conversation"
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/responses/Conversation400ValidationFailName"
+          $ref: "#/components/responses/General400ValidationFailName"
         '401':
           $ref: "#/components/responses/General401ExpiredToken"
         '403':
@@ -324,9 +316,9 @@ paths:
                     user_id:
                       $ref: "#/components/schemas/user_id"
                     user_name:
-                      $ref: "#/components/schemas/name_user"
+                      $ref: "#/components/schemas/user_name"
                     name:
-                      $ref: "#/components/schemas/name_user"
+                      $ref: "#/components/schemas/user_name"
                     state:
                       $ref: "#/components/schemas/member_state"
                   required:
@@ -438,35 +430,88 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/General200EmptyJSON"
-  /users:
+  
+  
+  "/users":
     get:
       operationId: getUsers
-      description: >
-        <div class="Vlt-callout Vlt-callout--warning">
-        <i></i>
-        <div class="Vlt-callout__content">
-        <strong>This API endpoint is deprecated. Please use <a href="/api/conversation.v2#get-users">/v0.3/users</a><br />This endpoint will return a maximum of 100 items.</strong>
-        </div>
-        </div>
       tags:
         - user
       summary: List users
+      parameters:
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/order"
+        - $ref: "#/components/parameters/cursor"
       responses:
         "200":
           description: List of users
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      $ref: "#/components/schemas/user_id"
-                    name:
-                      $ref: "#/components/schemas/name_user"
-                    href:
-                      $ref: "#/components/schemas/href_user"
+                type: object
+                properties:
+                  page_size:
+                    $ref: "#/components/schemas/page_size"
+                  _embedded:
+                    description: "A list of user objects. See the [get details of a specific user](#getUser) response fields for a description of the nested objects"
+                    type: object
+                    x-nexmo-developer-collection-description-shown: true
+                    properties:
+                      users:
+                        type: array
+                        description: List of users matching the provided filter
+                        items:
+                          $ref: "#/components/schemas/user_lite"
+                    required:
+                      - users
+                  _links:
+                    type: object
+                    description: "A series of links between resources in this API in the http://stateless.co/hal_specification.html."
+                    properties:
+                      self:
+                        type: object
+                        properties:
+                          first:
+                            type: object
+                            properties:
+                              href:
+                                type: string
+                                example: "https://api.nexmo.com/v0.3/users?order=desc&page_size=10"
+                          self:
+                            type: object
+                            properties:
+                              href:
+                                type: string
+                                example: "https://api.nexmo.com/v0.3/users?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
+                          next:
+                            type: object
+                            properties:
+                              href:
+                                type: string
+                                example: "https://api.nexmo.com/v0.3/users?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
+                          prev:
+                            type: object
+                            properties:
+                              href:
+                                type: string
+                                example: "https://api.nexmo.com/v0.3/users?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
+                        required:
+                          - href
+                    required:
+                      - self
+                required:
+                  - coursor
+                  - page_size
+                  - _embedded
+                  - _links
+        '400':
+          $ref: "#/components/responses/General400ValidationFailDateStart"
+        '401':
+          $ref: "#/components/responses/General401ExpiredToken"
+        '403':
+          $ref: "#/components/responses/General403MissingToken"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
     post:
       operationId: createUser
       tags:
@@ -474,30 +519,36 @@ paths:
       summary: Create a user
       description: "Note: Users must be created with an admin JWT."
       responses:
-        "200":
+        "201":
           description: Create a user response
           content:
             application/json:
               schema:
                 type: object
-                properties:
-                  id:
-                    $ref: "#/components/schemas/user_id"
-                  href:
-                    $ref: "#/components/schemas/href_user"
+                $ref: "#/components/schemas/user"
+        '400':
+          $ref: "#/components/responses/General400ValidationFailName"
+        '401':
+          $ref: "#/components/responses/General401ExpiredToken"
+        '403':
+          $ref: "#/components/responses/General403MissingToken"
+        '409':
+          $ref: "#/components/responses/User409DuplicateName"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
       requestBody:
         content:
           application/json:
             schema:
               type: object
-              description: "Create a Member in invite state "
+              description: "Create a User"
               properties:
                 name:
-                  $ref: "#/components/schemas/name_user"
+                  $ref: "#/components/schemas/user_name"
                 display_name:
-                  $ref: "#/components/schemas/display_name_user"
+                  $ref: "#/components/schemas/user_display_name"
                 image_url:
-                  $ref: "#/components/schemas/image_url"
+                  $ref: "#/components/schemas/user_image_url"
   "/users/{user_id}":
     parameters:
       - $ref: "#/components/parameters/user_id"
@@ -512,14 +563,18 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  id:
-                    $ref: "#/components/schemas/user_id"
-                  name:
-                    $ref: "#/components/schemas/name_user"
-                  href:
-                    type: string
-                    example: "https://api.nexmo.com/v0.1/users/USR-63f61863-4a51-4f6b-86e1-46edebio0391"
+                type: object
+                $ref: "#/components/schemas/user"
+        '400':
+          $ref: "#/components/responses/General400ValidationFailName"
+        '401':
+          $ref: "#/components/responses/General401ExpiredToken"
+        '403':
+          $ref: "#/components/responses/General403MissingToken"
+        '404':
+          $ref: "#/components/responses/User404"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
     put:
       operationId: updateUser
       tags:
@@ -531,22 +586,31 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  id:
-                    $ref: "#/components/schemas/user_id"
-                  href:
-                    $ref: "#/components/schemas/href_user"
+                type: object
+                $ref: "#/components/schemas/user"
+        '400':
+          $ref: "#/components/responses/General400ValidationFailName"
+        '401':
+          $ref: "#/components/responses/General401ExpiredToken"
+        '403':
+          $ref: "#/components/responses/General403MissingToken"
+        '404':
+          $ref: "#/components/responses/User404"
+        '409':
+          $ref: "#/components/responses/User409DuplicateName"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
       requestBody:
         content:
           application/json:
             schema:
               properties:
                 name:
-                  $ref: "#/components/schemas/name_user"
+                  $ref: "#/components/schemas/user_name"
                 display_name:
-                  $ref: "#/components/schemas/display_name_user"
+                  $ref: "#/components/schemas/user_display_name"
                 image_url:
-                  $ref: "#/components/schemas/image_url"
+                  $ref: "#/components/schemas/user_image_url"
                 channels:
                   $ref: "#/components/schemas/channel"
     delete:
@@ -578,7 +642,7 @@ paths:
                     name:
                       $ref: "#/components/schemas/name_conversation"
                     image_url:
-                      $ref: "#/components/schemas/image_url"
+                      $ref: "#/components/schemas/conversation_image_url"
                     display_name:
                       $ref: "#/components/schemas/display_name"
                     state:
@@ -712,6 +776,72 @@ paths:
 components:
   schemas:
 
+
+    user_lite:
+      type: object
+      properties:
+        id: 
+          $ref: "#/components/schemas/user_id"
+        name: 
+          $ref: "#/components/schemas/user_name"
+        display_name: 
+          $ref: "#/components/schemas/user_display_name"
+        _links:
+          $ref: "#/components/schemas/user_links"
+
+    user:
+      type: object
+      properties:
+        id: 
+          $ref: "#/components/schemas/user_id"
+        name: 
+          $ref: "#/components/schemas/user_name"
+        display_name: 
+          $ref: "#/components/schemas/user_display_name"
+        image_url:
+          $ref: "#/components/schemas/user_image_url"
+        properties:
+          $ref: "#/components/schemas/user_properties"
+        channels:
+          $ref: "#/components/schemas/user_channels"
+        _links:
+          $ref: "#/components/schemas/user_links"
+    
+    user_id:
+      type: string
+      example: USR-82e028d9-5201-4f1e-8188-604b2d3471ec
+      description: User ID
+    user_name:
+      type: string
+      example: my_user_name
+      description: Unique name for a user
+    user_display_name:
+      type: string
+      example: My User Name
+      description: A string to be displayed as user name. It does not need to be unique
+    user_image_url:
+      type: string
+      example: https://example.com/image.png
+      description: An image URL that you associate with the user
+    user_properties:
+      type: object
+      description: User properties
+      properties:
+        custom_data:
+          type: object
+    user_channels:
+      type: object
+    user_links:
+      type: object
+      properties:
+        self:
+          type: object
+          properties:
+            href:
+              type: string
+              example: "https://api.nexmo.com/v0.3/users/USR-82e028d9-5201-4f1e-8188-604b2d3471ec"
+
+
     conversation_lite:
       type: object
       properties:
@@ -807,7 +937,7 @@ components:
           user_id:
             $ref: "#/components/schemas/user_id"
           name:
-            $ref: "#/components/schemas/name_user"
+            $ref: "#/components/schemas/user_name"
           state:
             $ref: "#/components/schemas/member_state"
           timestamp:
@@ -903,10 +1033,7 @@ components:
       type: string
       description: user name or user id of the inviter
       example: someone_else_user_name
-    user_id:
-      type: string
-      example: USR-63f61863-4a51-4f6b-86e1-46edebio0391
-      description: User ID
+    
     name:
       type: string
       example: my_unique_name
@@ -915,10 +1042,7 @@ components:
       type: string
       example: customer_chat
       description: Unique name for a conversation
-    name_user:
-      type: string
-      example: my_user_name
-      description: Unique name for a user
+
     href:
       type: string
       format: url
@@ -958,19 +1082,11 @@ components:
       type: string
       example: "5"
       description: Event id. This is a progressive integer
-    image_url:
-      type: string
-      format: url
-      example: "https://example.com/image.png"
-      description: A link to an image for conversations' and users' avatars
     display_name:
       type: string
       example: Customer Chat
       description: The display name for the conversation. It does not have to be unique
-    display_name_user:
-      type: string
-      example: My User Name
-      description: A string to be displayed as user name. It does not need to be unique
+
     page_size:
       type: number
       description: The amount of records returned in this response
@@ -1246,10 +1362,79 @@ components:
             type: object
             description: Empty JSON payload
             example: {}
+    
     General204:
       description: Success response with no content
       
+    General400ValidationFailDateStart:
+      description: Bad Request
+      content:
+        application/json:
+          schema:  
+            type: object
+            properties:
+              title:
+                type: string
+                example: Bad request.
+              type:
+                type: string
+                example: https://developer.nexmo.com/api/conversation#http:error:validation-fail
+              code:
+                type: string
+                example: http:error:validation-fail
+              detail:
+                type: string
+                example: Input validation failure.
+              instance: 
+                type: string
+                example: 00a5916655d650e920ccf0daf40ef4ee
+              invalid_parameters:
+                type: array
+                description: List of invalid parameters
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: date_start
+                    reason:
+                      type: string
+                      example: "\"date_start\" must be a valid ISO 8601 date"
 
+    General400ValidationFailName:
+      description: Bad Request
+      content:
+        application/json:
+          schema:  
+            type: object
+            properties:
+              title:
+                type: string
+                example: Bad request.
+              type:
+                type: string
+                example: https://developer.nexmo.com/api/conversation#http:error:validation-fail
+              code:
+                type: string
+                example: http:error:validation-fail
+              detail:
+                type: string
+                example: Input validation failure.
+              instance: 
+                type: string
+                example: 00a5916655d650e920ccf0daf40ef4ee
+              invalid_parameters:
+                type: array
+                description: List of invalid parameters
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: name
+                    reason:
+                      type: string
+                      example: "\"name\" must be a string"
 
     General401ExpiredToken:
       description: Unauthorized
@@ -1318,68 +1503,6 @@ components:
                 type: string
                 example: 00a5916655d650e920ccf0daf40ef4ee
 
-    Conversation400ValidationFailDateStart:
-      type: object
-      properties:
-        title:
-          type: string
-          example: Bad request.
-        type:
-          type: string
-          example: https://developer.nexmo.com/api/conversation#http:error:validation-fail
-        code:
-          type: string
-          example: http:error:validation-fail
-        detail:
-          type: string
-          example: Input validation failure.
-        instance: 
-          type: string
-          example: 00a5916655d650e920ccf0daf40ef4ee
-        invalid_parameters:
-          type: array
-          description: List of invalid parameters
-          items:
-            type: object
-            properties:
-              name:
-                type: string
-                example: date_start
-              reason:
-                type: string
-                example: "\"date_start\" must be a valid ISO 8601 date"
-
-    Conversation400ValidationFailName:
-      type: object
-      properties:
-        title:
-          type: string
-          example: Bad request.
-        type:
-          type: string
-          example: https://developer.nexmo.com/api/conversation#http:error:validation-fail
-        code:
-          type: string
-          example: http:error:validation-fail
-        detail:
-          type: string
-          example: Input validation failure.
-        instance: 
-          type: string
-          example: 00a5916655d650e920ccf0daf40ef4ee
-        invalid_parameters:
-          type: array
-          description: List of invalid parameters
-          items:
-            type: object
-            properties:
-              name:
-                type: string
-                example: name
-              reason:
-                type: string
-                example: "\"name\" must be a string"
-
     Conversation404:
       description: Not found
       content:
@@ -1425,6 +1548,54 @@ components:
               instance: 
                 type: string
                 example: 00a5916655d650e920ccf0daf40ef4ee
+
+
+    User404:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: Not found.
+              type:
+                type: string
+                example: https://developer.nexmo.com/api/conversation#user:error:not-found
+              code:
+                type: string
+                example: user:error:not-found
+              detail:
+                type: string
+                example: User does not exist, or you do not have access.
+              instance: 
+                type: string
+                example: 00a5916655d650e920ccf0daf40ef4ee
+
+    User409DuplicateName:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: Conflict.
+              type:
+                type: string
+                example: https://developer.nexmo.com/api/conversation#user:error:duplicate-name
+              code:
+                type: string
+                example: user:error:duplicate-name
+              detail:
+                type: string
+                example: The request failed because the user name already exists. Please provide a unique user name and try again.
+              instance: 
+                type: string
+                example: 00a5916655d650e920ccf0daf40ef4ee
+
     
 
     
