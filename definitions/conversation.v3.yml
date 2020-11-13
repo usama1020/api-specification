@@ -371,10 +371,6 @@ paths:
             schema:
               type: object
               description: "Create a Member in invited or joined state"
-              required:
-                - user
-                - channel
-                - state
               properties:
                 action:
                   $ref: "#/components/schemas/member_state_request"
