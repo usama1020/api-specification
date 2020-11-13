@@ -200,11 +200,15 @@ paths:
       summary: Record a conversation
       responses:
         "204":
-          description: "No Content"
-        "404":
-          description: "Not Found"
-        "400":
-          description: "Bad Request"
+          $ref: "#/components/responses/General204"
+        '401':
+          $ref: "#/components/responses/General401ExpiredToken"
+        '403':
+          $ref: "#/components/responses/General403MissingToken"
+        '404':
+          $ref: "#/components/responses/Conversation404"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
       requestBody:
         $ref: "#/components/requestBodies/RecordConversation"
   
@@ -288,85 +292,100 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/General200EmptyJSON"
+
+
   "/conversations/{conversation_id}/members":
     parameters:
       - $ref: "#/components/parameters/conversation_id"
     get:
       operationId: getMembers
-      description: >
-        <div class="Vlt-callout Vlt-callout--warning">
-        <i></i>
-        <div class="Vlt-callout__content">
-        <p><strong>This API endpoint is deprecated. Please use <a href="/api/conversation.v2#get-members">/v0.3/members</a></strong><br />This endpoint will return a maximum of 100 items.</p>
-        </div>
-        </div>
       tags:
         - member
       summary: List members
+      parameters:
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/order"
+        - $ref: "#/components/parameters/cursor"
       responses:
         "200":
           description: Members List Object
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    user_id:
-                      $ref: "#/components/schemas/user_id"
-                    user_name:
-                      $ref: "#/components/schemas/user_name"
-                    name:
-                      $ref: "#/components/schemas/user_name"
-                    state:
-                      $ref: "#/components/schemas/member_state"
-                  required:
-                    - user_id
-                    - name
-                    - user_name
-                    - state
+                properties:
+                  page_size:
+                    type: integer
+                    example: 10
+                    description: The number of results returned on this page
+                  _embedded:
+                    type: object
+                    properties:
+                      members:
+                        type: array
+                        description: List of members matching the provided filter
+                        items:
+                          $ref: "#/components/schemas/member_lite"
+                  _links:
+                    type: object
+                    properties:
+                      first:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.2/members?order=desc&page_size=10"
+                      self:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.2/members?order=desc&page_size=10&cursor=88b395c167da4d94e929705cbd63b82973771e7d390d274a58e301386d5762600a3ffd799bfb3fc5190c5a0d124cdd0fc72fe6e450506b18e4e2edf9fe84c7a0"
+                      next:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.2/members?order=desc&page_size=10&cursor=88b395c167da4d94e929705cbd63b829a650e69a39197bfd4c949f4243f60dc4babb696afa404d2f44e7775e32b967f2a1a0bb8fb259c0999ba5a4e501eaab55"
+                      prev:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.2/members?order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb"
+        '401':
+          $ref: "#/components/responses/General401ExpiredToken"
+        '403':
+          $ref: "#/components/responses/General403MissingToken"
+        '404':
+          $ref: "#/components/responses/Conversation404"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
     post:
       operationId: createMember
       tags:
         - member
       summary: Create a member
-      responses:
-        "201":
-          description: "Create or invite Member in invite state "
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    $ref: "#/components/schemas/member_id"
-                  user_id:
-                    $ref: "#/components/schemas/user_id"
-                  state:
-                    $ref: "#/components/schemas/member_state"
-                  timestamp:
-                    $ref: "#/components/schemas/timestamp_res_member"
-                  channel:
-                    $ref: "#/components/schemas/channel"
-                  href:
-                    $ref: "#/components/schemas/href_member"
-                  initiator:
-                    $ref: "#/components/schemas/initiator"
       requestBody:
         content:
           application/json:
             schema:
               type: object
-              description: "Create a Member in invite state "
+              description: "Create a Member in invited or joined state"
               required:
-                - user_id
+                - user
                 - channel
+                - state
               properties:
                 action:
-                  $ref: "#/components/schemas/member_action"
-                user_id:
-                  $ref: "#/components/schemas/user_id"
+                  $ref: "#/components/schemas/member_state_request"
+                user:
+                  type: object
+                  description: Either the user id or name is required.
+                  properties:
+                    id:
+                      $ref: "#/components/schemas/user_id"
+                    name:
+                      $ref: "#/components/schemas/user_name"
                 member_id:
                   $ref: "#/components/schemas/member_id"
                 channel:
@@ -377,10 +396,37 @@ paths:
                   $ref: "#/components/schemas/knocker_id"
                 member_id_inviting:
                   $ref: "#/components/schemas/member_id_inviting"
+      responses:
+        "201":
+          description: "Create a member"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/member"
+                  
+        '400':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/member_error_validation_fail_state"
+                  - $ref: "#/components/schemas/member_error_already_joined"
+        '401':
+          $ref: "#/components/responses/General401ExpiredToken"
+        '403':
+          $ref: "#/components/responses/General403MissingToken"
+        '404':
+          $ref: "#/components/responses/User404"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
+
+
   "/conversations/{conversation_id}/members/{member_id}":
     parameters:
       - $ref: "#/components/parameters/conversation_id"
       - $ref: "#/components/parameters/member_id"
+    
     get:
       operationId: getMember
       tags:
@@ -392,44 +438,109 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  id:
-                    $ref: "#/components/schemas/member_id"
-                  href:
-                    $ref: "#/components/schemas/href_member"
+                $ref: "#/components/schemas/member"
+        '401':
+          $ref: "#/components/responses/General401ExpiredToken"
+        '403':
+          $ref: "#/components/responses/General403MissingToken"
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/conversation_error_not_found"
+                  - $ref: "#/components/schemas/member_error_not_found"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
+
     put:
       operationId: updateMember
       tags:
         - member
       summary: Update a member
-      responses:
-        "200":
-          description: Member retrieved
-          content:
-            application/json:
-              schema:
-                properties:
-                  id:
-                    $ref: "#/components/schemas/member_id"
-                  href:
-                    $ref: "#/components/schemas/href_member"
       requestBody:
         content:
           application/json:
             schema:
               properties:
                 action:
-                  $ref: "#/components/schemas/member_action"
+                  $ref: "#/components/schemas/member_state_request"
                 channel:
                   $ref: "#/components/schemas/channel"
-    delete:
+      responses:
+        "200":
+          description: Member retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/member"
+        '400':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/member_error_validation_fail_state"
+                  - $ref: "#/components/schemas/member_error_already_joined"
+                  - $ref: "#/components/schemas/member_error_invalid_state"
+        '401':
+          $ref: "#/components/responses/General401ExpiredToken"
+        '403':
+          $ref: "#/components/responses/General403MissingToken"
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/conversation_error_not_found"
+                  - $ref: "#/components/schemas/member_error_not_found"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
+    
+    patch:
       operationId: deleteMember
       tags:
         - member
-      summary: Delete a member
+      summary: Leave a conversation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                state:
+                  type: string
+                  example: left
+                  enum:
+                    - left
       responses:
         "200":
-          $ref: "#/components/responses/General200EmptyJSON"
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/member"
+        '400':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/member_error_invalid_state"
+        '401':
+          $ref: "#/components/responses/General401ExpiredToken"
+        '403':
+          $ref: "#/components/responses/General403MissingToken"
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/conversation_error_not_found"
+                  - $ref: "#/components/schemas/member_error_not_found"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
   
   
   "/users":
@@ -619,8 +730,17 @@ paths:
         - user
       summary: Delete a user
       responses:
-        "200":
-          $ref: "#/components/responses/General200EmptyJSON"
+        "204":
+          $ref: "#/components/responses/General204"
+        '401':
+          $ref: "#/components/responses/General401ExpiredToken"
+        '403':
+          $ref: "#/components/responses/General403MissingToken"
+        '404':
+          $ref: "#/components/responses/User404"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
+
   "/users/{user_id}/conversations":
     parameters:
       - $ref: "#/components/parameters/user_id"
@@ -629,40 +749,88 @@ paths:
       tags:
         - user
       summary: List user conversations
+      description: |
+        Please note that not all data is available in the list endpoint. Once 
+        you've identified the conversation you need to work with, use the 
+        [GET /conversations/:id](#get-conversation) endpoint to fetch all of the conversation details
+      parameters:
+        - $ref: "#/components/parameters/date_start"
+        - $ref: "#/components/parameters/date_end"
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/order"
+        - $ref: "#/components/parameters/cursor"
       responses:
         "200":
-          description: List user conversations
+          description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    name:
-                      $ref: "#/components/schemas/name_conversation"
-                    image_url:
-                      $ref: "#/components/schemas/conversation_image_url"
-                    display_name:
-                      $ref: "#/components/schemas/display_name"
-                    state:
-                      $ref: "#/components/schemas/member_state"
-                    member_id:
-                      $ref: "#/components/schemas/member_id"
-                    sequence_number:
-                      type: integer
-                      format: url
-                      description: the id of the last event of the conversation (event's id is an incremental number
-                      example: "123"
-                    href:
-                      $ref: "#/components/schemas/href"
-                    id:
-                      $ref: "#/components/schemas/conversation_id"
-                    timestamp:
-                      type: object
-                      properties:
-                        created:
-                          $ref: "#/components/schemas/timestamp"
+                type: object
+                properties:
+                  page_size:
+                    $ref: "#/components/schemas/page_size"
+                  _embedded:
+                    description: "A list of conversation objects. See the [get details of a specific conversation](#retrieveConversation) response fields for a description of the nested objects"
+                    type: object
+                    x-nexmo-developer-collection-description-shown: true
+                    properties:
+                      conversations:
+                        type: array
+                        description: List of conversations matching the provided filter
+                        items:
+                          $ref: "#/components/schemas/conversation_lite"
+                    required:
+                      - conversations
+                  _links:
+                    type: object
+                    description: "A series of links between resources in this API in the http://stateless.co/hal_specification.html."
+                    properties:
+                      self:
+                        type: object
+                        properties:
+                          first:
+                            type: object
+                            properties:
+                              href:
+                                type: string
+                                example: "https://api.nexmo.com/v0.3/users/USR-82e028d9-5201-4f1e-8188-604b2d3471ec/conversations?order=desc&page_size=10"
+                          self:
+                            type: object
+                            properties:
+                              href:
+                                type: string
+                                example: "https://api.nexmo.com/v0.3/users/USR-82e028d9-5201-4f1e-8188-604b2d3471ec/conversations?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
+                          next:
+                            type: object
+                            properties:
+                              href:
+                                type: string
+                                example: "https://api.nexmo.com/v0.3/users/USR-82e028d9-5201-4f1e-8188-604b2d3471ec/conversations?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
+                          prev:
+                            type: object
+                            properties:
+                              href:
+                                type: string
+                                example: "https://api.nexmo.com/v0.3/users/USR-82e028d9-5201-4f1e-8188-604b2d3471ec/conversations?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
+                        required:
+                          - href
+                    required:
+                      - self
+                required:
+                  - coursor
+                  - page_size
+                  - _embedded
+                  - _links
+        '401':
+          $ref: "#/components/responses/General401ExpiredToken"
+        '403':
+          $ref: "#/components/responses/General403MissingToken"
+        '404':
+          $ref: "#/components/responses/User404"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
+
+
   /legs:
     get:
       operationId: listLegs
@@ -743,7 +911,7 @@ paths:
                   record_index: 0
                   _links:
                     self:
-                      href: "https://api.nexmo.com/v0.1/legs"
+                      href: "https://api.nexmo.com/v0.3/legs"
                   _embedded:
                     legs:
                       - uuid: 2a71f8a1-b6f1-42b3-9eef-c69729e17513
@@ -761,7 +929,7 @@ paths:
                           state: terminated
                         _links:
                           self:
-                            href: "https://api.nexmo.com/v0.1/legs/2a71f8a1-b6f1-42b3-9eef-c69729e17513"
+                            href: "https://api.nexmo.com/v0.3/legs/2a71f8a1-b6f1-42b3-9eef-c69729e17513"
   "/legs/{leg_id}":
     parameters:
       - $ref: "#/components/parameters/leg_id"
@@ -941,7 +1109,7 @@ components:
           state:
             $ref: "#/components/schemas/member_state"
           timestamp:
-            $ref: "#/components/schemas/timestamp_res_member"
+            $ref: "#/components/schemas/member_timestamp"
           initiator:
             $ref: "#/components/schemas/initiator"
           channel:
@@ -955,6 +1123,231 @@ components:
             href:
               type: string
               example: "https://api.nexmo.com/v0.3/conversations/CON-d66d47de-5bcb-4300-94f0-0c9d4b948e9a"
+    
+    conversation_error_not_found:
+      type: object
+      description: Conversation not found
+      properties:
+        title:
+          type: string
+          example: Not found.
+        type:
+          type: string
+          example: https://developer.nexmo.com/api/conversation#conversation:error:not-found
+        code:
+          type: string
+          example: conversation:error:not-found
+        detail:
+          type: string
+          example: Conversation does not exist, or you do not have access.
+        instance: 
+          type: string
+          example: 00a5916655d650e920ccf0daf40ef4ee
+
+
+    member_lite:
+      type: object
+      properties:
+        id: 
+          $ref: "#/components/schemas/member_id"
+        state:
+          $ref: "#/components/schemas/member_state"
+        _embedded:
+          type: object
+          properties:
+            user:
+              $ref: "#/components/schemas/user_lite"
+        _links:
+          type: object
+          properties:
+            href:
+              $ref: "#/components/schemas/member_href"
+
+    member:
+      type: object
+      properties:
+        id: 
+          $ref: "#/components/schemas/member_id"
+        state:
+          $ref: "#/components/schemas/member_state"
+        _embedded:
+          type: object
+          properties:
+            user:
+              $ref: "#/components/schemas/user_lite"
+        _links:
+          type: object
+          properties:
+            href:
+              $ref: "#/components/schemas/member_href"
+        timestamp:
+          $ref: "#/components/schemas/member_timestamp"
+        channel:
+          $ref: "#/components/schemas/channel"
+        
+        initiator:
+          $ref: "#/components/schemas/initiator"
+
+    member_id:
+      type: string
+      example: MEM-63f61863-4a51-4f6b-86e1-46edebio0391
+      description: Member ID
+    member_state_request:
+      type: string
+      description: Invite or join a member to a conversation
+      example: joined
+      enum:
+        - invited
+        - joined
+    member_state:
+      type: string
+      description: "The state that the member is in. Possible values are `INVITED`, `JOINED`, `LEFT`, or `UNKNOWN`"
+      example: INVITED
+      enum:
+        - INVITED
+        - JOINED
+        - LEFT
+        - UNKNOWN
+    member_href:
+      type: string
+      format: url
+      example: "https://api.nexmo.com/v0.3/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391/members/MEM-63f61863-4a51-4f6b-86e1-46edebio0391"
+      description: A link towards a member included in Conversation API
+    member_timestamp:
+      type: object
+      properties:
+        invited:
+          $ref: "#/components/schemas/timestamp"
+        joined:
+          $ref: "#/components/schemas/timestamp"
+        left:
+          $ref: "#/components/schemas/timestamp"
+    member_id_inviting:
+      type: string
+      example: MEM-63f61863-4a51-4f6b-86e1-46edebio0391
+      description: Member ID of the member that sends the invitation
+
+
+    member_error_not_found:
+      type: object
+      description: Member not found
+      properties:
+        title:
+          type: string
+          example: Not found.
+        type:
+          type: string
+          example: https://developer.nexmo.com/api/conversation#conversation:error:member-not-found
+        code:
+          type: string
+          example: conversation:error:member-not-found
+        detail:
+          type: string
+          example: Member does not exist, or you do not have access.
+        instance: 
+          type: string
+          example: 00a5916655d650e920ccf0daf40ef4ee
+    member_error_already_joined:
+      type: object
+      description: Member already joined
+      properties:
+        title:
+          type: string
+          example: Bad request.
+        type:
+          type: string
+          example: https://developer.nexmo.com/api/conversation#conversation:error:member-already-joined
+        code:
+          type: string
+          example: conversation:error:member-already-joined
+        detail:
+          type: string
+          example: The request failed due to the user already having a member joined in 'app' type. Please provide a valid user and try again.
+        instance: 
+          type: string
+          example: 00a5916655d650e920ccf0daf40ef4ee
+    member_error_invalid_state:
+      type: object
+      description: Invalid member state
+      properties:
+        title:
+          type: string
+          example: Conflict.
+        type:
+          type: string
+          example: https://developer.nexmo.com/api/conversation#conversation:error:invalid-member-state
+        code:
+          type: string
+          example: conversation:error:invalid-member-state
+        detail:
+          type: string
+          example: The conversation membership has already ended
+        instance: 
+          type: string
+          example: 00a5916655d650e920ccf0daf40ef4ee
+    member_error_validation_fail_state:
+      type: object
+      description: Validation fail
+      properties:
+        title:
+          type: string
+          example: Bad request.
+        type:
+          type: string
+          example: https://developer.nexmo.com/api/conversation#http:error:validation-fail
+        code:
+          type: string
+          example: http:error:validation-fail
+        detail:
+          type: string
+          example: Input validation failure.
+        instance: 
+          type: string
+          example: 00a5916655d650e920ccf0daf40ef4ee
+        invalid_parameters:
+          type: array
+          description: List of invalid parameters
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: state
+              reason:
+                type: string
+                example: "\"state\" must be one of [invited, joined]"
+
+
+    channel:
+      type: object
+      description: "A user who joins a conversation as a member can have one channel per membership type. Channels can be `app`, `phone`, `sip`, `websocket`, or `vbc`"
+      properties:
+        type:
+          $ref: "#/components/schemas/channel_type"
+        leg_id:
+          $ref: "#/components/schemas/leg_id"
+        from:
+          oneOf:
+            - "$ref": "voice.yml#/components/schemas/EndpointApp"
+            - "$ref": "voice.yml#/components/schemas/EndpointPhoneFrom"
+            - "$ref": "voice.yml#/components/schemas/EndpointSip"
+            - "$ref": "voice.yml#/components/schemas/EndpointWebsocket"
+            - "$ref": "voice.yml#/components/schemas/EndpointVBCExtension"
+        to:
+          oneOf:
+            - "$ref": "voice.yml#/components/schemas/EndpointApp"
+            - "$ref": "voice.yml#/components/schemas/EndpointPhoneTo"
+            - "$ref": "voice.yml#/components/schemas/EndpointSip"
+            - "$ref": "voice.yml#/components/schemas/EndpointWebsocket"
+            - "$ref": "voice.yml#/components/schemas/EndpointVBCExtension"
+        leg_ids:
+          type: array
+          description: Leg ids associated with this Channel. The first item in the array represents the main active Leg. The second item, if exists, represents a screen-share Leg.
+          items:
+            properties:
+              leg_id:
+                $ref: "#/components/schemas/leg_id"
+
 
 
 
@@ -1014,21 +1407,8 @@ components:
 
     
     
-    member_id:
-      type: string
-      example: MEM-63f61863-4a51-4f6b-86e1-46edebio0391
-      description: Member ID
-    member_id_inviting:
-      type: string
-      example: MEM-63f61863-4a51-4f6b-86e1-46edebio0391
-      description: Member ID of the member that sends the invitation
-    member_action:
-      type: string
-      description: Invite or join a member to a conversation
-      example: join
-      enum:
-        - invite
-        - join
+
+    
     user_id_or_user_name:
       type: string
       description: user name or user id of the inviter
@@ -1046,37 +1426,33 @@ components:
     href:
       type: string
       format: url
-      example: "https://api.nexmo.com/v0.1/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391"
+      example: "https://api.nexmo.com/v0.3/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391"
       description: A link towards a resources included in Conversation API
     href_conversation:
       type: string
       format: url
-      example: "https://api.nexmo.com/v0.1/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391"
+      example: "https://api.nexmo.com/v0.3/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391"
       description: A link towards a conversation included in Conversation API
     href_conversations_list:
       type: string
       format: url
-      example: "https://api.nexmo.com/v0.1/conversations?page_size=2&record_index=10&"
+      example: "https://api.nexmo.com/v0.3/conversations?page_size=2&record_index=10&"
       description: A link towards a conversations list included in Conversation API
-    href_member:
-      type: string
-      format: url
-      example: "https://api.nexmo.com/v0.1/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391/members/MEM-63f61863-4a51-4f6b-86e1-46edebio0391"
-      description: A link towards a member included in Conversation API
+
     href_user:
       type: string
       format: url
-      example: "https://api.nexmo.com/v0.1/users/USR-63f61863-4a51-4f6b-86e1-46edebio0391"
+      example: "https://api.nexmo.com/v0.3/users/USR-63f61863-4a51-4f6b-86e1-46edebio0391"
       description: A link towards a user included in Conversation API
     href_event:
       type: string
       format: url
-      example: "https://api.nexmo.com/v0.1/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391/events/1"
+      example: "https://api.nexmo.com/v0.3/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391/events/1"
       description: A link towards a conversation event included in Conversation API
     href_rtc:
       type: string
       format: url
-      example: "https://api.nexmo.com/v0.1/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391/rtc/7777777777777"
+      example: "https://api.nexmo.com/v0.3/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391/rtc/7777777777777"
       description: A link towards a rtc (leg) included in Conversation API
     event_id:
       type: string
@@ -1137,15 +1513,7 @@ components:
           $ref: "#/components/schemas/timestamp_updated"
         destroyed:
           $ref: "#/components/schemas/timestamp_destroyed"
-    timestamp_res_member:
-      type: object
-      properties:
-        invited:
-          $ref: "#/components/schemas/timestamp"
-        joined:
-          $ref: "#/components/schemas/timestamp"
-        left:
-          $ref: "#/components/schemas/timestamp"
+
     timestamp_obj_leg:
       type: object
       properties:
@@ -1155,15 +1523,7 @@ components:
           $ref: "#/components/schemas/timestamp"
         request:
           $ref: "#/components/schemas/timestamp"
-    member_state:
-      type: string
-      description: "The state that the member is in. Possible values are `invited`, `joined`, `left`, or `unknown`"
-      example: invited
-      enum:
-        - invited
-        - joined
-        - left
-        - unknown
+
     leg_id:
       type: string
       example: a595959595959595995
@@ -1182,35 +1542,7 @@ components:
         - sip
         - websocket
         - vbc
-    channel:
-      type: object
-      description: "A user who joins a conversation as a member can have one channel per membership type. Channels can be `app`, `phone`, `sip`, `websocket`, or `vbc`"
-      properties:
-        type:
-          $ref: "#/components/schemas/channel_type"
-        leg_id:
-          $ref: "#/components/schemas/leg_id"
-        from:
-          oneOf:
-            - "$ref": "voice.yml#/components/schemas/EndpointApp"
-            - "$ref": "voice.yml#/components/schemas/EndpointPhoneFrom"
-            - "$ref": "voice.yml#/components/schemas/EndpointSip"
-            - "$ref": "voice.yml#/components/schemas/EndpointWebsocket"
-            - "$ref": "voice.yml#/components/schemas/EndpointVBCExtension"
-        to:
-          oneOf:
-            - "$ref": "voice.yml#/components/schemas/EndpointApp"
-            - "$ref": "voice.yml#/components/schemas/EndpointPhoneTo"
-            - "$ref": "voice.yml#/components/schemas/EndpointSip"
-            - "$ref": "voice.yml#/components/schemas/EndpointWebsocket"
-            - "$ref": "voice.yml#/components/schemas/EndpointVBCExtension"
-        leg_ids:
-          type: array
-          description: Leg ids associated with this Channel. The first item in the array represents the main active Leg. The second item, if exists, represents a screen-share Leg.
-          items:
-            properties:
-              leg_id:
-                $ref: "#/components/schemas/leg_id"
+
     media:
       type: object
       description: Media Object
@@ -1459,7 +1791,7 @@ components:
                 type: string
                 example: 00a5916655d650e920ccf0daf40ef4ee
     General403MissingToken:
-      description: Unauthorized
+      description: Forbidden
       content:
         application/json:
           schema:
@@ -1508,23 +1840,7 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              title:
-                type: string
-                example: Not found.
-              type:
-                type: string
-                example: https://developer.nexmo.com/api/conversation#conversation:error:not-found
-              code:
-                type: string
-                example: conversation:error:not-found
-              detail:
-                type: string
-                example: Conversation does not exist, or you do not have access.
-              instance: 
-                type: string
-                example: 00a5916655d650e920ccf0daf40ef4ee
+            $ref: "#/components/schemas/conversation_error_not_found"
 
     Conversation409DuplicateName:
       description: Not found
@@ -1595,7 +1911,6 @@ components:
               instance: 
                 type: string
                 example: 00a5916655d650e920ccf0daf40ef4ee
-
     
 
     
