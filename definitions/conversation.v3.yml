@@ -454,6 +454,49 @@ paths:
         '500':
           $ref: "#/components/responses/General500InternalError"
 
+    patch:
+      operationId: deleteMember
+      tags:
+        - member
+      summary: Leave a conversation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                state:
+                  type: string
+                  example: left
+                  enum:
+                    - left
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/member"
+        '400':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/member_error_invalid_state"
+        '401':
+          $ref: "#/components/responses/General401ExpiredToken"
+        '403':
+          $ref: "#/components/responses/General403MissingToken"
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/conversation_error_not_found"
+                  - $ref: "#/components/schemas/member_error_not_found"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
+
     put:
       operationId: updateMember
       tags:
@@ -484,49 +527,6 @@ paths:
                   - $ref: "#/components/schemas/member_error_validation_fail_state"
                   - $ref: "#/components/schemas/member_error_already_joined"
                   - $ref: "#/components/schemas/member_error_invalid_state"
-        '401':
-          $ref: "#/components/responses/General401ExpiredToken"
-        '403':
-          $ref: "#/components/responses/General403MissingToken"
-        '404':
-          description: Not found.
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - $ref: "#/components/schemas/conversation_error_not_found"
-                  - $ref: "#/components/schemas/member_error_not_found"
-        '500':
-          $ref: "#/components/responses/General500InternalError"
-    
-    patch:
-      operationId: deleteMember
-      tags:
-        - member
-      summary: Leave a conversation
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                state:
-                  type: string
-                  example: left
-                  enum:
-                    - left
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/member"
-        '400':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/member_error_invalid_state"
         '401':
           $ref: "#/components/responses/General401ExpiredToken"
         '403':
