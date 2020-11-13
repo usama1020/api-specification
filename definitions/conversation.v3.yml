@@ -631,7 +631,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: "#/components/schemas/user"
         '400':
           $ref: "#/components/responses/General400ValidationFailName"
@@ -670,7 +669,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: "#/components/schemas/user"
         '400':
           $ref: "#/components/responses/General400ValidationFailName"
@@ -693,7 +691,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: "#/components/schemas/user"
         '400':
           $ref: "#/components/responses/General400ValidationFailName"
