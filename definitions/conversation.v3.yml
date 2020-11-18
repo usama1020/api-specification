@@ -1042,8 +1042,6 @@ components:
         numbers:
           type: object
           properties: {}
-        members:
-          $ref: "#/components/schemas/conversation_members"
         _links:
           $ref: "#/components/schemas/conversation_links"
     
@@ -1087,26 +1085,6 @@ components:
           type: number
           example: 60
           description: "Time to leave. After how many seconds an empty conversation is deleted."
-    conversation_members:
-      type: array
-      description: Users associated to this conversation as members
-      items:
-        type: object
-        properties:
-          member_id:
-            $ref: "#/components/schemas/member_id"
-          user_id:
-            $ref: "#/components/schemas/user_id"
-          name:
-            $ref: "#/components/schemas/user_name"
-          state:
-            $ref: "#/components/schemas/member_state"
-          timestamp:
-            $ref: "#/components/schemas/member_timestamp"
-          initiator:
-            $ref: "#/components/schemas/initiator"
-          channel:
-            $ref: "#/components/schemas/channel"
     conversation_links:
       type: object
       properties:
