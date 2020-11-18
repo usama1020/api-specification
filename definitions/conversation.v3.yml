@@ -372,7 +372,7 @@ paths:
               type: object
               description: "Create a Member in invited or joined state"
               properties:
-                action:
+                state:
                   $ref: "#/components/schemas/member_state_request"
                 user:
                   type: object
@@ -382,8 +382,6 @@ paths:
                       $ref: "#/components/schemas/user_id"
                     name:
                       $ref: "#/components/schemas/user_name"
-                member_id:
-                  $ref: "#/components/schemas/member_id"
                 channel:
                   $ref: "#/components/schemas/channel"
                 media:
@@ -398,7 +396,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/member"
+                allOf:
+                  - $ref: "#/components/schemas/member"
+                  - type: object
+                    properties:
+                      state:
+                        type: string
+                        example: INVITED
+                      timestamp:
+                        type: object
+                        properties:
+                          invited:
+                            $ref: "#/components/schemas/timestamp"
                   
         '400':
           description: OK
@@ -434,7 +443,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/member"
+                allOf:
+                  - $ref: "#/components/schemas/member"
+                  - type: object
+                    properties:
+                      state:
+                        type: string
+                        example: JOINED
         '401':
           $ref: "#/components/responses/General401ExpiredToken"
         '403':
@@ -471,7 +486,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/member"
+                allOf:
+                  - $ref: "#/components/schemas/member"
+                  - type: object
+                    properties:
+                      state:
+                        type: string
+                        example: LEFT
         '400':
           description: OK
           content:
@@ -503,17 +524,25 @@ paths:
           application/json:
             schema:
               properties:
-                action:
-                  $ref: "#/components/schemas/member_state_request"
+                state:
+                  type: string
+                  example: JOINED
                 channel:
                   $ref: "#/components/schemas/channel"
       responses:
         "200":
-          description: Member retrieved
+          description: Member updated
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/member"
+                allOf:
+                  - $ref: "#/components/schemas/member"
+                  - type: object
+                    properties:
+                      state:
+                        type: string
+                        example: JOINED
+
         '400':
           description: OK
           content:
@@ -1139,25 +1168,30 @@ components:
       properties:
         id: 
           $ref: "#/components/schemas/member_id"
-        state:
-          $ref: "#/components/schemas/member_state"
+        conversation_id:
+          $ref: "#/components/schemas/conversation_id"
         _embedded:
           type: object
           properties:
             user:
               $ref: "#/components/schemas/user_lite"
+        state:
+          $ref: "#/components/schemas/member_state"
+        timestamp:
+          $ref: "#/components/schemas/member_timestamp"
+        initiator:
+          $ref: "#/components/schemas/member_initiator"
+        channel:
+          $ref: "#/components/schemas/channel"
+        media:
+          $ref: "#/components/schemas/media"
+
         _links:
           type: object
           properties:
             href:
               $ref: "#/components/schemas/member_href"
-        timestamp:
-          $ref: "#/components/schemas/member_timestamp"
-        channel:
-          $ref: "#/components/schemas/channel"
         
-        initiator:
-          $ref: "#/components/schemas/initiator"
 
     member_id:
       type: string
@@ -1166,14 +1200,14 @@ components:
     member_state_request:
       type: string
       description: Invite or join a member to a conversation
-      example: joined
+      example: invited
       enum:
         - invited
         - joined
     member_state:
       type: string
       description: "The state that the member is in. Possible values are `INVITED`, `JOINED`, `LEFT`, or `UNKNOWN`"
-      example: INVITED
+      example: LEFT
       enum:
         - INVITED
         - JOINED
@@ -1197,6 +1231,19 @@ components:
       type: string
       example: MEM-63f61863-4a51-4f6b-86e1-46edebio0391
       description: Member ID of the member that sends the invitation
+    member_initiator:
+      type: object
+      properties:
+        joined:
+          type: object
+          properties:
+            isSystem:
+              type: boolean
+              description: "`true` if the user was invited by an admin JWT. `user_id` and `member_id` will not exist if `true`"
+            user_id:
+              $ref: "#/components/schemas/user_id"
+            member_id:
+              $ref: "#/components/schemas/member_id"
 
 
     member_error_not_found:
@@ -1322,19 +1369,6 @@ components:
 
 
 
-    initiator:
-      type: object
-      properties:
-        joined:
-          type: object
-          properties:
-            isSystem:
-              type: boolean
-              description: "`true` if the user was invited by an admin JWT. `user_id` and `member_id` will not exist if `true`"
-            user_id:
-              $ref: "#/components/schemas/user_id"
-            member_id:
-              $ref: "#/components/schemas/member_id"
 
     action:
       type: string
