@@ -1,7 +1,7 @@
 ---
 openapi: "3.0.0"
 info:
-  version: 2.0.7
+  version: 2.0.8
   title: "Application API"
   description: |
     Vonage provides an Application API to allow management of your Vonage Applications.
@@ -136,12 +136,14 @@ paths:
                                   type: integer
                                   description: Connection timeout in milliseconds
                                   example: 500
+                                  default: 1000
                                   maximum: 1000
                                   minimum: 300
                                 socket_timeout:
                                   type: integer
                                   description: Reading timeout in milliseconds
                                   example: 3000
+                                  default: 5000
                                   maximum: 5000
                                   minimum: 1000
                             fallback_answer_url:
@@ -162,14 +164,16 @@ paths:
                                     - POST
                                 connection_timeout:
                                   type: integer
-                                  description: Connection timetout in milliseconds
+                                  description: Connection timeout in milliseconds
                                   example: 500
+                                  default: 1000
                                   maximum: 1000
                                   minimum: 300
                                 socket_timeout:
                                   type: integer
                                   description: Reading timeout in milliseconds
                                   example: 3000
+                                  default: 5000
                                   maximum: 5000
                                   minimum: 1000                           
                             event_url:
@@ -188,14 +192,16 @@ paths:
                                     - POST
                                 connection_timeout:
                                   type: integer
-                                  description: Connection timetout in milliseconds
+                                  description: Connection timeout in milliseconds
                                   example: 500
+                                  default: 1000
                                   maximum: 1000
                                   minimum: 300
                                 socket_timeout:
                                   type: integer
                                   description: Reading timeout in milliseconds
                                   example: 3000
+                                  default: 10000
                                   maximum: 10000
                                   minimum: 1000
                     rtc:
@@ -395,14 +401,16 @@ paths:
                                     - POST
                                 connection_timeout:
                                   type: integer
-                                  description: Connection timetout in milliseconds
+                                  description: Connection timeout in milliseconds
                                   example: 500
+                                  default: 1000
                                   maximum: 1000
                                   minimum: 300
                                 socket_timeout:
                                   type: integer
                                   description: Reading timeout in milliseconds
                                   example: 3000
+                                  default: 5000
                                   maximum: 5000
                                   minimum: 1000
                             fallback_answer_url:
@@ -423,14 +431,16 @@ paths:
                                     - POST
                                 connection_timeout:
                                   type: integer
-                                  description: Connection timetout in milliseconds
+                                  description: Connection timeout in milliseconds
                                   example: 500
+                                  default: 1000
                                   maximum: 1000
                                   minimum: 300
                                 socket_timeout:
                                   type: integer
                                   description: Reading timeout in milliseconds
                                   example: 3000
+                                  default: 5000
                                   maximum: 5000
                                   minimum: 1000
                             event_url:
@@ -449,14 +459,16 @@ paths:
                                     - POST
                                 connection_timeout:
                                   type: integer
-                                  description: Connection timetout in milliseconds
+                                  description: Connection timeout in milliseconds
                                   example: 500
+                                  default: 1000
                                   maximum: 1000
                                   minimum: 300
                                 socket_timeout:
                                   type: integer
                                   description: Reading timeout in milliseconds
                                   example: 3000
+                                  default: 10000
                                   maximum: 10000
                                   minimum: 1000
                     rtc:
@@ -682,18 +694,12 @@ components:
                           description: The HTTP method used to fetch your NCCO from your `answer_url`
                         connection_timeout:
                           type: integer
-                          description: Connection timetout in milliseconds
+                          description: Connection timeout in milliseconds
                           example: 500
-                          default: 1000
-                          maximum: 1000
-                          minimum: 300
                         socket_timeout:
                           type: integer
                           description: Reading timeout in milliseconds
                           example: 3000
-                          default: 5000
-                          maximum: 5000
-                          minimum: 1000
                     fallback_answer_url:
                       type: object
                       properties:
@@ -709,18 +715,12 @@ components:
                           description: The HTTP method used to fetch your NCCO from your `answer_url`
                         connection_timeout:
                           type: integer
-                          description: Connection timetout in milliseconds
+                          description: Connection timeout in milliseconds
                           example: 500
-                          default: 1000
-                          maximum: 1000
-                          minimum: 300
                         socket_timeout:
                           type: integer
                           description: Reading timeout in milliseconds
                           example: 3000
-                          default: 5000
-                          maximum: 5000
-                          minimum: 1000
                     event_url:
                       type: object
                       properties:
@@ -734,18 +734,12 @@ components:
                           description: The HTTP method used to send events to your server
                         connection_timeout:
                           type: integer
-                          description: Connection timetout in milliseconds
+                          description: Connection timeout in milliseconds
                           example: 500
-                          default: 1000
-                          maximum: 1000
-                          minimum: 300
                         socket_timeout:
                           type: integer
                           description: Reading timeout in milliseconds
                           example: 3000
-                          default: 10000
-                          maximum: 10000
-                          minimum: 1000
             messages:
               type: object
               description: Messages / Dispatch related configuration
