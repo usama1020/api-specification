@@ -16,7 +16,7 @@ paths:
         - bearerAuth: []
         - basicAuth: []
       description: Send a Message
-      operationId: NewMessage
+      operationId: SendMessage
       requestBody:
         description: Send a Message.
         required: true
@@ -347,7 +347,6 @@ paths:
               responses:
                 '200':
                   description: Your server returns this code if it accepts the callback.
-
 x-webhooks:
   inbound-message:
     '{$request.body#/callback}':
@@ -362,11 +361,64 @@ x-webhooks:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/inboundMessageSMS'
-                  - $ref: '#/components/schemas/messageStatusMMS'
-                  - $ref: '#/components/schemas/messageStatusWhatsApp'
-                  - $ref: '#/components/schemas/messageStatusMessenger'
-                  - $ref: '#/components/schemas/messageStatusViber'
+                  - $ref: '#/components/schemas/inboundMessageSMS'                                       
+                  - title: MMS
+                    x-tab-id: MMS
+                    allOf:
+                    - $ref: '#/components/schemas/inboundMessageMMS'
+                    - $ref: '#/components/schemas/Image'
+                  - title: WhatsApp
+                    x-tab-id: WhatsApp
+                    oneOf:
+                      - allOf:
+                        - $ref: "#/components/schemas/inboundWhatsAppMessageCommon"
+                        - $ref: "#/components/schemas/Text"
+                      - allOf: 
+                        - $ref: "#/components/schemas/inboundWhatsAppMessageCommon"
+                        - $ref: "#/components/schemas/Image"
+                      - allOf: 
+                        - $ref: "#/components/schemas/inboundWhatsAppMessageCommon"
+                        - $ref: "#/components/schemas/Video"
+                      - allOf:
+                        - $ref: "#/components/schemas/inboundWhatsAppMessageCommon"
+                        - $ref: "#/components/schemas/File"
+                      - allOf:
+                        - $ref: "#/components/schemas/inboundWhatsAppMessageCommon"
+                        - $ref: "#/components/schemas/Audio"
+                      - allOf:
+                        - $ref: "#/components/schemas/inboundWhatsAppMessageCommon"
+                        - $ref: "#/components/schemas/Unsupported"
+                  - title: Messenger
+                    x-tab-id: Messenger
+                    oneOf:
+                      - allOf:
+                        - $ref: '#/components/schemas/InboundMessengerMessageCommon'
+                        - $ref: "#/components/schemas/Text"
+                      - allOf:
+                        - $ref: '#/components/schemas/InboundMessengerMessageCommon'
+                        - $ref: "#/components/schemas/Image"
+                      - allOf:
+                        - $ref: '#/components/schemas/InboundMessengerMessageCommon'
+                        - $ref: "#/components/schemas/Video"
+                      - allOf:
+                        - $ref: '#/components/schemas/InboundMessengerMessageCommon'
+                        - $ref: "#/components/schemas/File"
+                      - allOf:
+                        - $ref: '#/components/schemas/InboundMessengerMessageCommon'
+                        - $ref: "#/components/schemas/Audio"
+                      - allOf:
+                        - $ref: '#/components/schemas/InboundMessengerMessageCommon'
+                        - $ref: "#/components/schemas/Unsupported"
+                  - title: Viber
+                    x-tab-id: Viber
+                    oneOf:
+                      - allOf:
+                        - $ref: "#/components/schemas/InboundViberMessageCommon"
+                        - $ref: "#/components/schemas/Text"
+                      - allOf:
+                        - $ref: "#/components/schemas/InboundViberMessageCommon"
+                        - $ref: "#/components/schemas/Image"
+
         responses:
             '200':
               description: Your server returns this code if it accepts the callback.
@@ -400,10 +452,14 @@ components:
               description: The type of message to send. You must provide `image` in this field
             image:
               type: object
+              required:
+                - url
               properties:
                 url:
+                  format: url
+                  description: The publicly accessible URL of the image attachment. The image file is available for 48 hours after it is created. Supported types are .jpg, .jpeg, and .png
+                  example: https://example.com/image.jpg
                   type: string
-
     Audio:
       allOf:
         - $ref: "#/components/schemas/baseMessageType"
@@ -421,6 +477,8 @@ components:
               description: The type of message to send. You must provide `audio` in this field
             audio:
               type: object
+              required:
+                - url
               properties:
                 url:
                   type: string
@@ -445,11 +503,31 @@ components:
               description: The type of message to send. You must provide `video` in this field
             video:
               type: object
+              required:
+                - url
               properties:
                 url:
                   type: string
+                  description: |
+                    Publicly accessible URL of the video attachment. Supports file types .mp4 and .3gpp
+                    > Note: Only supports video codec H.264 and audio codec AAC
+                  format: url
                   example: 'https://example.com/video.mp4'
-
+    Unsupported:
+      allOf:
+        - $ref: "#/components/schemas/baseMessageType"
+        - title: Unsupported
+          x-tab-id: Unsupported
+          type: object
+          required:
+            - message_type
+          properties:
+            message_type:
+              type: string
+              enum:
+                - unsupported
+              example: unsupported
+              description: The type of message to send. Will be `unsupported` if the type of message received from user is not supported by the channel.
     File:
       allOf:
         - $ref: "#/components/schemas/baseMessageType"
@@ -467,6 +545,8 @@ components:
               description: The type of message to send. You must provide `file` in this field
             file:
               type: object
+              required:
+                - url
               properties:
                 url:
                   type: string
@@ -1007,8 +1087,13 @@ components:
                 - transaction
                 - promotion
             ttl:
+              minimum: 30
+              maximum: 259200
+              description: Set the time-to-live of message to be delivered in seconds. i.e. if the message is not delivered in 600 seconds then delete the message.
+              example: 600
               type: integer
             type:
+              description: Viber-specific type definition. To use "template", please contact your Vonage Account Manager to setup your templates. To find out more please visit the [product page](https://www.vonage.com/communications-apis/messages/)
               type: string
     channelOptionsWhatsapp:
       type: object
@@ -1047,15 +1132,25 @@ components:
             - undeliverable
         error:
           type: object
+          description: If the message encountered a problem a descriptive error will be supplied in this object.
           properties:
-            code:
-              type: integer
-              example: 1300
-              description: The error code. See [our errors list](https://developer.nexmo.com/api-errors/messages-olympus) for a list of possible errors
-            reason:
+            type:
               type: string
-              example: 'Not part of the provider network'
-              description: Text describing the error. See [our errors list](https://developer.nexmo.com/api-errors/messages-olympus) for a list of possible errors
+              format: url
+              description: The type of error encountered, follow URL for more details
+              example: https://developer.nexmo.com/api-errors/messages#1000
+            title:
+              type: string
+              example: 1000
+              description: The error code encountered when sending the message. See [our errors list](https://developer.nexmo.com/api-errors/messages) for a list of possible errors
+            detail:
+              type: string
+              example: 'Throttled - You have exceeded the submission capacity allowed on this account. Please wait and retry'
+              description: Text describing the error. See [our errors list](https://developer.nexmo.com/api-errors/messages) for a list of possible errors
+            instance:
+              type: string
+              example: 'bf0ca0bf927b3b52e3cb03217e1a1ddf'
+              description: The record id of this error's occurrence.
         usage:
           type: object
           properties:
@@ -1083,7 +1178,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/messageStatusBase"
         - title: SMS
-          x-tab-id: status_SMS
+          x-tab-id: SMS
           description: SMS
           properties:
             channel:
@@ -1096,7 +1191,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/messageStatusBase"
         - title: MMS
-          x-tab-id: status_MMS
+          x-tab-id: MMS
           description: MMS
           properties:
             channel:
@@ -1109,7 +1204,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/messageStatusBase"
         - title: WhatsApp
-          x-tab-id: status_WhatsApp
+          x-tab-id: WhatsApp
           description: WhatsApp
           properties:
             channel:
@@ -1130,7 +1225,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/messageStatusBase"
         - title: Messenger
-          x-tab-id: status_Messenger
+          x-tab-id: Messenger
           description: Messenger
           properties:
             channel:
@@ -1149,21 +1244,13 @@ components:
                 - read
             to:
               $ref: "#/components/schemas/ToId"
-#              description: |
-#                The ID of the message recipient. 
-#                
-#                This value should be the `from.id` value you received in the inbound messenger event.
             from:
               $ref: "#/components/schemas/FromId"
-#              description: |
-#                Your ID for the platform that you are sending from.
-#
-#                This value should be the `to.id` value you received in the inbound messenger event.
     messageStatusViber:
       allOf:
         - $ref: "#/components/schemas/messageStatusBase"
         - title: Viber
-          x-tab-id: status_Viber
+          x-tab-id: Viber
           description: Viber
           properties:
             channel:
@@ -1179,41 +1266,267 @@ components:
                 - delivered
                 - rejected
                 - undeliverable
-                - read
-    
-
-    inboundMessageSMS:
-      title: SMS
-      type: object
-      properties:
-        message_uuid:
-          type: string
-          example: 'aaaaaaaa-bbbb-cccc-dddd-0123456789ab'
-          description: The UUID of the message.
+                - read    
+    Timestamp:
+      type: string
+      description: The datetime of when the event occurred, in `ISO 8601` format.
+      example: 2020-01-01T14:00:00.000Z
+    InboundViberMessageCommon:
+      title: Viber
+      x-tab-id: Viber
       required:
+        - channel
         - message_uuid
         - to
         - from
         - timestamp
+      properties:
+        channel:
+          type: string
+          description: The channel that the message came in on
+          enum:
+            - viber_service
+          example: viber_service          
+        message_uuid:
+          $ref: "#/components/schemas/MessageUuid"          
+        to:
+          $ref: "#/components/schemas/ToId"
+        from:
+          $ref: "#/components/schemas/FromNumber"
+        timestamp:
+          $ref: "#/components/schemas/Timestamp"
+
+    InboundMessengerMessageCommon:
+      title: Messenger
+      x-tab-id: Messenger
+      required:
+        - channel
+        - message_uuid
+        - to
+        - from
+        - timestamp
+      properties:
+        channel:
+          type: string
+          description: The channel that the message came in on
+          enum:
+            - messenger
+          example: messenger          
+        message_uuid:
+          $ref: "#/components/schemas/MessageUuid"          
+        to:
+          $ref: "#/components/schemas/ToId"
+        from:
+          $ref: "#/components/schemas/FromId"
+        timestamp:
+          $ref: "#/components/schemas/Timestamp"
+    inboundWhatsAppMessageCommon:
+      title: WhatsApp
+      type: object
+      x-tab-id: WhatsApp
+      required:
+        - channel
+        - message_uuid
+        - to
+        - from
+        - timestamp
+      properties:
+        channel:
+          type: string
+          description: The channel that the message came in on
+          enum: 
+            - whatsapp
+          example: whatsapp
+        message_uuid:
+          $ref: "#/components/schemas/MessageUuid"          
+        to:
+          $ref: "#/components/schemas/ToNumber"
+        from:
+          $ref: "#/components/schemas/FromNumber"
+        timestamp:
+          $ref: "#/components/schemas/Timestamp"
+    Usage:
+      type: object
+      properties:
+        currency:
+          type: string
+          example: EUR
+          description: The charge currency in ISO 4217 format.
+          enum:
+            - EUR
+        price:
+          type: string
+          example: '0.0333'
+          description: The charge amount as a stringified number.
+    inboundMessageMMS:
+      title: MMS
+      x-tab-id: MMS
+      type: object
+      required:
+        - channel
+        - message_uuid
+        - to
+        - from
+        - timestamp        
+      properties:
+        channel:
+          type: string
+          enum:
+            - mms
+          description: The channel the message came in on
+          example: mm
+        message_uuid:
+          $ref: "#/components/schemas/MessageUuid"          
+        to:
+          $ref: "#/components/schemas/ToNumber"
+        from:
+          $ref: "#/components/schemas/FromNumber"
+        timestamp:
+          $ref: "#/components/schemas/Timestamp"        
+    inboundMessageSMS:
+      title: SMS
+      type: object
+      required:
+        - channel
+        - message_uuid
+        - to
+        - from
+        - timestamp
+        - text
+      properties:
+        channel:
+          type: string
+          enum:
+            - sms
+          description: The channel the message came in on
+          example: sms
+        message_uuid:
+          $ref: "#/components/schemas/MessageUuid"          
+        to:
+          $ref: "#/components/schemas/ToNumber"
+        from:
+          $ref: "#/components/schemas/FromNumber"
+        timestamp:
+          $ref: "#/components/schemas/Timestamp"
+        text:
+          example: Hello From Vonage!
+          type: string
+          description: |
+            The UTF-8 encoded text of the inbound message.
+        sms:
+          description: Channel specific metadata for SMS
+          type: object          
+          properties:
+              num_messages:
+                type: string
+                example: "2"
+                description: The number of inbound SMS messages concatenated together to comprise this message. SMS messages are 160 characters, if an inbound message exceeds that size they are concatenated together to forma single message. This number indicates how many messages formed this webhook.
+              keyword:
+                type: string
+                example: "HELLO"
+                description: The first word of the message sent to uppercase.
+        usage:
+          $ref: "#/components/schemas/Usage" 
 
 x-errors:
   "1000":
-    description: Internal error  -  There was an error processing your request in the Platform.
-  "1010":
     description: Throttled - You have exceeded the submission capacity allowed on this account. Please wait and retry
-
+  "1010":
+    description: Missing params - Your request is incomplete and missing some mandatory parameters.
+  "1020":
+    description: Invalid params  -  The value of one or more parameters is invalid.
+  "1021":
+    description: Invalid tag  -  The tag value is invalid.
+  "1022":
+    description: Invalid template  -  Invalid template or template parameters
+  "1030":
+    description: Internal error  -  There was an error processing your request in the Platform.
+  "1040":
+    description: Invalid message  -  The Platform was unable to process your request. For example, due to an unrecognised prefix for the phone number.
+  "1050":
+    description: Number barred  -  The number you are trying to submit to is blacklisted and may not receive messages.
+  "1060":
+    description: Partner account barred  -  The `api_key` you supplied is for an account that has been barred from submitting messages.
+  "1070":
+    description: Partner quota exceeded  -  Your pre-paid account does not have sufficient credit to process this message.
+  "1080":
+    description: Account not enabled for REST  -  This account is not provisioned for REST submission, you should use SMPP on the SMS API.
+  "1090":
+    description: Message too long  -  The length of `udh` and `body` was greater than 140 octets for a binary type SMS request.
   "1100":
-    description: Unsupported channel - The channel specified in the request is not supported.
-  "1110":
-    description: Invalid channel parameters -  The value of one or more parameters is invalid.
+    description: Communication Failed  -  Message was not submitted because there was a communication failure.
   "1120":
-    description: Invalid sender -  The `from` parameter is invalid for the given channel.
+    description: Illegal Sender Address - rejected  -  Due to local regulations, the `SenderID` you set in from in the request was not accepted. Please check the Global messaging section.
   "1130":
-    description: Invalid recipient -  The `to` parameter is invalid for the given channel.
+    description: Invalid TTL  -  The value of `ttl` in your request was invalid.
   "1140":
-    description: Invalid message type - The message type specified in the request is not supported for the given channel.
+    description: Facility not allowed  -  Your request makes use of a facility that is not enabled on your account.
   "1150":
-    description: Invalid channel parameters -  The value of one or more parameters is invalid.
+    description: Invalid Message class  -  The value of `message-`class in your request was out of range. See https://en.wikipedia.org/wiki/Data_Coding_Scheme.
   "1160":
+    description: Non White-listed Destination  -  The phone number you set in to is not in your pre-approved destination list. To send messages to this phone number, add it using Dashboard.
+  "1170":
+    description: Invalid or Missing Msisdn Param  -  The phone number you supplied in the to parameter of your request was either missing or invalid.
+  "1180":
+    description: Absent Subscriber Temporary  -  This message was not delivered because to was temporarily unavailable. For example, the handset used for to was out of coverage or switched off. This is a temporary failure, retry later for a positive result.
+  "1190":
+    description: Absent Subscriber Permanent  -  `to` is no longer active, You should remove this phone number from your database.
+  "1200":
+    description: Portability Error  -  There is an issue after the user has changed carrier for to. If the user wants to receive messages from you, they need to contact their carrier directly.
+  "1210":
+    description: Anti-Spam Rejection  -  Carriers often apply restrictions that block messages following different criteria. For example on SenderID or message content.
+  "1220":
+    description: Handset Busy  -  The handset associated with to was not available when this message was sent. If status is rejected, this is a temporary failure; retry later for a positive result. If status is submitted, this message has is in the retry scheme and will be resent until it expires in 24-48 hours.
+  "1230":
+    description: Network Error  -  A network failure while sending your message. This is a temporary failure, retry later for a positive result.
+  "1240":
+    description: Illegal Number  -  You tried to send a message to a blacklisted phone number. That is, the user has already sent a STOP opt-out message and no longer wishes to receive messages from you.
+  "1241":
+    description: Too many send requests  -  Too many send requests to phone numbers.
+  "1250":
+    description: Unroutable  -  The chosen route to send your message is not available. This is because the phone number is either currently on an unsupported network or on a pre-paid or reseller account that could not receive a message sent by from. To resolve this issue either email us at support@nexmo.com or create a helpdesk ticket at https://help.nexmo.com.
+  "1260":
+    description: Destination unreachable  -  The message could not be delivered to the phone number. If using Viber Service Messages your account might not be enabled for this country.
+  "1270":
+    description: Subscriber Age Restriction  -  The carrier blocked this message because the content is not suitable for to based on age restrictions.
+  "1280":
+    description: Number Blocked by Carrier  -  The carrier blocked this message. This could be due to several reasons. For example, to's plan does not include SMS or the account is suspended.
+  "1290":
+    description: Pre-Paid - Insufficient funds  -  to’s pre-paid account does not have enough credit to receive the message.
+  "1300":
+    description: Not part of the provider network  -  The number or ID is not a user in the provider network.
+  "1310":
+    description: Not suitable device  -  The user's device can't receive the message.
+  "1320":
+    description: Message already sent  -  The message was already sent.
+  "1330":
+    description: Unknown  -  An unknown error was received from the carrier who tried to send this this message. Depending on the carrier, that to is unknown. When you see this error, and status is rejected, always check if to in your request was valid.
+  "1331":
+    description: Provider error  -  The provider is not responding or unable to process the request. Please try sending your message in a few minutes time.
+  "1340":
+    description: Outside of the allowed window  -  This message is sent outside of allowed response window.
+  "1350":
+    description: Phone matching fee not paid  -  Requires phone matching access fee to be paid by the Facebook Page.
+  "1360":
+    description: TTL was activated  -  TTL was activated, no callbacks and no charge will be issued.
+  "1370":
+    description: Expired access Token - Please reauthenticate your Facebook Page with Vonage.
+  "1380":
+    description: Invalid resource - Please check that the URL your provided to your resource is accessible and valid.
+  "1381":
+    description: Resource size is too large - Please try sending a smaller media file.
+  "1382":
+    description: Resource type is invalid - Please check that the file you are trying to send is valid.    
+  "1400":
+    description: Unsupported channel - The channel specified in the request is not supported.
+  "1410":
+    description: Invalid channel parameters -  The value of one or more parameters is invalid.
+  "1420":
+    description: Invalid sender -  The `from` parameter is invalid for the given channel.
+  "1430":
+    description: Invalid recipient -  The `to` parameter is invalid for the given channel.
+  "1440":
+    description: Invalid message type - The message type specified in the request is not supported for the given channel.  
+  "1450":
     description: Invalid client reference -  The client reference can be a string of up to 40 characters.
   
