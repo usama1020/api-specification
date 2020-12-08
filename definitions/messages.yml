@@ -16,6 +16,7 @@ paths:
         - bearerAuth: []
         - basicAuth: []
       description: Send a Message
+      summary: Send a message to the given channel.
       operationId: SendMessage
       requestBody:
         description: Send a Message.
