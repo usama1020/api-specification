@@ -1,6 +1,6 @@
 openapi: "3.0.0"
 info:
-  version: 1.0.9
+  version: 1.0.10
   title: SMS API
   description: With the SMS API you can send SMS from your account and lookup messages both messages that you've sent as well as messages sent to your virtual numbers. Numbers are specified in E.164 format. More SMS API documentation is at <https://developer.nexmo.com/messaging/sms/overview>
   contact:
@@ -201,6 +201,14 @@ components:
           description: "**Advanced**: An optional string used to identify separate accounts using the SMS endpoint for billing purposes. To use this feature, please email [support@nexmo.com](mailto:support@nexmo.com)"
           type: string
           example: customer1234
+        entity-id:
+          description: "**Advanced**: A string parameter that satisfies regulatory requirements when sending an SMS to specific countries. For more information please refer to the [Country-Specific Outbound SMS Features](https://help.nexmo.com/hc/en-us/articles/115011781468)"
+          type: string
+          example: "1101456324675322134"
+        content-id:
+          description: "**Advanced**: A string parameter that satisfies regulatory requirements when sending an SMS to specific countries. For more information please refer to the [Country-Specific Outbound SMS Features](https://help.nexmo.com/hc/en-us/articles/115011781468)"
+          type: string
+          example: "1107457532145798767"
     Error:
       description: Error
       type: object
