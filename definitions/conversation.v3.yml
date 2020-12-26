@@ -53,35 +53,30 @@ paths:
                     type: object
                     description: "A series of links between resources in this API in the http://stateless.co/hal_specification.html."
                     properties:
+                      first:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.3/conversations?order=desc&page_size=10"
                       self:
                         type: object
                         properties:
-                          first:
-                            type: object
-                            properties:
-                              href:
-                                type: string
-                                example: "https://api.nexmo.com/v0.3/conversations?order=desc&page_size=10"
-                          self:
-                            type: object
-                            properties:
-                              href:
-                                type: string
-                                example: "https://api.nexmo.com/v0.3/conversations?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
-                          next:
-                            type: object
-                            properties:
-                              href:
-                                type: string
-                                example: "https://api.nexmo.com/v0.3/conversations?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
-                          prev:
-                            type: object
-                            properties:
-                              href:
-                                type: string
-                                example: "https://api.nexmo.com/v0.3/conversations?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
-                        required:
-                          - href
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.3/conversations?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
+                      next:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.3/conversations?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
+                      prev:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.3/conversations?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
                     required:
                       - self
                 required:
@@ -92,7 +87,7 @@ paths:
         '400':
           $ref: "#/components/responses/General400ValidationFailDateStart"
         '401':
-          $ref: "#/components/responses/General401ExpiredToken"
+          $ref: "#/components/responses/General401InvalidToken"
         '403':
           $ref: "#/components/responses/General403MissingToken"
         '500':
@@ -111,7 +106,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/conversation"
         '401':
-          $ref: "#/components/responses/General401ExpiredToken"
+          $ref: "#/components/responses/General401InvalidToken"
         '403':
           $ref: "#/components/responses/General403MissingToken"
         '409':
@@ -138,7 +133,7 @@ paths:
         '400':
           $ref: "#/components/responses/General400ValidationFailName"
         '401':
-          $ref: "#/components/responses/General401ExpiredToken"
+          $ref: "#/components/responses/General401InvalidToken"
         '403':
           $ref: "#/components/responses/General403MissingToken"
         '404':
@@ -162,7 +157,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/conversation"
         '401':
-          $ref: "#/components/responses/General401ExpiredToken"
+          $ref: "#/components/responses/General401InvalidToken"
         '403':
           $ref: "#/components/responses/General403MissingToken"
         '404':
@@ -178,7 +173,7 @@ paths:
         '204':
           $ref: "#/components/responses/General204"
         '401':
-          $ref: "#/components/responses/General401ExpiredToken"
+          $ref: "#/components/responses/General401InvalidToken"
         '403':
           $ref: "#/components/responses/General403MissingToken"
         '404':
@@ -202,7 +197,7 @@ paths:
         "204":
           $ref: "#/components/responses/General204"
         '401':
-          $ref: "#/components/responses/General401ExpiredToken"
+          $ref: "#/components/responses/General401InvalidToken"
         '403':
           $ref: "#/components/responses/General403MissingToken"
         '404':
@@ -353,7 +348,7 @@ paths:
                             type: string
                             example: "https://api.nexmo.com/v0.2/members?order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb"
         '401':
-          $ref: "#/components/responses/General401ExpiredToken"
+          $ref: "#/components/responses/General401InvalidToken"
         '403':
           $ref: "#/components/responses/General403MissingToken"
         '404':
@@ -418,7 +413,7 @@ paths:
                   - $ref: "#/components/schemas/member_error_validation_fail_state"
                   - $ref: "#/components/schemas/member_error_already_joined"
         '401':
-          $ref: "#/components/responses/General401ExpiredToken"
+          $ref: "#/components/responses/General401InvalidToken"
         '403':
           $ref: "#/components/responses/General403MissingToken"
         '404':
@@ -451,7 +446,7 @@ paths:
                         type: string
                         example: JOINED
         '401':
-          $ref: "#/components/responses/General401ExpiredToken"
+          $ref: "#/components/responses/General401InvalidToken"
         '403':
           $ref: "#/components/responses/General403MissingToken"
         '404':
@@ -500,7 +495,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/member_error_invalid_state"
         '401':
-          $ref: "#/components/responses/General401ExpiredToken"
+          $ref: "#/components/responses/General401InvalidToken"
         '403':
           $ref: "#/components/responses/General403MissingToken"
         '404':
@@ -553,7 +548,7 @@ paths:
                   - $ref: "#/components/schemas/member_error_already_joined"
                   - $ref: "#/components/schemas/member_error_invalid_state"
         '401':
-          $ref: "#/components/responses/General401ExpiredToken"
+          $ref: "#/components/responses/General401InvalidToken"
         '403':
           $ref: "#/components/responses/General403MissingToken"
         '404':
@@ -604,36 +599,32 @@ paths:
                     type: object
                     description: "A series of links between resources in this API in the http://stateless.co/hal_specification.html."
                     properties:
+                      first:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.3/users?order=desc&page_size=10"
                       self:
                         type: object
                         properties:
-                          first:
-                            type: object
-                            properties:
-                              href:
-                                type: string
-                                example: "https://api.nexmo.com/v0.3/users?order=desc&page_size=10"
-                          self:
-                            type: object
-                            properties:
-                              href:
-                                type: string
-                                example: "https://api.nexmo.com/v0.3/users?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
-                          next:
-                            type: object
-                            properties:
-                              href:
-                                type: string
-                                example: "https://api.nexmo.com/v0.3/users?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
-                          prev:
-                            type: object
-                            properties:
-                              href:
-                                type: string
-                                example: "https://api.nexmo.com/v0.3/users?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
-                        required:
-                          - href
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.3/users?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
+                      next:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.3/users?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
+                      prev:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.3/users?order=desc&page_size=10&cursor=7EjDNQrAcipmOnc0HCzpQRkhBULzY44ljGUX4lXKyUIVfiZay5pv9wg%3D"
                     required:
+                      - first
                       - self
                 required:
                   - coursor
@@ -641,9 +632,9 @@ paths:
                   - _embedded
                   - _links
         '400':
-          $ref: "#/components/responses/General400ValidationFailDateStart"
+          $ref: "#/components/responses/General400ValidationFailPageSize"
         '401':
-          $ref: "#/components/responses/General401ExpiredToken"
+          $ref: "#/components/responses/General401InvalidToken"
         '403':
           $ref: "#/components/responses/General403MissingToken"
         '500':
@@ -664,7 +655,7 @@ paths:
         '400':
           $ref: "#/components/responses/General400ValidationFailName"
         '401':
-          $ref: "#/components/responses/General401ExpiredToken"
+          $ref: "#/components/responses/General401InvalidToken"
         '403':
           $ref: "#/components/responses/General403MissingToken"
         '409':
@@ -699,10 +690,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/user"
-        '400':
-          $ref: "#/components/responses/General400ValidationFailName"
         '401':
-          $ref: "#/components/responses/General401ExpiredToken"
+          $ref: "#/components/responses/General401InvalidToken"
         '403':
           $ref: "#/components/responses/General403MissingToken"
         '404':
@@ -724,7 +713,7 @@ paths:
         '400':
           $ref: "#/components/responses/General400ValidationFailName"
         '401':
-          $ref: "#/components/responses/General401ExpiredToken"
+          $ref: "#/components/responses/General401InvalidToken"
         '403':
           $ref: "#/components/responses/General403MissingToken"
         '404':
@@ -755,7 +744,7 @@ paths:
         "204":
           $ref: "#/components/responses/General204"
         '401':
-          $ref: "#/components/responses/General401ExpiredToken"
+          $ref: "#/components/responses/General401InvalidToken"
         '403':
           $ref: "#/components/responses/General403MissingToken"
         '404':
@@ -844,7 +833,7 @@ paths:
                   - _embedded
                   - _links
         '401':
-          $ref: "#/components/responses/General401ExpiredToken"
+          $ref: "#/components/responses/General401InvalidToken"
         '403':
           $ref: "#/components/responses/General403MissingToken"
         '404':
@@ -1702,7 +1691,42 @@ components:
     
     General204:
       description: Success response with no content
-      
+
+    General400ValidationFailPageSize:
+      description: Bad Request
+      content:
+        application/json:
+          schema:  
+            type: object
+            properties:
+              title:
+                type: string
+                example: Bad request.
+              type:
+                type: string
+                example: https://developer.nexmo.com/api/conversation#http:error:validation-fail
+              code:
+                type: string
+                example: http:error:validation-fail
+              detail:
+                type: string
+                example: Input validation failure.
+              instance: 
+                type: string
+                example: 00a5916655d650e920ccf0daf40ef4ee
+              invalid_parameters:
+                type: array
+                description: List of invalid parameters
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: page_size
+                    reason:
+                      type: string
+                      example: "\"page_size\" must be a number"
+
     General400ValidationFailDateStart:
       description: Bad Request
       content:
@@ -1773,7 +1797,7 @@ components:
                       type: string
                       example: "\"name\" must be a string"
 
-    General401ExpiredToken:
+    General401InvalidToken:
       description: Unauthorized
       content:
         application/json:
@@ -1785,13 +1809,13 @@ components:
                 example: Unauthorized.
               type:
                 type: string
-                example: https://developer.nexmo.com/api/conversation#system:error:expired-token
+                example: https://developer.nexmo.com/api/conversation#system:error:invalid-token
               code:
                 type: string
-                example: system:error:expired-token
+                example: system:error:invalid-token
               detail:
                 type: string
-                example: You provided an expired token. Please provide a valid token.
+                example: You did not provide a valid token. Please provide a valid token.
               instance: 
                 type: string
                 example: 00a5916655d650e920ccf0daf40ef4ee
