@@ -841,13 +841,16 @@ tags:
   - name: Profile
     description: Update WhatsApp profile
 x-errors:
+  invalid-json:
+    description: The request body did not contain valid JSON
+    resolution: Send a JSON request body, including a Content-Type header of application/json
   unprocessable:
     description: Parameters were valid JSON but something was missing or wrongly formatted
     resolution: Fix the incorrect request parameters and try again
   unprocessable-profile-update:
     description: Parameters were valid JSON but something was missing or wrongly formatted
     resolution: Fix the incorrect request parameters and try again
-  throttled: 
+  throttled:
     description: Too many requests have been made on this endpoint
     resolution: Wait a moment and try again
   verification-failed:
