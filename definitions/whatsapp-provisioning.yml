@@ -845,29 +845,29 @@ x-errors:
     description: Parameters were valid JSON but something was missing or wrongly formatted
     resolution: Fix the incorrect request parameters and try again
     link:
-      url: /api-errors/whatsapp-provisioning#unprocessable
+      url: /api/whatsapp-provisioning#unprocessable
   unprocessableProfileUpdate:
     description: Parameters were valid JSON but something was missing or wrongly formatted
     resolution: Fix the incorrect request parameters and try again
     link:
-      url: /api-errors/whatsapp-provisioning#unprocessableProfileUpdate
+      url: /api/whatsapp-provisioning#unprocessableProfileUpdate
   throttled: 
     description: Too many requests have been made on this endpoint
     resolution: Wait a moment and try again
     link:
-      url: /api-errors/whatsapp-provisioning#throttled
+      url: /api/whatsapp-provisioning#throttled
   VerificationFailed:
     description: Verification step failed. Either because the the provided code was incorrect or because too many attempts have been made
     resolution: Try again with the correct OTP, or call resend-otp
     link:
-      url: /api-errors/whatsapp-provisioning#VerificationFailed
+      url: /api/whatsapp-provisioning#VerificationFailed
   DeploymentStateConflict:
     description: Deployment could not be modified because it is currently in a transitional state.
     resolution: If the deployment is transitioning into the state you want it in no action is required. If the state is `DELETING`, no action is required as the deployment will be deleted. Otherwise, wait for the transition to complete and try again.
     link:
-      url: api-errors/whatsapp-provisioning#conflict-deployment-state
+      url: /api/whatsapp-provisioning#conflict-deployment-state
   OtpResendConflict:
     description: Could not resend OTP because the current state of the deployment did not allow it
     resolution: The deployment has either already finished, or is in an error state (in which case you should delete it and run it again).
     link:
-      url: /api-errors/whatsapp-provisioning#conflict-resend-otp
+      url: /api/whatsapp-provisioning#conflict-resend-otp
