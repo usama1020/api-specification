@@ -5,12 +5,12 @@ on:
       - master
 jobs:
   build:
-    name: nexmo/github-actions/submodule-auto-pr@master
+    name: nexmo/github-actions/submodule-auto-pr@main
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: nexmo/github-actions/submodule-auto-pr@master
-      uses: nexmo/github-actions/submodule-auto-pr@master
+    - name: nexmo/github-actions/submodule-auto-pr@main
+      uses: nexmo/github-actions/submodule-auto-pr@main
       env:
         GH_ADMIN_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
         PR_ACTIVE_BRANCH: master
