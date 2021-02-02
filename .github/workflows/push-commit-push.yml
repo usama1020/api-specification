@@ -2,7 +2,7 @@ name: Commit Push
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   build:
     name: nexmo/github-actions/submodule-auto-pr@main
