@@ -13,7 +13,7 @@ jobs:
       uses: nexmo/github-actions/submodule-auto-pr@main
       env:
         GH_ADMIN_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
-        PR_ACTIVE_BRANCH: master
+        PR_ACTIVE_BRANCH: main
         PR_BRANCH_NAME: automated-oas-update
         PR_SUBMODULE_PATH: _open_api/api_specs
         PR_TARGET_BRANCH: main
