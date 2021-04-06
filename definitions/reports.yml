@@ -1,6 +1,6 @@
 openapi: "3.0.0"
 info:
-  version: 2.1.14
+  version: 2.1.15
   title: Reports API
   description: |
     The [Reports API](/reports/overview) enables you to request a report of activity for your Vonage account.
@@ -47,6 +47,7 @@ paths:
             enum:
               - SMS
               - VOICE-CALL
+              - VOICE-FAILED
               - WEBSOCKET-CALL
               - VERIFY-API
               - NUMBER-INSIGHT
@@ -101,6 +102,16 @@ paths:
           in: query
         - name: include_message
           description: Include the message contents in the records. Only applicable for use with products `SMS` and `MESSAGES`, where it is optional. 
+          in: query
+          schema:
+            type: boolean
+            default: false
+            enum:
+              - true
+              - false
+          example: true
+        - name: show_concatenated
+          description: Indicates whether the SMS was split up into multiple parts (due to its length). 
           in: query
           schema:
             type: boolean
@@ -190,7 +201,7 @@ paths:
                           properties:
                             reason:
                               type: string
-                              example: "Could not resolve product name. Please use one of the following values [CONVERSATIONS, MESSAGES, NUMBER-INSIGHT, SMS, VERIFY-API, VERIFY-SDK, VOICE-CALL, WEBSOCKET-CALL]"
+                              example: "Could not resolve product name. Please use one of the following values [CONVERSATIONS, MESSAGES, NUMBER-INSIGHT, SMS, VERIFY-API, VERIFY-SDK, VOICE-CALL, WEBSOCKET-CALL, ASR]"
                             name:
                               type: string
                               example: "product"
@@ -457,6 +468,10 @@ components:
                         type: boolean
                         description: Include the text of messages in the report.
                         example: "true"
+                      show_concatenated:
+                        type: boolean
+                        description: Indicates whether the SMS was split up into multiple parts (due to its length).
+                        example: "true"  
                       items_count:
                         type: integer
                         description: The number of returned records
@@ -486,6 +501,10 @@ components:
                         type: boolean
                         description: Include the text of messages in the report.
                         example: "true"
+                      show_concatenated:
+                        type: boolean
+                        description: Indicates whether the SMS was split up into multiple parts (due to its length).
+                        example: "true"  
                       items_count:
                         type: integer
                         description: The number of returned records
@@ -589,6 +608,10 @@ components:
                         type: boolean
                         description: Include the text of messages in the report.
                         example: "true"
+                      show_concatenated:
+                        type: boolean
+                        description: Indicates whether the SMS was split up into multiple parts (due to its length).
+                        example: "true"  
                       items_count:
                         type: integer
                         description: The number of returned records
@@ -618,6 +641,10 @@ components:
                         type: boolean
                         description: Include the text of messages in the report.
                         example: "true"
+                      show_concatenated:
+                        type: boolean
+                        description: Indicates whether the SMS was split up into multiple parts (due to its length).
+                        example: "true"  
                       items_count:
                         type: integer
                         description: The number of returned records
