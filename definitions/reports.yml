@@ -1,6 +1,6 @@
 openapi: '3.0.0'
 info:
-  version: 2.1.16
+  version: 2.1.17
   title: Reports API
   description: |
     The [Reports API](/reports/overview) enables you to request a report of activity for your Vonage account.
@@ -54,6 +54,7 @@ paths:
               - MESSAGES
               - CONVERSATIONS
               - ASR
+              - REPORTS-USAGE
           example: SMS
           required: true
         - name: direction
@@ -119,7 +120,7 @@ paths:
             enum:
               - true
               - false
-          example: true
+          example: false
         - name: type
           description: 'The event type to search for. Only used, and is required, when product is `CONVERSATIONS`.'
           in: query
@@ -471,7 +472,7 @@ components:
                       show_concatenated:
                         type: boolean
                         description: Indicates whether the SMS was split up into multiple parts (due to its length).
-                        example: 'true'
+                        example: 'false'
                       items_count:
                         type: integer
                         description: The number of returned records
@@ -504,7 +505,7 @@ components:
                       show_concatenated:
                         type: boolean
                         description: Indicates whether the SMS was split up into multiple parts (due to its length).
-                        example: 'true'
+                        example: 'false'
                       items_count:
                         type: integer
                         description: The number of returned records
@@ -1047,6 +1048,11 @@ components:
       description: Include the text of messages in the report.
       example: 'true'
       default: false
+    show_concatenated:
+      type: boolean
+      description: Indicates whether the SMS was split up into multiple parts (due to its length).
+      example: 'false'
+      default: false
     to:
       type: string
       description: Request to this number.
@@ -1442,6 +1448,8 @@ components:
           $ref: '#/components/schemas/account_ref'
         include_message:
           $ref: '#/components/schemas/include_message'
+        show_concatenated:
+          $ref: '#/components/schemas/show_concatenated'
         network:
           $ref: '#/components/schemas/network'
         from:
