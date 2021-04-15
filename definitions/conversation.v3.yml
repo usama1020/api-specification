@@ -114,6 +114,24 @@ paths:
   "/conversations/{conversation_id}":
     parameters:
       - $ref: "#/components/parameters/conversation_id"
+    get:
+      operationId: retrieveConversation
+      tags:
+        - conversation
+      summary: Retrieve a conversation
+      responses:
+        "200":
+          description: Retrieve a conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/conversation"
+        '401':
+          $ref: "#/components/responses/General401InvalidToken"
+        '404':
+          $ref: "#/components/responses/Conversation404"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
     put:
       operationId: replaceConversation
       tags:
@@ -138,24 +156,7 @@ paths:
           $ref: "#/components/responses/General500InternalError"
       requestBody:
         $ref: "#/components/requestBodies/conversation"
-    get:
-      operationId: retrieveConversation
-      tags:
-        - conversation
-      summary: Retrieve a conversation
-      responses:
-        "200":
-          description: Retrieve a conversation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/conversation"
-        '401':
-          $ref: "#/components/responses/General401InvalidToken"
-        '404':
-          $ref: "#/components/responses/Conversation404"
-        '500':
-          $ref: "#/components/responses/General500InternalError"
+
     delete:
       operationId: deleteConversation
       tags:
@@ -204,15 +205,77 @@ paths:
       tags:
         - event
       summary: List events
+      parameters:
+        - $ref: "#/components/parameters/conversation_id"
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/order"
+        - $ref: "#/components/parameters/cursor"
+        - $ref: "#/components/parameters/event_start_id"
+        - $ref: "#/components/parameters/event_end_id"
+        - $ref: "#/components/parameters/event_type"
       responses:
         "200":
           description: Retrieve Events Response Payload Object
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/event_retrieved"
+                properties:
+                  page_size:
+                    type: integer
+                    example: 10
+                    description: The number of results returned on this page.
+                  _embedded:
+                    type: object
+                    x-nexmo-developer-collection-description-shown: true
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          events:
+                            type: array
+                            description: List of events matching the provided filter
+                            items:
+                              $ref: "#/components/schemas/event_retrieved"
+                  _links:
+                    type: object
+                    properties:
+                      first:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.2/conversations/CON-92a44c64-7e4e-485f-a0c4-1f2adfc44625/events?page_size=10"
+                      self:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.2/conversations/CON-92a44c64-7e4e-485f-a0c4-1f2adfc44625/events?page_size=10&cursor=a30e3b7a3dcda1434f64bbb1a5fa489b"
+                      next:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.2/conversations/CON-92a44c64-7e4e-485f-a0c4-1f2adfc44625/events?page_size=10&cursor=4db03d9254d1cdaecc7b1fc15b6bf1a81f3d3151191d784f1327893f8dc96416"
+                      prev:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.2/conversations/CON-92a44c64-7e4e-485f-a0c4-1f2adfc44625/events?page_size=10&cursor=84963f79fd25785be9706bd38bfd30c264f71964fa4edc8d8b4dd5f30bbd9f7c"
+                    required:
+                      - self
+                required:
+                  - coursor
+                  - page_size
+                  - _embedded
+                  - _links
+        '401':
+          $ref: "#/components/responses/General401InvalidToken"
+        '404':
+          $ref: "#/components/responses/Conversation404"
+        '500':
+          $ref: "#/components/responses/General500InternalError"
     post:
       operationId: createEvent
       tags:
@@ -396,7 +459,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/member_error_validation_fail_state"
+                  - $ref: "#/components/schemas/member_error_validation_state_invited"
                   - $ref: "#/components/schemas/member_error_already_joined"
         '401':
           $ref: "#/components/responses/General401InvalidToken"
@@ -443,57 +506,12 @@ paths:
           $ref: "#/components/responses/General500InternalError"
 
     patch:
-      operationId: deleteMember
-      tags:
-        - member
-      summary: Leave a conversation
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                state:
-                  type: string
-                  example: left
-                  enum:
-                    - left
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/member"
-                  - type: object
-                    properties:
-                      state:
-                        type: string
-                        example: LEFT
-        '400':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/member_error_invalid_state"
-        '401':
-          $ref: "#/components/responses/General401InvalidToken"
-        '404':
-          description: Not found.
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - $ref: "#/components/schemas/conversation_error_not_found"
-                  - $ref: "#/components/schemas/member_error_not_found"
-        '500':
-          $ref: "#/components/responses/General500InternalError"
-
-    put:
       operationId: updateMember
       tags:
         - member
       summary: Update a member
+      description: |
+        Setting the `state` to `left` will result in the member leaving the conversation.
       requestBody:
         content:
           application/json:
@@ -501,7 +519,10 @@ paths:
               properties:
                 state:
                   type: string
-                  example: JOINED
+                  example: joined
+                  enum:
+                    - joined
+                    - left
                 channel:
                   $ref: "#/components/schemas/channel"
       responses:
@@ -524,9 +545,9 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/member_error_validation_fail_state"
-                  - $ref: "#/components/schemas/member_error_already_joined"
+                  - $ref: "#/components/schemas/member_error_validation_state"
                   - $ref: "#/components/schemas/member_error_invalid_state"
+                  - $ref: "#/components/schemas/member_error_already_joined"
         '401':
           $ref: "#/components/responses/General401InvalidToken"
         '404':
@@ -670,7 +691,7 @@ paths:
           $ref: "#/components/responses/User404"
         '500':
           $ref: "#/components/responses/General500InternalError"
-    put:
+    patch:
       operationId: updateUser
       tags:
         - user
@@ -1254,11 +1275,11 @@ components:
           example: conversation:error:invalid-member-state
         detail:
           type: string
-          example: The conversation membership has already ended
+          example: The conversation membership has already ended.
         instance: 
           type: string
           example: 00a5916655d650e920ccf0daf40ef4ee
-    member_error_validation_fail_state:
+    member_error_validation_state_invited:
       type: object
       description: Validation fail
       properties:
@@ -1289,6 +1310,37 @@ components:
               reason:
                 type: string
                 example: "\"state\" must be one of [invited, joined]"
+    member_error_validation_state:
+      type: object
+      description: Validation fail
+      properties:
+        title:
+          type: string
+          example: Bad request.
+        type:
+          type: string
+          example: https://developer.nexmo.com/api/conversation#http:error:validation-fail
+        code:
+          type: string
+          example: http:error:validation-fail
+        detail:
+          type: string
+          example: Input validation failure.
+        instance: 
+          type: string
+          example: 00a5916655d650e920ccf0daf40ef4ee
+        invalid_parameters:
+          type: array
+          description: List of invalid parameters
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: state
+              reason:
+                type: string
+                example: "\"state\" must be one of [invited, joined, left]"
 
 
     channel:
@@ -1589,6 +1641,30 @@ components:
       required: true
       schema:
         type: string
+    event_start_id:
+      name: start_id
+      in: query
+      schema:
+        type: string
+      example: 13
+      required: false
+      description: The ID to start returning events at
+    event_end_id:
+      name: end_id
+      in: query
+      schema:
+        type: string
+      example: 19
+      required: false
+      description: The ID to end returning events at
+    event_type:
+      name: event_type
+      in: query
+      schema:
+        type: string
+      example: text
+      required: false
+      description: The type of event to search for. Does not currently support custom events
     date_start:
       name: date_start
       in: query
@@ -1693,7 +1769,6 @@ components:
                     reason:
                       type: string
                       example: "\"page_size\" must be a number"
-
     General400ValidationFailDateStart:
       description: Bad Request
       content:
@@ -1728,7 +1803,6 @@ components:
                     reason:
                       type: string
                       example: "\"date_start\" must be a valid ISO 8601 date"
-
     General400ValidationFailName:
       description: Bad Request
       content:
@@ -1763,7 +1837,6 @@ components:
                     reason:
                       type: string
                       example: "\"name\" must be a string"
-
     General401InvalidToken:
       description: Unauthorized
       content:
@@ -1815,7 +1888,6 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/conversation_error_not_found"
-
     Conversation409DuplicateName:
       description: Not found
       content:
