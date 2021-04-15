@@ -1,7 +1,7 @@
 ---
 openapi: 3.0.0
 info:
-  version: 1.3.6
+  version: 1.3.7
   title: Voice API
   description:
     The Voice API lets you create outbound calls, control in-progress calls
@@ -518,7 +518,6 @@ components:
       type: object
       required:
         - to
-        - from
       properties:
         to:
           type: array
@@ -530,6 +529,11 @@ components:
               - "$ref": "#/components/schemas/EndpointVBCExtension"
         from:
           "$ref": "#/components/schemas/EndpointPhoneFrom"
+          
+        random_from_number:
+          description: "Set to `true` to use random phone number as `from`. The number will be selected from the list of the numbers assigned to the current application. `random_from_number: true` cannot be used together with `from`."
+          type: boolean
+          default: false
 
         event_url:
           description: |
