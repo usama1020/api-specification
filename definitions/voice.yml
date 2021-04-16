@@ -840,16 +840,14 @@ components:
     EndpointPhoneFrom:
       type: object
       description: Connect to a Phone (PSTN) number
-      required:
-        - number
-        - type
       properties:
         type:
           type: string
           example: phone
           description: The type of connection. Must be `phone`
+          required: true
         number:
-          "$ref": "#/components/schemas/AddressE164"
+          "$ref": "#/components/schemas/AddressE164Required"
     EndpointWebsocket:
       type: object
       description: Connect to a Websocket
@@ -906,6 +904,14 @@ components:
     AddressE164:
       description: The phone number to connect to
       type: string
+      minLength: 7
+      maxLength: 15
+      example: "14155550100"
+      pattern: "\\d{7,15}"
+    AddressE164Required:
+      description: The phone number to connect to
+      type: string
+      required: true
       minLength: 7
       maxLength: 15
       example: "14155550100"
