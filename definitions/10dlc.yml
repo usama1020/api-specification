@@ -1778,7 +1778,7 @@ components:
         mno_metadata:
           type: array
           items:
-            type: '#/components/schemas/UseCaseMNOMetadata'
+            $ref: '#/components/schemas/UseCaseMNOMetadata'
           example:
             $ref: '#/components/examples/Campaign/value/mno_metadata'
         status:
@@ -2194,27 +2194,27 @@ components:
       required: true
       schema:
         type: string
-      enum:
-        - CUSTOMER_CARE
-        - POLLING_VOTING
-        - HIGHER_EDUCATION
-        - PUBLIC_SERVICE_ANNOUNCEMENT
-        - MARKETING
-        - SECURITY_ALERT
-        - DELIVERY_NOTIFICATION
-        - ACCOUNT_NOTIFICATION
-        - 2FA
-        - FRAUD_ALERT
-        - TRIAL
-        - CHARITY
-        - POLITICAL
-        - EMERGENCY
-        - SWEEPSTAKE
-        - CONVERSATIONAL
-        - MIXED
-        - CARRIER_EXEMPT
-        - SOCIAL
-        - LOW_VOLUME
+        enum:
+          - CUSTOMER_CARE
+          - POLLING_VOTING
+          - HIGHER_EDUCATION
+          - PUBLIC_SERVICE_ANNOUNCEMENT
+          - MARKETING
+          - SECURITY_ALERT
+          - DELIVERY_NOTIFICATION
+          - ACCOUNT_NOTIFICATION
+          - 2FA
+          - FRAUD_ALERT
+          - TRIAL
+          - CHARITY
+          - POLITICAL
+          - EMERGENCY
+          - SWEEPSTAKE
+          - CONVERSATIONAL
+          - MIXED
+          - CARRIER_EXEMPT
+          - SOCIAL
+          - LOW_VOLUME
     VettingRequestId:
       name: vetting_request_id
       in: path
