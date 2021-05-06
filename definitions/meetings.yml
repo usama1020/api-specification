@@ -1,0 +1,175 @@
+---
+openapi: 3.0.0
+info:
+  title: Vonage Meetings Public API
+  version: qa7
+servers:
+- url: /api
+paths:
+  /rooms:
+    get:
+      summary: Get all available rooms
+      operationId: getRooms
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Room'
+    post:
+      summary: Create a room
+      operationId: createRoom
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoomDetails'
+        required: true
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+  /rooms/:room_id:
+    get:
+      summary: Get room details
+      operationId: getRoom
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+        "404":
+          description: Room not found
+    delete:
+      summary: Delete a room
+      operationId: deleteRoom
+      responses:
+        "204":
+          description: OK
+        "404":
+          description: Room not found
+  /recordings/:recording_id:
+    get:
+      summary: Get a recording
+      operationId: getRecording
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recording'
+        "404":
+          description: Recording not found
+    delete:
+      summary: Delete a recording
+      operationId: deleteRecording
+      responses:
+        "204":
+          description: No Content
+        "403":
+          description: Can only delete recordings in 'uploaded' status
+        "404":
+          description: Recording not found
+  /sessions/:session_id/recordings:
+    get:
+      summary: Get recordings of a session
+      operationId: getSessionRecordings
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recording'
+        "404":
+          description: Session not found
+  /dial-in-numbers:
+    get:
+      summary: Get numbers that can be used to dial into a meeting
+      operationId: getDialInNumbers
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DialInNumber'
+components:
+  schemas:
+    Room:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        display_name:
+          type: string
+        pin_code:
+          minLength: 9
+          pattern: ^\d+$
+          type: string
+          example: "123456789"
+        guest_url:
+          type: string
+          format: uri
+          example: https://meetings.vonage.com/123456789
+        host_url:
+          type: string
+          format: uri
+          example: https://meetings.vonage.com/123456789?participant_token=xyz
+    CreateRoomDetails:
+      type: object
+      properties:
+        display_name:
+          maxLength: 200
+          type: string
+    Recording:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        session_id:
+          type: string
+          format: uuid
+        started_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+          - started
+          - stopped
+          - paused
+          - uploaded
+        url:
+          type: string
+          format: uri
+    DialInNumber:
+      type: object
+      properties:
+        number:
+          type: string
+          example: "17323338801"
+        locale:
+          type: string
+          example: en-US
+        display_name:
+          type: string
+          example: United states
