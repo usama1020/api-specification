@@ -38,6 +38,7 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/CreateCallResponse"
+  "/v0.3/legs/":
     get:
       tags:
         - Fetching Calls
@@ -45,7 +46,7 @@ paths:
         - bearerAuth: []
       summary: Get details of your calls
       description: Get details of your calls
-      operationId: getCalls
+      operationId: getLegs
       parameters:
         - name: status
           in: query
@@ -53,7 +54,7 @@ paths:
           schema:
             type: string
             example: started
-            enum:
+            enum: 
               - started
               - ringing
               - answered
@@ -64,7 +65,6 @@ paths:
               - failed
               - rejected
               - timeout
-              - unanswered
         - name: date_start
           in: query
           description: Return the records that occurred after this point in time
@@ -102,20 +102,25 @@ paths:
             enum:
               - asc
               - desc
-        - name: conversation_uuid
+        - name: conversation_id
           in: query
           description: Return all the records associated with a specific conversation.
           schema:
             $ref: "#/components/schemas/conversation_uuid"
+        - name: cursor
+          in: query
+          schema:
+            type: string
+            example: KF5ez56Wzrv3Sgw8INfYEcO41pFXHs63IdfchHfUDdLoW1gbS66cafs%3D
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/GetCallsResponse"
+                "$ref": "#/components/schemas/GetLegsResponse"
     
-  "/v1/calls/{uuid}":
+  "/v0.3/legs/{uuid}":
     parameters:
       - in: path
         name: uuid
@@ -131,14 +136,14 @@ paths:
         - bearerAuth: []
       summary: Get detail of a specific call
       description: Get detail of a specific call
-      operationId: getCall
+      operationId: getLeg
       responses:
         "200":
           description: Ok
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/GetCallResponse"
+                "$ref": "#/components/schemas/GetLegResponse"
     put:
       tags:
         - Controlling Calls
@@ -236,7 +241,7 @@ paths:
             schema:
               "$ref": "#/components/schemas/StartTalkRequest"
       responses:
-        "200":
+        "204":
           description: Ok
           content:
             application/json:
@@ -252,12 +257,8 @@ paths:
       description: Stop text to speech in a call
       operationId: stopTalk
       responses:
-        "200":
-          description: Ok
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/StopTalkResponse"
+        "204":
+          description: No Content
 
   "/v0.3/legs/{uuid}/dtmf":
     parameters:
@@ -291,6 +292,53 @@ paths:
               schema:
                 "$ref": "#/components/schemas/DTMFResponse"
 
+  "/v0.3/legs/{uuid}/recording":
+    parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+        description: UUID of the Call Leg
+        example: 63f61863-4a51-4f6b-86e1-46edebcf9356
+    post:
+      tags:
+        - Controlling Calls
+      security:
+        - bearerAuth: []
+      summary: Start call (leg) recording
+      operationId: startRecording
+      requestBody:
+        description: action to perform
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/StartRecordingRequest"
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/StartRecordingResponse"
+    delete:
+      tags:
+        - Controlling Calls
+      security:
+        - bearerAuth: []
+      summary: Stop call (leg) recording
+      description: Stop call (leg) recording
+      operationId: stopRecording
+      parameters:
+        - name: beep
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "204":
+          description: No content
+
   "/v0.3/conversations/{conversation_uuid}/events":
     parameters:
       - in: path
@@ -322,8 +370,199 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/ConversationEventResponse"
-
+  "/v0.3/conversations":
+    get:
+      operationId: getConversations
+      tags:
+        - Fetching Calls
+      summary: Get details of your conversations
+      description: |
+        Please note that not all data is available in the list endpoint. Once 
+        you've identified the conversation you need to work with, use the 
+        [GET /conversations/:id](#get-conversation) endpoint to fetch all of the conversation details
+      parameters:
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/order"
+        - $ref: "#/components/parameters/cursor"
+        - $ref: "#/components/parameters/date_start"
+        - $ref: "#/components/parameters/date_end"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  page_size:
+                    type: integer
+                    example: 10
+                    description: The number of results returned on this page.
+                  cursor:
+                    type: string
+                    example: 88b395c167da4d94e929705cbd63b82973771e7d390d274a58e301386d5762600a3ffd799bfb3fc5190c5a0d124cdd0fc72fe6e450506b18e4e2edf9fe84c7a0
+                    description: Current cursor
+                  _embedded:
+                    type: object
+                    x-nexmo-developer-collection-description-shown: true
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          conversations:
+                            type: array
+                            description: List of conversations matching the provided filter
+                            items:
+                              $ref: "#/components/schemas/conversation_list"
+                  _links:
+                    type: object
+                    properties:
+                      first:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.2/conversations?order=desc&page_size=10"
+                      self:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.2/conversations?order=desc&page_size=10&cursor=88b395c167da4d94e929705cbd63b82973771e7d390d274a58e301386d5762600a3ffd799bfb3fc5190c5a0d124cdd0fc72fe6e450506b18e4e2edf9fe84c7a0"
+                      next:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.2/conversations?order=desc&page_size=10&cursor=88b395c167da4d94e929705cbd63b829a650e69a39197bfd4c949f4243f60dc4babb696afa404d2f44e7775e32b967f2a1a0bb8fb259c0999ba5a4e501eaab55"
+                      prev:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.2/conversations?order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb"
+  "/v0.3/conversations/{conversation_id}":
+    parameters:
+      - $ref: "#/components/parameters/conversation_id"
+    get:
+      operationId: retrieveConversation
+      tags:
+        - Fetching Calls
+      summary: Get detail of a specific conversation
+      responses:
+        "200":
+          description: Retrieve a conversation
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Conversation Object
+                properties:
+                  uuid:
+                    $ref: "#/components/schemas/conversation_id"
+                  name:
+                    $ref: "#/components/schemas/name_conversation"
+                  numbers:
+                    type: object
+                    properties: {}
+                  properties:
+                    type: object
+                    properties:
+                      video:
+                        type: boolean
+                        example: false
+                  display_name:
+                    $ref: "#/components/schemas/display_name"
+                  timestamp:
+                    $ref: "#/components/schemas/timestamp_res_conversation"
+                  sequence_number:
+                    type: string
+                    example: "1"
+                    description: "The last Event ID in this conversation. This ID can be used to [retrieve a specific event](#getEvent)"
+                  members:
+                    type: array
+                    description: Users associated to this conversation as members
+                    items:
+                      type: object
+                      properties:
+                        member_id:
+                          $ref: "#/components/schemas/member_id"
+                        user_id:
+                          $ref: "#/components/schemas/user_id"
+                        name:
+                          $ref: "#/components/schemas/name_user"
+                        state:
+                          $ref: "#/components/schemas/member_state"
+                        timestamp:
+                          $ref: "#/components/schemas/timestamp_res_member"
+                        initiator:
+                          $ref: "#/components/schemas/initiator"
+                        channel:
+                          $ref: "#/components/schemas/channel"
+                  api_key:
+                    type: string
+                    description: The API key for your account
+                  _links:
+                    $ref: "#/components/schemas/_links_conversation"
+                required:
+                  - uuid
 components:
+  parameters:
+    page_size:
+      name: page_size
+      in: query
+      description: The number of results returned per page.   The default value is `10`. The maximum value is `100`.
+      schema:
+        type: integer
+        default: 10
+        maximum: 100
+      required: false
+    order:
+      name: order
+      in: query
+      description: Show the most (`desc`) / least (`asc`) recently created entries first
+      schema:
+        type: string
+        default: asc
+        enum:
+          - asc
+          - desc
+      required: false
+    cursor:
+      name: cursor
+      in: query
+      description: |
+        The cursor to start returning results from.
+
+        You are not expected to provide this manually, but to follow the url provided in `_links.next.href` in the response which contains a `cursor` value
+      schema:
+        type: string
+      required: false
+
+    date_start:
+      name: date_start
+      in: query
+      description: Search for conversations created after this ISO8601 date
+      schema:
+        type: string
+      required: false
+
+    date_end:
+      name: date_end
+      in: query
+      description: Search for conversations created before this ISO8601 date
+      schema:
+        type: string
+      required: false
+      
+    conversation_id:
+      name: conversation_id
+      in: path
+      required: true
+      description: Conversation ID
+      example: CON-f972836a-550f-45fa-956c-12a2ab5b7d22
+      schema:
+        type: string
+  
   securitySchemes:
     bearerAuth:
       type: http
@@ -646,29 +885,19 @@ components:
         id:
           $ref: "#/components/schemas/id"
 
-    GetCallResponse:
+    GetLegResponse:
       type: object
       properties:
-        _links:
-          type: object
-          properties:
-            self:
-              type: object
-              properties:
-                href:
-                  type: string
-                  title: Link to the Call Object
-                  example: "/calls/63f61863-4a51-4f6b-86e1-46edebcf9356"
-        uuid:
+        id:
           $ref: "#/components/schemas/uuid"
-        conversation_uuid:
+        conversation_id:
           $ref: "#/components/schemas/conversation_uuid"
+        status:
+          $ref: "#/components/schemas/status"
         to:
           $ref: "#/components/schemas/to"
         from:
           $ref: "#/components/schemas/from"
-        status:
-          $ref: "#/components/schemas/status"
         direction:
           $ref: "#/components/schemas/direction"
         rate:
@@ -683,22 +912,8 @@ components:
           $ref: "#/components/schemas/end_time"
         network:
           $ref: "#/components/schemas/network"
-
-    GetCallsResponse:
-      type: object
-      properties:
-        count:
-          type: integer
-          title: The total number of records returned by your request.
-          example: 100
-        page_size:
-          type: integer
-          title: The amount of records returned in this response.
-          example: 10
-        record_index:
-          type: integer
-          title: The `record_index` used in your request.
-          example: 0
+        type:
+          $ref: '#/components/schemas/channel_type'
         _links:
           type: object
           properties:
@@ -707,8 +922,16 @@ components:
               properties:
                 href:
                   type: string
-                  title: Link to the object
-                  example: "/calls?page_size=10&record_index=20&order=asc"
+                  title: Link to the Call Object
+                  example: "https://api.nexmo.com/v0.3/legs/0465c2d1d7d0e94979e4cb2cc2f5c8ef"
+
+    GetLegsResponse:
+      type: object
+      properties:
+        page_size:
+          type: integer
+          title: The amount of records returned in this response.
+          example: 10
         _embedded:
           description: >-
             A list of call objects. See the
@@ -716,10 +939,41 @@ components:
             response fields for a description of the nested objects
           type: object
           properties:
-            calls:
+            legs:
               type: array
               items:
-                $ref: "#/components/schemas/GetCallResponse"
+                $ref: "#/components/schemas/GetLegResponse"
+        _links:
+          type: object
+          properties:
+            first:
+              type: object
+              properties:
+                href:
+                  type: string
+                  title: Link to the object
+                  example: "https://api.nexmo.com/v0.3/legs?page_size=10"
+            self:
+              type: object
+              properties:
+                href:
+                  type: string
+                  title: Link to the object
+                  example: "https://api.nexmo.com/v0.3/legs?page_size=10&cursor=KF5ez56Wzrv3Sgw8INfYEcO41pFXHs63IdfchHfUDdLoW1gbS66cafs%3D"
+            next:
+              type: object
+              properties:
+                href:
+                  type: string
+                  title: Link to the object
+                  example: "https://api.nexmo.com/v0.3/legs?page_size=10&cursor=JuwOa22HbB5ydfg5wAaSvNskp2KeIKV8cDFus6KnxRyKUac%2BJXwJON5WXIQxjwIbFGxkvMwONcAMYsZ%2FWSXFPc5GxwmTXf940EADW9xX7x0dsvVEmDJYtA6Li75lnQzy5vn%2Bkj6EXQ%3D%3D"
+            prev:
+              type: object
+              properties:
+                href:
+                  type: string
+                  title: Link to the object
+                  example: "https://api.nexmo.com/v0.3/legs?page_size=10&cursor=JuwOa22HbB5ydfg5wAaSvNskp2KeIKV8cDFus6KnxRyKUac%2BJXwJON5WXIQxjwIbFGxkvMwONcAMYsZ%2FWSXFPc5GxwmTXf940EADW9xX7x0dsvVEmDJYtA6Li75lnQzy5vn%2Bkj6EXQ%3D%3D"
 
     CreateCallResponse:
       type: object
@@ -818,8 +1072,18 @@ components:
       type: string
       title: The State of the call
       example: started
-      description: The status of the call. [See possible values](https://developer.nexmo.com/voice/voice-api/guides/call-flow#event-objects)
-      
+      description: The status of the call.
+      enum:
+        - started
+        - ringing
+        - answered
+        - completed
+        - machine
+        - failed
+        - busy
+        - timeout
+        - cancelled
+        - rejected
     id:
       type: string
       description: Action identifier
@@ -2247,6 +2511,176 @@ components:
         href:
           type: string
           format: uri
+
+    StartRecordingRequest:
+      type: object
+      properties:
+        split:
+          type: boolean
+        streamed:
+          type: boolean
+        beep:
+          type: boolean
+        public:
+          type: boolean
+        validity_time:
+          type: number
+          format: float
+          minimum: 1
+          maximum: 44640
+        destination_url:
+          type: array
+          items:
+            $ref: '#/components/schemas/url_v03'
+        format:
+          type: string
+          enum:
+            - mp3
+            - wav
+            - vorbis
+    url_v03:
+      type: string
+      format: uri
+      maxLength: 2048
+    StartRecordingResponse:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/record_id'
+        message:
+          type: string
+      required:
+        - id
+    record_id:
+      type: string
+
+    conversation_list:
+      type: object
+      properties:
+        id:
+          type: string
+          example: CON-afe887d8-d587-4280-9aae-dfa4c9227d5e
+          description: The ID of the conversation
+        name:
+          $ref: "#/components/schemas/conversation_name"
+        display_name:
+          $ref: "#/components/schemas/conversation_display_name"
+        image_url:
+          $ref: "#/components/schemas/conversation_image_url"
+        timestamp:
+          type: object
+          properties:
+            created:
+              type: string
+              example: "2019-09-03T18:40:24.324Z"
+              description: The time that the conversation was created
+        _links:
+          type: object
+          properties:
+            self:
+              type: object
+              properties:
+                href:
+                  type: string
+                  example: "https://api.nexmo.com/v0.2/conversations/CON-c4724477-72ac-438e-9fc0-1d3e2ff8728c"
+    conversation_name:
+      type: string
+      example: my-conversation
+      description: Your internal conversation name. Must be unique
+    conversation_display_name:
+      type: string
+      example: Conversation with Ashley
+      description: The public facing name of the conversation
+    conversation_image_url:
+      type: string
+      example: https://example.com/my-image.png
+      description: An image URL that you associate with the conversation
+    conversation_id:
+      type: string
+      example: CON-63f61863-4a51-4f6b-86e1-46edebio0391
+      description: The unique identifier for this conversation
+    name_conversation:
+      type: string
+      example: customer_chat
+      description: Unique name for a conversation
+    display_name:
+      type: string
+      example: Customer Chat
+      description: The display name for the conversation. It does not have to be unique
+    timestamp_res_conversation:
+      type: object
+      properties:
+        created:
+          $ref: "#/components/schemas/timestamp_created"
+        updated:
+          $ref: "#/components/schemas/timestamp_updated"
+        destroyed:
+          $ref: "#/components/schemas/timestamp_destroyed"
+    timestamp_created:
+      type: string
+      example: "2020-01-01T14:00:00.00Z"
+      description: Time of creation
+    timestamp_updated:
+      type: string
+      example: "2020-01-01T14:05:00.00Z"
+      description: Time of last update
+    timestamp_destroyed:
+      type: string
+      example: "2020-01-01T14:20:00.00Z"
+      description: Time of last update
+    name_user:
+      type: string
+      example: my_user_name
+      description: Unique name for a user
+    member_state:
+      type: string
+      description: "The state that the member is in. Possible values are `invited`, `joined`, `left`, or `unknown`"
+      example: invited
+      enum:
+        - invited
+        - joined
+        - left
+        - unknown
+    timestamp_res_member:
+      type: object
+      properties:
+        invited:
+          $ref: "#/components/schemas/timestamp"
+        joined:
+          $ref: "#/components/schemas/timestamp"
+        left:
+          $ref: "#/components/schemas/timestamp"
+    timestamp:
+      type: string
+      example: "2020-01-01T14:00:00.00Z"
+      description: Timestamp
+    initiator:
+      type: object
+      properties:
+        joined:
+          type: object
+          properties:
+            isSystem:
+              type: boolean
+              description: "`true` if the user was invited by an admin JWT. `user_id` and `member_id` will not exist if `true`"
+            user_id:
+              $ref: "#/components/schemas/user_id"
+            member_id:
+              $ref: "#/components/schemas/member_id"
+    _links_conversation:
+      type: object
+      properties:
+        self:
+          type: object
+          properties:
+            href:
+              $ref: "#/components/schemas/href_conversation"
+    href_conversation:
+      type: string
+      format: url
+      example: "https://api.nexmo.com/v0.3/conversations/CON-63f61863-4a51-4f6b-86e1-46edebio0391"
+      description: A link towards a conversation included in Conversation API
+
 
 
 tags:
