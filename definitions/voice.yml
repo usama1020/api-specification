@@ -1,7 +1,7 @@
 ---
 openapi: 3.0.0
 info:
-  version: 1.3.6
+  version: 1.3.8
   title: Voice API
   description:
     The Voice API lets you create outbound calls, control in-progress calls
@@ -12,12 +12,35 @@ info:
     email: devrel@vonage.com
     url: "https://developer.nexmo.com/"
 servers:
-  - url: https://api.nexmo.com/v1/calls
+  - url: https://api.nexmo.com/
 paths:
-  "/":
+  "/v1/calls/":
+    post:
+      tags:
+        - Making Calls
+      security:
+        - bearerAuth: []
+      summary: Create an outbound call
+      description: Create an outbound Call
+      operationId: createCall
+      requestBody:
+        description: Call Details
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - "$ref": "#/components/schemas/CreateCallRequestNcco"
+                - "$ref": "#/components/schemas/CreateCallRequestAnswerUrl"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/CreateCallResponse"
     get:
       tags:
-        - Calls
+        - Fetching Calls
       security:
         - bearerAuth: []
       summary: Get details of your calls
@@ -91,30 +114,8 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/GetCallsResponse"
-    post:
-      tags:
-        - Calls
-      security:
-        - bearerAuth: []
-      summary: Create an outbound call
-      description: Create an outbound Call
-      operationId: createCall
-      requestBody:
-        description: Call Details
-        content:
-          application/json:
-            schema:
-              oneOf:
-                - "$ref": "#/components/schemas/CreateCallRequestNcco"
-                - "$ref": "#/components/schemas/CreateCallRequestAnswerUrl"
-      responses:
-        "201":
-          description: Created
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/CreateCallResponse"
-  "/{uuid}":
+    
+  "/v1/calls/{uuid}":
     parameters:
       - in: path
         name: uuid
@@ -125,7 +126,7 @@ paths:
         example: 63f61863-4a51-4f6b-86e1-46edebcf9356
     get:
       tags:
-        - Calls
+        - Fetching Calls
       security:
         - bearerAuth: []
       summary: Get detail of a specific call
@@ -140,7 +141,7 @@ paths:
                 "$ref": "#/components/schemas/GetCallResponse"
     put:
       tags:
-        - Calls
+        - Controlling Calls
       security:
         - bearerAuth: []
       summary: Modify an in progress call
@@ -167,7 +168,7 @@ paths:
         "404":
           description: Not Found
 
-  "/{uuid}/stream":
+  "/v0.3/legs/{uuid}/stream":
     parameters:
       - in: path
         name: uuid
@@ -176,9 +177,9 @@ paths:
         required: true
         description: UUID of the Call Leg
         example: 63f61863-4a51-4f6b-86e1-46edebcf9356
-    put:
+    post:
       tags:
-        - Stream Audio
+        - Controlling Calls
       security:
         - bearerAuth: []
       summary: Play an audio file into a call
@@ -201,21 +202,17 @@ paths:
 
     delete:
       tags:
-        - Stream Audio
+        - Controlling Calls
       security:
         - bearerAuth: []
       summary: Stop playing an audio file into a call
       description: Stop playing an audio file into a call
       operationId: stopStream
       responses:
-        "200":
-          description: Ok
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/StopStreamResponse"
+        "204":
+          description: No content
 
-  "/{uuid}/talk":
+  "/v0.3/legs/{uuid}/talk":
     parameters:
       - in: path
         name: uuid
@@ -224,9 +221,9 @@ paths:
         required: true
         description: UUID of the Call Leg
         example: 63f61863-4a51-4f6b-86e1-46edebcf9356
-    put:
+    post:
       tags:
-        - Play TTS
+        - Controlling Calls
       security:
         - bearerAuth: []
       summary: Play text to speech into a call
@@ -248,7 +245,7 @@ paths:
 
     delete:
       tags:
-        - Play TTS
+        - Controlling Calls
       security:
         - bearerAuth: []
       summary: Stop text to speech in a call
@@ -262,7 +259,7 @@ paths:
               schema:
                 "$ref": "#/components/schemas/StopTalkResponse"
 
-  "/{uuid}/dtmf":
+  "/v0.3/legs/{uuid}/dtmf":
     parameters:
       - in: path
         name: uuid
@@ -271,9 +268,9 @@ paths:
         required: true
         description: UUID of the Call Leg
         example: 63f61863-4a51-4f6b-86e1-46edebcf9356
-    put:
+    post:
       tags:
-        - Play DTMF
+        - Controlling Calls
       security:
         - bearerAuth: []
       summary: Play DTMF tones into a call
@@ -293,6 +290,38 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/DTMFResponse"
+
+  "/v0.3/conversations/{conversation_uuid}/events":
+    parameters:
+      - in: path
+        name: conversation_uuid
+        schema:
+          type: string
+        required: true
+        description: UUID of the Conversation
+        example: CON-63f61863-4a51-4f6b-86e1-46edebio0391
+    post:
+      tags:
+        - Controlling Calls
+      security:
+        - bearerAuth: []
+      summary: Send an instruction to make an action on a conversation
+      description: "Send an *event* to perform an action on the conversation level (affecting all memmbers), for example, play message/audio file, or change certain member state, for example, mute a member"
+      operationId: sendEvent
+      requestBody:
+        description: Instruction to send
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/ConversationEventRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ConversationEventResponse"
 
 components:
   securitySchemes:
@@ -594,8 +623,8 @@ components:
           description: Description of the action taken
           type: string
           example: Talk started
-        uuid:
-          $ref: "#/components/schemas/uuid"
+        id:
+          $ref: "#/components/schemas/id"
 
     DTMFResponse:
       type: object
@@ -604,18 +633,8 @@ components:
           description: Description of the action taken
           type: string
           example: DTMF sent
-        uuid:
-          $ref: "#/components/schemas/uuid"
-
-    StopStreamResponse:
-      type: object
-      properties:
-        message:
-          description: Description of the action taken
-          type: string
-          example: Stream stopped
-        uuid:
-          $ref: "#/components/schemas/uuid"
+        id:
+          $ref: "#/components/schemas/id"
 
     StartStreamResponse:
       type: object
@@ -624,8 +643,8 @@ components:
           description: Description of the action taken
           type: string
           example: Stream started
-        uuid:
-          $ref: "#/components/schemas/uuid"
+        id:
+          $ref: "#/components/schemas/id"
 
     GetCallResponse:
       type: object
@@ -800,6 +819,11 @@ components:
       title: The State of the call
       example: started
       description: The status of the call. [See possible values](https://developer.nexmo.com/voice/voice-api/guides/call-flow#event-objects)
+      
+    id:
+      type: string
+      description: Action identifier
+      example: "77da5e95-f2c0-49b1-9ed4-a05b7901d330"
 
     EndpointApp:
       type: object
@@ -1076,13 +1100,1159 @@ components:
         - Zeina
         - Zhiyu
         - Zuzana
+    ConversationEventRequest:
+      oneOf:
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - 'audio:play'
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            body:
+              type: object
+              properties:
+                queue:
+                  type: boolean
+                level:
+                  $ref: '#/components/schemas/level'
+                loop:
+                  type: integer
+                stream_url:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/string_uri'
+              required:
+                - level
+                - loop
+                - stream_url
+          required:
+            - type
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - 'audio:play:stop'
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            body:
+              type: object
+              properties:
+                play_id:
+                  type: string
+              required:
+                - play_id
+          required:
+            - type
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - 'audio:say'
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            body:
+              type: object
+              properties:
+                level:
+                  $ref: '#/components/schemas/level'
+                loop:
+                  type: integer
+                queue:
+                  type: boolean
+                voice_name:
+                  type: string
+                language:
+                  $ref: '#/components/schemas/language'
+                style:
+                  $ref: '#/components/schemas/style'
+                text:
+                  type: string
+                ssml:
+                  type: boolean
+              required:
+                - level
+                - loop
+                - text
+          required:
+            - type
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - 'audio:say:stop'
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            body:
+              type: object
+              properties:
+                say_id:
+                  type: string
+              required:
+                - say_id
+          required:
+            - type
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - 'audio:dtmf'
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            body:
+              oneOf:
+                - type: object
+                  properties:
+                    digits:
+                      $ref: '#/components/schemas/dtmf_pattern'
+                    digit:
+                      $ref: '#/components/schemas/dtmf_pattern'
+                    channel:
+                      oneOf:
+                        - $ref: '#/components/schemas/channel_lite'
+                        - $ref: '#/components/schemas/channel'
+                    dtmf_seq:
+                      type: integer
+                    method:
+                      type: string
+                      enum:
+                        - in
+                    duration:
+                      type: integer
+                  required:
+                    - method
+                    - duration
+                - type: object
+                  properties:
+                    digits:
+                      $ref: '#/components/schemas/dtmf_pattern'
+                    digit:
+                      $ref: '#/components/schemas/dtmf_pattern'
+                    channel:
+                      oneOf:
+                        - $ref: '#/components/schemas/channel_lite'
+                        - $ref: '#/components/schemas/channel'
+                    dtmf_seq:
+                      type: integer
+          required:
+            - type
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - 'audio:record'
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            body:
+              type: object
+              properties:
+                validity:
+                  type: integer
+                  minimum: 1
+                streamed:
+                  type: boolean
+                format:
+                  type: string
+                beep_start:
+                  type: boolean
+                beep_stop:
+                  type: boolean
+                detect_speech:
+                  type: boolean
+                split:
+                  type: boolean
+                multitrack:
+                  type: boolean
+                channels:
+                  type: integer
+                  minimum: 1
+                  maximum: 32
+          required:
+            - type
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - 'audio:record:stop'
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            body:
+              type: object
+              properties:
+                record_id:
+                  type: string
+              required:
+                - record_id
+          required:
+            - type
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - 'audio:mute:on'
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            body:
+              type: object
+              properties:
+                rtc_id:
+                  $ref: '#/components/schemas/rtc_id'
+              required:
+                - rtc_id
+          required:
+            - type
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - 'audio:mute:off'
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            body:
+              type: object
+              properties:
+                rtc_id:
+                  $ref: '#/components/schemas/rtc_id'
+              required:
+                - rtc_id
+          required:
+            - type
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - 'audio:earmuff:on'
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            body:
+              type: object
+              properties:
+                rtc_id:
+                  $ref: '#/components/schemas/rtc_id'
+              required:
+                - rtc_id
+          required:
+            - type
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - 'audio:earmuff:off'
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            body:
+              type: object
+              properties:
+                rtc_id:
+                  $ref: '#/components/schemas/rtc_id'
+              required:
+                - rtc_id
+          required:
+            - type
+    member_id:
+      type: string
+    nullable_member_id:
+      description: Member ID
+      nullable: true
+      example: MEM-63f61863-4a51-4f6b-86e1-46edebio0391
+      oneOf:
+        - type: string
+        - nullable: true
+    level:
+      type: number
+      format: double
+      minimum: -1
+      maximum: 1
+    string_uri:
+      description: String URI
+      example: 'https://example.com/'
+      type: string
+    dtmf_pattern:
+      pattern: '^([abcdABCD0-9*#pP])+$'
+      example: abcd11
+      type: string
+    channel_lite:
+      type: object
+      properties:
+        to:
+          $ref: '#/components/schemas/channel_endpoint'
+        from:
+          $ref: '#/components/schemas/channel_endpoint'
+        id:
+          $ref: '#/components/schemas/leg_id'
+        type:
+          $ref: '#/components/schemas/channel_type'
+        headers:
+          $ref: '#/components/schemas/headers'
+      required:
+        - type
+    channel_endpoint:
+      oneOf:
+        - $ref: '#/components/schemas/phone_from_endpoint'
+        - $ref: '#/components/schemas/sip_endpoint'
+        - $ref: '#/components/schemas/app_endpoint'
+        - $ref: '#/components/schemas/vbc_endpoint'
+        - $ref: '#/components/schemas/websocket_endpoint'
+    leg_id:
+      type: string
+    headers:
+      type: object
+    channel_type:
+      description: Channel type
+      example: phone
+      type: string
+      enum:
+        - app
+        - phone
+        - sip
+        - websocket
+        - vbc
+    phone_from_endpoint:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - phone
+        headers:
+          $ref: '#/components/schemas/headers'
+        number:
+          type: string
+      required:
+        - type
+        - number
+    sip_endpoint:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - sip
+        uri:
+          type: string
+          pattern: '^(sip|sips):\+?([\w|:.\-@;,=%&]+)'
+        username:
+          type: string
+        password:
+          type: string
+        headers:
+          $ref: '#/components/schemas/headers'
+      required:
+        - type
+        - uri
+    app_endpoint:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - app
+        user:
+          type: string
+      required:
+        - type
+    vbc_endpoint:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - vbc
+        extension:
+          type: string
+      required:
+        - type
+        - extension
+    websocket_endpoint:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - websocket
+        uri:
+          oneOf:
+            - type: string
+              pattern: '^(ws|wss):\/\/[a-zA-Z0-9~#%@&-_?\\/.,:;)(\][]*$'
+            - type: string
+        content-type:
+          type: string
+        headers:
+          $ref: '#/components/schemas/headers'
+      required:
+        - type
+        - uri
+    channel:
+      description: 'When a user joins a conversation as a member, they can have one channel per membership. Channels can be one of `app`, `phone`, `sip`, `websocket`, `vbc`'
+      oneOf:
+        - type: object
+          properties:
+            to:
+              $ref: '#/components/schemas/channel_endpoint'
+            id:
+              $ref: '#/components/schemas/leg_id'
+            type:
+              type: string
+              enum:
+                - websocket
+            from:
+              $ref: '#/components/schemas/channel_endpoint'
+            headers:
+              $ref: '#/components/schemas/headers'
+            cpa:
+              type: boolean
+            preanswer:
+              type: boolean
+            ring_timeout:
+              type: number
+              format: float
+            can_hear:
+              $ref: '#/components/schemas/leg_list'
+            can_speak:
+              $ref: '#/components/schemas/leg_list'
+            cpa_time:
+              type: number
+              format: float
+            max_length:
+              type: number
+              format: float
+            knocking_id:
+              $ref: '#/components/schemas/knocking_id'
+            legs:
+              type: array
+              items:
+                $ref: '#/components/schemas/legs'
+            leg_ids:
+              type: array
+              items:
+                $ref: '#/components/schemas/leg_id'
+            leg_settings:
+              type: object
+            content-type:
+              type: string
+          required:
+            - type
+        - type: object
+          properties:
+            to:
+              $ref: '#/components/schemas/channel_endpoint'
+            id:
+              $ref: '#/components/schemas/leg_id'
+            from:
+              $ref: '#/components/schemas/channel_endpoint'
+            headers:
+              $ref: '#/components/schemas/headers'
+            cpa:
+              type: boolean
+            preanswer:
+              type: boolean
+            ring_timeout:
+              type: number
+              format: float
+            can_hear:
+              $ref: '#/components/schemas/leg_list'
+            can_speak:
+              $ref: '#/components/schemas/leg_list'
+            cpa_time:
+              type: number
+              format: float
+            max_length:
+              type: number
+              format: float
+            knocking_id:
+              $ref: '#/components/schemas/knocking_id'
+            legs:
+              type: array
+              items:
+                $ref: '#/components/schemas/legs'
+            leg_ids:
+              type: array
+              items:
+                $ref: '#/components/schemas/leg_id'
+            leg_settings:
+              type: object
+            type:
+              type: string
+              enum:
+                - app
+                - phone
+                - sip
+                - vbc
+          required:
+            - type
+    leg_list:
+      type: array
+      items:
+        $ref: '#/components/schemas/leg_id'
+    knocking_id:
+      type: string
+    legs:
+      type: object
+      properties:
+        leg_id:
+          $ref: '#/components/schemas/leg_id'
+        status:
+          $ref: '#/components/schemas/leg_status'
+      required:
+        - leg_id
+        - status
+    leg_status:
+      description: Leg status
+      example: answered
+      type: string
+      enum:
+        - started
+        - ringing
+        - answered
+        - completed
+        - machine
+        - failed
+        - busy
+        - timeout
+        - cancelled
+        - rejected
+    rtc_id:
+      type: string
+      
+    ConversationEventResponse:
+      oneOf:
+        - type: object
+          properties:
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            type:
+              type: string
+              enum:
+                - 'audio:play'
+            id:
+              $ref: '#/components/schemas/event_id'
+            timestamp:
+              $ref: '#/components/schemas/iso_date'
+            state:
+              $ref: '#/components/schemas/event_state'
+            _embedded:
+              $ref: '#/components/schemas/event_embedded'
+            body:
+              oneOf:
+                - type: object
+                  properties:
+                    queue:
+                      type: boolean
+                    level:
+                      $ref: '#/components/schemas/level'
+                    loop:
+                      type: integer
+                    stream_url:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/string_uri'
+                    play_id:
+                      type: string
+                  required:
+                    - level
+                    - loop
+                    - stream_url
+                    - play_id
+                - type: object
+                  properties:
+                    timestamp:
+                      type: object
+                      properties:
+                        deleted:
+                          $ref: '#/components/schemas/iso_date'
+                      required:
+                        - deleted
+            _links:
+              $ref: '#/components/schemas/_links'
+          required:
+            - type
+            - id
+            - timestamp
+            - _links
+        - type: object
+          properties:
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            type:
+              type: string
+              enum:
+                - 'audio:play:stop'
+            id:
+              $ref: '#/components/schemas/event_id'
+            timestamp:
+              $ref: '#/components/schemas/iso_date'
+            state:
+              $ref: '#/components/schemas/event_state'
+            _embedded:
+              $ref: '#/components/schemas/event_embedded'
+            body:
+              oneOf:
+                - type: object
+                  properties:
+                    play_id:
+                      type: string
+                  required:
+                    - play_id
+                - type: object
+                  properties:
+                    timestamp:
+                      type: object
+                      properties:
+                        deleted:
+                          $ref: '#/components/schemas/iso_date'
+                      required:
+                        - deleted
+            _links:
+              $ref: '#/components/schemas/_links'
+          required:
+            - type
+            - id
+            - timestamp
+            - _links
+        - type: object
+          properties:
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            type:
+              type: string
+              enum:
+                - 'audio:say'
+            id:
+              $ref: '#/components/schemas/event_id'
+            timestamp:
+              $ref: '#/components/schemas/iso_date'
+            state:
+              $ref: '#/components/schemas/event_state'
+            _embedded:
+              $ref: '#/components/schemas/event_embedded'
+            body:
+              oneOf:
+                - type: object
+                  properties:
+                    level:
+                      $ref: '#/components/schemas/level'
+                    loop:
+                      type: integer
+                    queue:
+                      type: boolean
+                    voice_name:
+                      type: string
+                    language:
+                      $ref: '#/components/schemas/language'
+                    style:
+                      $ref: '#/components/schemas/style'
+                    text:
+                      type: string
+                    ssml:
+                      type: boolean
+                    say_id:
+                      type: string
+                  required:
+                    - level
+                    - loop
+                    - text
+                    - say_id
+                - type: object
+                  properties:
+                    timestamp:
+                      type: object
+                      properties:
+                        deleted:
+                          $ref: '#/components/schemas/iso_date'
+                      required:
+                        - deleted
+            _links:
+              $ref: '#/components/schemas/_links'
+          required:
+            - type
+            - id
+            - timestamp
+            - _links
+        - type: object
+          properties:
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            type:
+              type: string
+              enum:
+                - 'audio:say:stop'
+            id:
+              $ref: '#/components/schemas/event_id'
+            timestamp:
+              $ref: '#/components/schemas/iso_date'
+            state:
+              $ref: '#/components/schemas/event_state'
+            _embedded:
+              $ref: '#/components/schemas/event_embedded'
+            body:
+              oneOf:
+                - type: object
+                  properties:
+                    say_id:
+                      type: string
+                  required:
+                    - say_id
+                - type: object
+                  properties:
+                    timestamp:
+                      type: object
+                      properties:
+                        deleted:
+                          $ref: '#/components/schemas/iso_date'
+                      required:
+                        - deleted
+            _links:
+              $ref: '#/components/schemas/_links'
+          required:
+            - type
+            - id
+            - timestamp
+            - _links
+        - type: object
+          properties:
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            type:
+              type: string
+              enum:
+                - 'audio:dtmf'
+            id:
+              $ref: '#/components/schemas/event_id'
+            timestamp:
+              $ref: '#/components/schemas/iso_date'
+            state:
+              $ref: '#/components/schemas/event_state'
+            _embedded:
+              $ref: '#/components/schemas/event_embedded'
+            body:
+              oneOf:
+                - oneOf:
+                    - type: object
+                      properties:
+                        digits:
+                          $ref: '#/components/schemas/dtmf_pattern'
+                        digit:
+                          $ref: '#/components/schemas/dtmf_pattern'
+                        channel:
+                          oneOf:
+                            - $ref: '#/components/schemas/channel_lite'
+                            - $ref: '#/components/schemas/channel'
+                        dtmf_seq:
+                          type: integer
+                        dtmf_id:
+                          type: string
+                        method:
+                          type: string
+                          enum:
+                            - in
+                        duration:
+                          type: integer
+                      required:
+                        - method
+                        - duration
+                    - type: object
+                      properties:
+                        digits:
+                          $ref: '#/components/schemas/dtmf_pattern'
+                        digit:
+                          $ref: '#/components/schemas/dtmf_pattern'
+                        channel:
+                          oneOf:
+                            - $ref: '#/components/schemas/channel_lite'
+                            - $ref: '#/components/schemas/channel'
+                        dtmf_seq:
+                          type: integer
+                        dtmf_id:
+                          type: string
+                        duration:
+                          type: integer
+                - type: object
+                  properties:
+                    timestamp:
+                      type: object
+                      properties:
+                        deleted:
+                          $ref: '#/components/schemas/iso_date'
+                      required:
+                        - deleted
+            _links:
+              $ref: '#/components/schemas/_links'
+          required:
+            - type
+            - id
+            - timestamp
+            - _links
+        - type: object
+          properties:
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            type:
+              type: string
+              enum:
+                - 'audio:record'
+            id:
+              $ref: '#/components/schemas/event_id'
+            timestamp:
+              $ref: '#/components/schemas/iso_date'
+            state:
+              $ref: '#/components/schemas/event_state'
+            _embedded:
+              $ref: '#/components/schemas/event_embedded'
+            body:
+              oneOf:
+                - type: object
+                  properties:
+                    validity:
+                      type: integer
+                      minimum: 1
+                    streamed:
+                      type: boolean
+                    format:
+                      type: string
+                    beep_start:
+                      type: boolean
+                    beep_stop:
+                      type: boolean
+                    detect_speech:
+                      type: boolean
+                    split:
+                      type: boolean
+                    multitrack:
+                      type: boolean
+                    channels:
+                      type: integer
+                      minimum: 1
+                      maximum: 32
+                    recording_id:
+                      type: string
+                  required:
+                    - recording_id
+                - type: object
+                  properties:
+                    timestamp:
+                      type: object
+                      properties:
+                        deleted:
+                          $ref: '#/components/schemas/iso_date'
+                      required:
+                        - deleted
+            _links:
+              $ref: '#/components/schemas/_links'
+          required:
+            - type
+            - id
+            - timestamp
+            - _links
+        - type: object
+          properties:
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            type:
+              type: string
+              enum:
+                - 'audio:record:stop'
+            id:
+              $ref: '#/components/schemas/event_id'
+            timestamp:
+              $ref: '#/components/schemas/iso_date'
+            state:
+              $ref: '#/components/schemas/event_state'
+            _embedded:
+              $ref: '#/components/schemas/event_embedded'
+            body:
+              oneOf:
+                - type: object
+                  properties:
+                    record_id:
+                      type: string
+                  required:
+                    - record_id
+                - type: object
+                  properties:
+                    timestamp:
+                      type: object
+                      properties:
+                        deleted:
+                          $ref: '#/components/schemas/iso_date'
+                      required:
+                        - deleted
+            _links:
+              $ref: '#/components/schemas/_links'
+          required:
+            - type
+            - id
+            - timestamp
+            - _links
+        - type: object
+          properties:
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            type:
+              type: string
+              enum:
+                - 'audio:mute:on'
+            id:
+              $ref: '#/components/schemas/event_id'
+            timestamp:
+              $ref: '#/components/schemas/iso_date'
+            state:
+              $ref: '#/components/schemas/event_state'
+            _embedded:
+              $ref: '#/components/schemas/event_embedded'
+            body:
+              oneOf:
+                - type: object
+                  properties:
+                    rtc_id:
+                      $ref: '#/components/schemas/rtc_id'
+                  required:
+                    - rtc_id
+                - type: object
+                  properties:
+                    timestamp:
+                      type: object
+                      properties:
+                        deleted:
+                          $ref: '#/components/schemas/iso_date'
+                      required:
+                        - deleted
+            _links:
+              $ref: '#/components/schemas/_links'
+          required:
+            - type
+            - id
+            - timestamp
+            - _links
+        - type: object
+          properties:
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            type:
+              type: string
+              enum:
+                - 'audio:mute:off'
+            id:
+              $ref: '#/components/schemas/event_id'
+            timestamp:
+              $ref: '#/components/schemas/iso_date'
+            state:
+              $ref: '#/components/schemas/event_state'
+            _embedded:
+              $ref: '#/components/schemas/event_embedded'
+            body:
+              oneOf:
+                - type: object
+                  properties:
+                    rtc_id:
+                      $ref: '#/components/schemas/rtc_id'
+                  required:
+                    - rtc_id
+                - type: object
+                  properties:
+                    timestamp:
+                      type: object
+                      properties:
+                        deleted:
+                          $ref: '#/components/schemas/iso_date'
+                      required:
+                        - deleted
+            _links:
+              $ref: '#/components/schemas/_links'
+          required:
+            - type
+            - id
+            - timestamp
+            - _links
+        - type: object
+          properties:
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            type:
+              type: string
+              enum:
+                - 'audio:earmuff:on'
+            id:
+              $ref: '#/components/schemas/event_id'
+            timestamp:
+              $ref: '#/components/schemas/iso_date'
+            state:
+              $ref: '#/components/schemas/event_state'
+            _embedded:
+              $ref: '#/components/schemas/event_embedded'
+            body:
+              oneOf:
+                - type: object
+                  properties:
+                    rtc_id:
+                      $ref: '#/components/schemas/rtc_id'
+                  required:
+                    - rtc_id
+                - type: object
+                  properties:
+                    timestamp:
+                      type: object
+                      properties:
+                        deleted:
+                          $ref: '#/components/schemas/iso_date'
+                      required:
+                        - deleted
+            _links:
+              $ref: '#/components/schemas/_links'
+          required:
+            - type
+            - id
+            - timestamp
+            - _links
+        - type: object
+          properties:
+            to:
+              $ref: '#/components/schemas/member_id'
+            from:
+              $ref: '#/components/schemas/nullable_member_id'
+            type:
+              type: string
+              enum:
+                - 'audio:earmuff:off'
+            id:
+              $ref: '#/components/schemas/event_id'
+            timestamp:
+              $ref: '#/components/schemas/iso_date'
+            state:
+              $ref: '#/components/schemas/event_state'
+            _embedded:
+              $ref: '#/components/schemas/event_embedded'
+            body:
+              oneOf:
+                - type: object
+                  properties:
+                    rtc_id:
+                      $ref: '#/components/schemas/rtc_id'
+                  required:
+                    - rtc_id
+                - type: object
+                  properties:
+                    timestamp:
+                      type: object
+                      properties:
+                        deleted:
+                          $ref: '#/components/schemas/iso_date'
+                      required:
+                        - deleted
+            _links:
+              $ref: '#/components/schemas/_links'
+          required:
+            - type
+            - id
+            - timestamp
+            - _links
+    event_id:
+      description: Event id. This is a progressive integer
+      example: '5'
+      type: integer
+    iso_date:
+      type: string
+      format: date-time
+    event_state:
+      oneOf:
+        - type: string
+          nullable: true
+        - type: object
+    event_embedded:
+      type: object
+      properties:
+        from_user:
+          $ref: '#/components/schemas/from_user'
+    from_user:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/user_id'
+        name:
+          type: string
+        display_name:
+          $ref: '#/components/schemas/display_name_v03'
+        image_url:
+          type: string
+          format: uri
+        custom_data:
+          type: object
+    user_id:
+      type: string
+    display_name_v03:
+      type: string
+      maxLength: 50
+      nullable: true
+    _links:
+      type: object
+      properties:
+        self:
+          $ref: '#/components/schemas/href'
+    href:
+      description: A link towards a resources included in Conversation Service API
+      type: object
+      properties:
+        href:
+          type: string
+          format: uri
+
 
 tags:
-  - name: Calls
-    description: Fetch, Create and Modify voice calls
-  - name: Stream Audio
-    description: Start or stop streaming audio in to an active call
-  - name: Play TTS
-    description: Start or stop playing Text to Speech in to an active call
-  - name: Play DTMF
-    description: Play DTMF tones in to an active call
+  - name: Making Calls
+    description: "Make phone (PSTN), SIP, in-app (WebRTC) calls and establish WebSocket connections"
+  - name: Controlling Calls
+    description: "Perform in progress call (*leg*) and conference (*conversation*) actions"
+  - name: Fetching Calls
+    description: "Get call history and details"
