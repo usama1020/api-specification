@@ -73,7 +73,16 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         "403":
-          $ref: "#/components/responses/ForbiddenError"
+          description: Forbidden Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                account-not-provisioned:
+                  $ref: '#/components/examples/account-not-provisioned'
+                subaccounts-limit-reached:
+                  $ref: '#/components/examples/subaccounts-limit-reached'
         "404":
           $ref: "#/components/responses/AccountIdNotFoundError"
         "422":
@@ -826,6 +835,41 @@ components:
         country:
           type: string
           example: "GB"
+    ErrorResponse:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+        instance:
+          type: string
+      required:
+        - type
+        - title
+        - detail
+        - instance
+  examples:
+    account-not-provisioned:
+      summary: "Response for not provisioned account"
+      value:
+        {
+          "type": "https://developer.nexmo.com/api-errors#unprovisioned",
+          "title": "Authorisation error",
+          "detail": "Account acc6111f is not provisioned to access Subaccount Provisioning API",
+          "instance": "158b8f199c45014ab7b08bfe9cc1c12c"
+        }
+    subaccounts-limit-reached:
+      summary: "Limit of subaccounts for primary account reached"
+      value:
+        {
+          "type": "https://developer.nexmo.com/api-errors/account/subaccounts#provisioning",
+          "title": "Maximum number of sub-accounts reached",
+          "detail": "This account has reached maximum number of allowed sub-accountsI",
+          "instance": "158b8f199c45014ab7b08bfe9cc1c12c"
+        }
 
 x-errors:
   validation:
