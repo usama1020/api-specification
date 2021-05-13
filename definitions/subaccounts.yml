@@ -161,7 +161,16 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         "403":
-          $ref: "#/components/responses/ForbiddenError"
+          description: Forbidden Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                account-not-provisioned:
+                  $ref: '#/components/examples/account-not-provisioned'
+                independent-balance-disabled:
+                  $ref: '#/components/examples/independent-balance-disabled'
         "404":
           $ref: "#/components/responses/AccountIdNotFoundError"
         "422":
@@ -248,7 +257,16 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         "403":
-          $ref: "#/components/responses/ForbiddenError"
+          description: Forbidden Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                account-not-provisioned:
+                  $ref: '#/components/examples/account-not-provisioned'
+                independent-balance-disabled:
+                  $ref: '#/components/examples/independent-balance-disabled'
         "404":
           $ref: "#/components/responses/AccountIdNotFoundError"
         "422":
@@ -336,7 +354,16 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         "403":
-          $ref: "#/components/responses/ForbiddenError"
+          description: Forbidden Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                account-not-provisioned:
+                  $ref: '#/components/examples/account-not-provisioned'
+                independent-balance-disabled:
+                  $ref: '#/components/examples/independent-balance-disabled'
         "404":
           $ref: "#/components/responses/AccountIdNotFoundError"
         "422":
@@ -868,6 +895,15 @@ components:
           "type": "https://developer.nexmo.com/api-errors/account/subaccounts#provisioning",
           "title": "Maximum number of sub-accounts reached",
           "detail": "This account has reached maximum number of allowed sub-accountsI",
+          "instance": "158b8f199c45014ab7b08bfe9cc1c12c"
+        }
+    independent-balance-disabled:
+      summary: "Primary account does not allow independent balance"
+      value:
+        {
+          "type": "https://developer.nexmo.com/api-errors/account/subaccounts#validation",
+          "title": "Invalid operation for account",
+          "detail": "Primary account does not allow independent balance",
           "instance": "158b8f199c45014ab7b08bfe9cc1c12c"
         }
 
