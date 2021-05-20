@@ -10,15 +10,55 @@ paths:
     get:
       summary: Get all available rooms
       operationId: getRooms
+      parameters:
+        - $ref: "#/components/parameters/start_id_parameter"
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Room'
+                properties:
+                  page_size:
+                    type: integer
+                    example: 10
+                    description: The number of results returned on this page.
+                  _embedded:
+                    type: object
+                    properties:
+                      rooms:
+                        type: array
+                        description: List of all accessible rooms 
+                        items:
+                          $ref: "#/components/schemas/Room"
+                  _links:
+                    type: object
+                    properties:
+                      first:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.1/meetings/rooms?page_size=10"
+                      self:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.1/meetings/rooms?page_size=10&start_id=20"
+                      next:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.1/meetings/rooms?page_size=10&start_id=30"
+                      prev:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: "https://api.nexmo.com/v0.1/meetings/rooms?page_size=10&end_id=20"
+
     post:
       summary: Create a room
       operationId: createRoom
@@ -35,6 +75,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Room'
+        "400":
+          description: Bad Request
   /rooms/:room_id:
     get:
       summary: Get room details
@@ -89,9 +131,16 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Recording'
+                type: object
+                properties:
+                  _embedded:
+                    type: object
+                    properties:
+                      recordings:
+                        type: array
+                        description: List of recordings for the given session
+                        items:
+                          $ref: "#/components/schemas/Recording"
         "404":
           description: Session not found
   /dial-in-numbers:
@@ -108,6 +157,23 @@ paths:
                 items:
                   $ref: '#/components/schemas/DialInNumber'
 components:
+  parameters:
+    start_id_parameter:
+      name: start_id
+      in: query
+      schema:
+        type: string
+      example: 13
+      required: false
+      description: The ID to start returning events at
+    end_id_parameter:
+      name: end_id
+      in: query
+      schema:
+        type: string
+      example: 13
+      required: false
+      description: The ID to end returning events at (excluding end_id itself)
   schemas:
     Room:
       type: object
@@ -117,19 +183,23 @@ components:
           format: uuid
         display_name:
           type: string
+          maxLength: 200
         pin_code:
           minLength: 9
           pattern: ^\d+$
           type: string
           example: "123456789"
-        guest_url:
-          type: string
-          format: uri
-          example: https://meetings.vonage.com/123456789
-        host_url:
-          type: string
-          format: uri
-          example: https://meetings.vonage.com/123456789?participant_token=xyz
+        _links:
+          type: object
+          properties:
+            guest_url:
+              type: string
+              format: uri
+              example: "https://meetings.vonage.com/123456789"
+            host_url:
+              type: string
+              format: uri
+              example: "https://meetings.vonage.com/123456789?participant_token=xyz"
     CreateRoomDetails:
       type: object
       properties:
@@ -158,9 +228,12 @@ components:
           - stopped
           - paused
           - uploaded
-        url:
-          type: string
-          format: uri
+        _links:
+          type: object
+          properties:
+            url:
+              type: string
+              format: uri
     DialInNumber:
       type: object
       properties:
@@ -169,7 +242,7 @@ components:
           example: "17323338801"
         locale:
           type: string
-          example: en-US
+          example: "en-US"
         display_name:
           type: string
-          example: United states
+          example: "United States"
