@@ -77,6 +77,25 @@ paths:
                 $ref: '#/components/schemas/Room'
         "400":
           description: Bad Request
+      callbacks:
+        meeting-events:
+          "room-deleted":
+            post:
+              summary: Room Deleted Callback
+              operationId: room-deleted
+              description: Information about a room being deleted
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      properties:
+                        room_id:
+                          type: string
+                          format: uuid
+              responses:
+                "200":
+                  description: Your server returns this code if it accepts the callback
   /rooms/:room_id:
     get:
       summary: Get room details
