@@ -90,6 +90,9 @@ paths:
                   application/json:
                     schema:
                       properties:
+                        event:
+                          type: string
+                          enum: ["room-deleted"]
                         room_id:
                           type: string
                           format: uuid
@@ -102,6 +105,9 @@ paths:
               operationId: pincode-expired
               description: A notification about a pincode no longer being available for a room that is still in use
               requestBody:
+                        event:
+                          type: string
+                          enum: ["pincode-expired"]
                 required: true
                 content:
                   application/json:
@@ -124,6 +130,9 @@ paths:
                   application/json:
                     schema:
                       properties:
+                        event:
+                          type: string
+                          enum: ["session-started"]
                         session_id:
                           type: string
                           format: uuid
@@ -147,6 +156,9 @@ paths:
                   application/json:
                     schema:
                       properties:
+                        event:
+                          type: string
+                          enum: ["session-ended"]
                         session_id:
                           type: string
                           format: uuid
@@ -173,6 +185,9 @@ paths:
                   application/json:
                     schema:
                       properties:
+                        event:
+                          type: string
+                          enum: ["recording-started"]
                         recording_id:
                           type: string
                           format: uuid
@@ -196,6 +211,9 @@ paths:
                   application/json:
                     schema:
                       properties:
+                        event:
+                          type: string
+                          enum: ["recording-stopped"]
                         recording_id:
                           type: string
                           format: uuid
@@ -219,6 +237,9 @@ paths:
                   application/json:
                     schema:
                       properties:
+                        event:
+                          type: string
+                          enum: ["recording-ready"]
                         recording_id:
                           type: string
                           format: uuid
@@ -251,6 +272,9 @@ paths:
                   application/json:
                     schema:
                       properties:
+                        event:
+                          type: string
+                          enum: ["recording-deleted"]
                         recording_id:
                           type: string
                           format: uuid
@@ -268,6 +292,9 @@ paths:
                   application/json:
                     schema:
                       properties:
+                        event:
+                          type: string
+                          enum: ["participant-joined"]
                         participant_id:
                           type: string
                           format: uuid
