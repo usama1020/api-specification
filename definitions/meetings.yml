@@ -105,14 +105,14 @@ paths:
               operationId: pincode-expired
               description: A notification about a pincode no longer being available for a room that is still in use
               requestBody:
-                        event:
-                          type: string
-                          enum: ["pincode-expired"]
                 required: true
                 content:
                   application/json:
                     schema:
                       properties:
+                        event:
+                          type: string
+                          enum: ["pincode-expired"]
                         room_id:
                           type: string
                           format: uuid
