@@ -83,7 +83,7 @@ paths:
             post:
               summary: Room Deleted Callback
               operationId: room-deleted
-              description: Information about a room being deleted
+              description: A notification about a room being deleted
               requestBody:
                 required: true
                 content:
@@ -94,8 +94,226 @@ paths:
                           type: string
                           format: uuid
               responses:
-                "200":
+                "204":
                   description: Your server returns this code if it accepts the callback
+          "pincode-expired":
+            post:
+              summary: Pincode Expired Callback
+              operationId: pincode-expired
+              description: A notification about a pincode no longer being available for a room that is still in use
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      properties:
+                        room_id:
+                          type: string
+                          format: uuid
+              responses:
+                "204":
+                  description: Your server returns this code if it accepts the callback
+          "session-started":
+            post:
+              summary: Session Started Callback
+              operationId: session-started
+              description: A notification about a newly started session
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      properties:
+                        session_id:
+                          type: string
+                          format: uuid
+                        room_id:
+                          type: string
+                          format: uuid
+                        started_at:
+                          type: string
+                          format: date-time
+              responses:
+                "204":
+                  description: Your server returns this code if it accepts the callback
+          "session-ended":
+            post:
+              summary: Session Ended Callback
+              operationId: session-ended
+              description: A notification about a session that has just ended
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      properties:
+                        session_id:
+                          type: string
+                          format: uuid
+                        room_id:
+                          type: string
+                          format: uuid
+                        started_at:
+                          type: string
+                          format: date-time
+                        ended_at:
+                          type: string
+                          format: date-time
+              responses:
+                "204":
+                  description: Your server returns this code if it accepts the callback
+          "recording-started":
+            post:
+              summary: Recording Started Callback
+              operationId: recording-started
+              description: A notification about recording being turned on in a specific session
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      properties:
+                        recording_id:
+                          type: string
+                          format: uuid
+                        session_id:
+                          type: string
+                          format: uuid
+                        room_id:
+                          type: string
+                          format: uuid
+              responses:
+                "204":
+                  description: Your server returns this code if it accepts the callback
+          "recording-stopped":
+            post:
+              summary: Recording Stopped Callback
+              operationId: recording-stopped
+              description: A notification about recording being turned off in a specific session
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      properties:
+                        recording_id:
+                          type: string
+                          format: uuid
+                        session_id:
+                          type: string
+                          format: uuid
+                        room_id:
+                          type: string
+                          format: uuid
+              responses:
+                "204":
+                  description: Your server returns this code if it accepts the callback
+          "recording-ready":
+            post:
+              summary: Recording Ready Callback
+              operationId: recording-ready
+              description: A notification about recording ready to be downloaded
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      properties:
+                        recording_id:
+                          type: string
+                          format: uuid
+                        session_id:
+                          type: string
+                          format: uuid
+                        room_id:
+                          type: string
+                          format: uuid
+                        started_at:
+                          type: string
+                          format: date-time
+                        ended_at:
+                          type: string
+                          format: date-time
+                        url:
+                          type: string
+                          format: uri
+              responses:
+                "204":
+                  description: Your server returns this code if it accepts the callback
+          "recording-deleted":
+            post:
+              summary: Recording Deleted Callback
+              operationId: recording-deleted
+              description: A notification about recording being deleted
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      properties:
+                        recording_id:
+                          type: string
+                          format: uuid
+              responses:
+                "204":
+                  description: Your server returns this code if it accepts the callback
+          "participant-joined":
+            post:
+              summary: Participant Joined Callback
+              operationId: participant-joined
+              description: A notification about someone joining a specific session
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      properties:
+                        participant_id:
+                          type: string
+                          format: uuid
+                        session_id:
+                          type: string
+                          format: uuid
+                        room_id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        type:
+                          type: string
+              responses:
+                "204":
+                  description: Your server returns this code if it accepts the callback
+          "participant-left":
+              post:
+                summary: Participant Left Callback
+                operationId: participant-left
+                description: A notification about someone leaving a specific session
+                requestBody:
+                  required: true
+                  content:
+                    application/json:
+                      schema:
+                        properties:
+                          event:
+                            type: string
+                            enum: ["participant-left"]
+                          participant_id:
+                            type: string
+                            format: uuid
+                          session_id:
+                            type: string
+                            format: uuid
+                          room_id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                          type:
+                            type: string
+                responses:
+                  "204":
+                    description: Your server returns this code if it accepts the callback
   /rooms/:room_id:
     get:
       summary: Get room details
