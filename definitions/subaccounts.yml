@@ -877,7 +877,7 @@ components:
       value:
         {
           "type": "https://developer.nexmo.com/api-errors/account/subaccounts#validation",
-          "title": "Invalid operation for account",
+          "title": "Invalid use_primary_account_balance",
           "detail": "Primary account does not allow independent balance",
           "instance": "158b8f199c45014ab7b08bfe9cc1c12c"
         }
