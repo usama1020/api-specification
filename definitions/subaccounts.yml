@@ -890,10 +890,12 @@ components:
     quota-transfer-provisioning:
       summary: Account cannot perform quota transfer
       value:
-        type: 'https://developer.nexmo.com/api-errors/account/subaccounts#provisioning'
-        title: Invalid operation for account
-        detail: Account is not provisioned to perform quota transfers
-        instance: 158b8f199c45014ab7b08bfe9cc1c12c
+        {
+          "type": "https://developer.nexmo.com/api-errors/account/subaccounts#provisioning",
+          "title": "Invalid operation for account",
+          "detail": "Account is not provisioned to perform quota transfers",
+          "instance": "158b8f199c45014ab7b08bfe9cc1c12c"
+        }
     invalid-number-transfer:
       summary: "Invalid Transfer"
       value:
