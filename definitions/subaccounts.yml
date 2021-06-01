@@ -2,7 +2,7 @@ openapi: 3.0.0
 servers:
   - url: "https://api.nexmo.com/accounts"
 info:
-  version: 1.0.8
+  version: 1.0.9
   title: Subaccounts API
   description: >-
     The Subaccounts API enables you to create subaccounts under your primary account. Subaccounts facilitate differential product configuration, reporting, and billing. The Subaccounts API is released initially with restricted availability. You can read more about the API in the [Subaccounts documentation](/account/subaccounts/overview).
@@ -235,6 +235,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ForbiddenErrorResponse"
+              examples: 
+                quota-transfer-provisioning:
+                  $ref: '#/components/examples/quota-transfer-provisioning'
         "404":
           $ref: "#/components/responses/AccountIdNotFoundError"
     post:
@@ -335,6 +338,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ForbiddenErrorResponse"
+              examples: 
+                quota-transfer-provisioning:
+                  $ref: '#/components/examples/quota-transfer-provisioning'
         "404":
           $ref: "#/components/responses/AccountIdNotFoundError"
     post:
@@ -881,6 +887,13 @@ components:
           "detail": "Primary account does not allow independent balance",
           "instance": "158b8f199c45014ab7b08bfe9cc1c12c"
         }
+    quota-transfer-provisioning:
+      summary: Account cannot perform quota transfer
+      value:
+        type: 'https://developer.nexmo.com/api-errors/account/subaccounts#provisioning'
+        title: Invalid operation for account
+        detail: Account is not provisioned to perform quota transfers
+        instance: 158b8f199c45014ab7b08bfe9cc1c12c
     invalid-number-transfer:
       summary: "Invalid Transfer"
       value:
