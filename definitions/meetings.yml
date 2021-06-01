@@ -448,6 +448,10 @@ components:
         display_name:
           type: string
           maxLength: 200
+        metadata:
+          maxLength: 500
+          type: string
+          description: Free text that can be attached to a room. This will be passed in the form of a header in events related to this room.
         pin_code:
           minLength: 9
           pattern: ^\d+$
@@ -470,6 +474,10 @@ components:
         display_name:
           maxLength: 200
           type: string
+        metadata:
+          maxLength: 500
+          type: string
+          description: Free text that can be attached to a room. This will be passed in the form of a header in events related to this room.
     Recording:
       type: object
       properties:
