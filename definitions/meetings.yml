@@ -99,11 +99,11 @@ paths:
               responses:
                 "204":
                   description: Your server returns this code if it accepts the callback
-          "pincode-expired":
+          "room-expired":
             post:
-              summary: Pincode Expired Callback
-              operationId: pincode-expired
-              description: A notification about a pincode no longer being available for a room that is still in use
+              summary: Room Expired Callback
+              operationId: room-expired
+              description: A notification about a becoming inactive, which means no more sessions can be created for it
               requestBody:
                 required: true
                 content:
@@ -112,7 +112,7 @@ paths:
                       properties:
                         event:
                           type: string
-                          enum: ["pincode-expired"]
+                          enum: ["room-expired"]
                         room_id:
                           type: string
                           format: uuid
@@ -135,7 +135,6 @@ paths:
                           enum: ["session-started"]
                         session_id:
                           type: string
-                          format: uuid
                         room_id:
                           type: string
                           format: uuid
@@ -161,7 +160,6 @@ paths:
                           enum: ["session-ended"]
                         session_id:
                           type: string
-                          format: uuid
                         room_id:
                           type: string
                           format: uuid
@@ -193,7 +191,6 @@ paths:
                           format: uuid
                         session_id:
                           type: string
-                          format: uuid
                         room_id:
                           type: string
                           format: uuid
@@ -219,7 +216,6 @@ paths:
                           format: uuid
                         session_id:
                           type: string
-                          format: uuid
                         room_id:
                           type: string
                           format: uuid
@@ -245,7 +241,6 @@ paths:
                           format: uuid
                         session_id:
                           type: string
-                          format: uuid
                         room_id:
                           type: string
                           format: uuid
@@ -300,7 +295,6 @@ paths:
                           format: uuid
                         session_id:
                           type: string
-                          format: uuid
                         room_id:
                           type: string
                           format: uuid
@@ -330,7 +324,6 @@ paths:
                             format: uuid
                           session_id:
                             type: string
-                            format: uuid
                           room_id:
                             type: string
                             format: uuid
@@ -452,11 +445,17 @@ components:
           maxLength: 500
           type: string
           description: Free text that can be attached to a room. This will be passed in the form of a header in events related to this room.
-        pin_code:
+        meeting_code:
           minLength: 9
           pattern: ^\d+$
           type: string
           example: "123456789"
+        status:
+          type: string
+          enum:
+            - available
+            - unavailable
+          description: Once a room becomes unavailable, no new sessions can be created under it
         _links:
           type: object
           properties:
@@ -486,7 +485,8 @@ components:
           format: uuid
         session_id:
           type: string
-          format: uuid
+          example: '2_MX40NjMwODczMn5-MTU3NTgyODEwNzQ2MH5OZDJrVmdBRUNDbG5MUzNqNXgya20yQ1Z-fg'
+          description: Corresponds to the underlying Video API session id
         started_at:
           type: string
           format: date-time
