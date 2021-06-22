@@ -8,9 +8,10 @@ info:
     email: devrel@vonage.com
     url: 'https://developer.nexmo.com/'
 servers:
-  - url: https://api.nexmo.com/verify/v2
+  - url: https://api.nexmo.com/v2/verify
 security:
   - basicAuth: []
+  - bearerAuth: []
 
 paths:
   /requests:
@@ -231,7 +232,7 @@ components:
               - pin
             properties:
               pin:
-                $ref: '#/components/schemas/Pin'
+                $ref: '#/components/schemas/PIN'
 
     NewVerificationRequest:
       required: true
@@ -257,6 +258,11 @@ components:
         type: string
 
   schemas:
+    ClientRef:
+      type: string
+      description: If the `client-ref` is set when the request is sent, it will be included in the callbacks
+      example: my-personal-reference
+
     Country:
       type: string
       description: If you do not provide the `to.number` in international format or you are not sure if `to.number` is correctly formatted, specify the two-character country code in `country`. Verify will then format the number for you.
@@ -278,6 +284,8 @@ components:
           $ref: 'common/common_data.yml#/components/schemas/Language'
         next_event_wait:
           $ref: '#/components/schemas/NextEventWait'
+        client-ref:
+          $ref: '#/components/schemas/ClientRef'
 
     NewPINRequest:
       allOf:
@@ -307,6 +315,12 @@ components:
               type: string
               description: "Amount to be verified"
               example: "2.50"
+            current:
+              type: string
+              description: ISO 4217 currency code to represent the amount in
+              pattern: '^[A-Z]{3}$'
+              example: EUR
+
           required:
             - to
             - sender
@@ -379,6 +393,8 @@ components:
             - whatsapp
         number:
           $ref: '#/components/schemas/MSISDN'
+        pin:
+          $ref: '#/components/schemas/PIN'
 
     ToFacebook:
       type: object
@@ -396,6 +412,8 @@ components:
           type: string
           description: Facebook Recipient ID
           example: "1254477777772919"
+        pin:
+          $ref: '#/components/schemas/PIN'
 
     VerifyResource:
       required:
@@ -417,10 +435,6 @@ components:
           type: string
           description: The API key that made this Verify Request (may include subaccounts)
           example: "acbd1234"
-        request_cost:
-          type: number
-          description: The one-off cost for this request, in EUR
-          example: "0.05"
         messages_cost:
           type: number
           description: The per-message/call costs for this request so far, in EUR. This number may update as the request progresses.
@@ -469,12 +483,12 @@ components:
                 description: The date and time that the event was started, in ISO 8601 format.
                 example: "2020-01-01T14:00:00.000Z"
 
-    Pin:
+    PIN:
       type: string
       description: The PIN the user supplied
       example: 1234
       minLength: 4
-      maxLength: 6
+      maxLength: 10
 
     Error:
       description: 'Information about what went wrong, with a description of the problem and a link to more information'
@@ -511,4 +525,10 @@ components:
     basicAuth:
       type: http
       scheme: basic
+      description: HTTP auth can be used for syncronous calls, for asyncronous calls and call backs use JWT authentication
+
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 
