@@ -79,31 +79,11 @@ paths:
           description: Bad Request
       callbacks:
         meeting-events:
-          "room-deleted":
-            post:
-              summary: Room Deleted Callback
-              operationId: room-deleted
-              description: A notification about a room being deleted
-              requestBody:
-                required: true
-                content:
-                  application/json:
-                    schema:
-                      properties:
-                        event:
-                          type: string
-                          enum: ["room-deleted"]
-                        room_id:
-                          type: string
-                          format: uuid
-              responses:
-                "204":
-                  description: Your server returns this code if it accepts the callback
           "room-expired":
             post:
               summary: Room Expired Callback
               operationId: room-expired
-              description: A notification about a becoming inactive, which means no more sessions can be created for it
+              description: A notification about a room becoming inactive, which means no more sessions can be created for it
               requestBody:
                 required: true
                 content:
@@ -253,26 +233,6 @@ paths:
                         url:
                           type: string
                           format: uri
-              responses:
-                "204":
-                  description: Your server returns this code if it accepts the callback
-          "recording-deleted":
-            post:
-              summary: Recording Deleted Callback
-              operationId: recording-deleted
-              description: A notification about recording being deleted
-              requestBody:
-                required: true
-                content:
-                  application/json:
-                    schema:
-                      properties:
-                        event:
-                          type: string
-                          enum: ["recording-deleted"]
-                        recording_id:
-                          type: string
-                          format: uuid
               responses:
                 "204":
                   description: Your server returns this code if it accepts the callback
