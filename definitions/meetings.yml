@@ -6,6 +6,58 @@ servers:
   - url: /api
 paths:
   /rooms:
+    get:
+      summary: Get all available rooms
+      operationId: getRooms
+      parameters:
+        - $ref: '#/components/parameters/start_id_parameter'
+        - $ref: '#/components/parameters/end_id_parameter'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  page_size:
+                    type: integer
+                    example: 10
+                    description: The number of results returned on this page.
+                  _embedded:
+                    type: object
+                    properties:
+                      rooms:
+                        type: array
+                        description: List of all accessible rooms
+                        items:
+                          $ref: '#/components/schemas/Room'
+                  _links:
+                    type: object
+                    properties:
+                      first:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: 'https://api.nexmo.com/v0.1/meetings/rooms?page_size=10'
+                      self:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: 'https://api.nexmo.com/v0.1/meetings/rooms?page_size=10&start_id=20'
+                      next:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: 'https://api.nexmo.com/v0.1/meetings/rooms?page_size=10&start_id=30'
+                      prev:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            example: 'https://api.nexmo.com/v0.1/meetings/rooms?page_size=10&end_id=20'
     post:
       summary: Create a room
       operationId: createRoom
@@ -261,58 +313,6 @@ paths:
               responses:
                 '204':
                   description: Your server returns this code if it accepts the callback
-    get:
-      summary: Get all available rooms
-      operationId: getRooms
-      parameters:
-        - $ref: '#/components/parameters/start_id_parameter'
-        - $ref: '#/components/parameters/end_id_parameter'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                properties:
-                  page_size:
-                    type: integer
-                    example: 10
-                    description: The number of results returned on this page.
-                  _embedded:
-                    type: object
-                    properties:
-                      rooms:
-                        type: array
-                        description: List of all accessible rooms
-                        items:
-                          $ref: '#/components/schemas/Room'
-                  _links:
-                    type: object
-                    properties:
-                      first:
-                        type: object
-                        properties:
-                          href:
-                            type: string
-                            example: 'https://api.nexmo.com/v0.1/meetings/rooms?page_size=10'
-                      self:
-                        type: object
-                        properties:
-                          href:
-                            type: string
-                            example: 'https://api.nexmo.com/v0.1/meetings/rooms?page_size=10&start_id=20'
-                      next:
-                        type: object
-                        properties:
-                          href:
-                            type: string
-                            example: 'https://api.nexmo.com/v0.1/meetings/rooms?page_size=10&start_id=30'
-                      prev:
-                        type: object
-                        properties:
-                          href:
-                            type: string
-                            example: 'https://api.nexmo.com/v0.1/meetings/rooms?page_size=10&end_id=20'
   '/rooms/:room_id':
     get:
       summary: Get room details
@@ -425,7 +425,6 @@ components:
           type: string
           description: Free text that can be attached to a room. This will be passed in the form of a header in events related to this room.
         recording_options:
-          type: object
           $ref: '#/components/schemas/RecordingOptions'
         meeting_code:
           type: string
@@ -464,7 +463,6 @@ components:
           type: string
           description: Free text that can be attached to a room. This will be passed in the form of a header in events related to this room.
         recording_options:
-          type: object
           $ref: '#/components/schemas/RecordingOptions'
     RecordingOptions:
       type: object
