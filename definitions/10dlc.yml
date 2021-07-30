@@ -2222,7 +2222,7 @@ components:
     NumberCompliance:
       type: array
       description: List of compliance flags.
-      example: '[ "HIPPA" ]'
+      example: "[ 'HIPPA' ]"
 
     UpdateNonProfitBrand:
       type: object
