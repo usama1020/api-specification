@@ -1830,7 +1830,7 @@ components:
         reseller_id:
           type: string
           description: Alphanumeric identifier of the reseller that you want to associate with this campaign
-          maxLength: 5
+          maxLength: 8
           example:
             $ref: '#/components/examples/Campaign/value/reseller_id'
         description:
@@ -1850,7 +1850,7 @@ components:
             $ref: '#/components/examples/Campaign/value/embedded_phone'
         number_pool:
           type: boolean
-          description: Does campaign utilize pool of phone nubers?
+          description: Does campaign utilize pool of phone numbers?
           example:
             $ref: '#/components/examples/Campaign/value/number_pool'
         age_gated:
@@ -2183,6 +2183,8 @@ components:
           $ref: '#/components/schemas/Country'
         status:
           $ref: '#/components/schemas/NumberStatus'
+        compliance:
+          $ref: '#/components/schemas/NumberCompliance'
         _links:
           type: object
           properties:
@@ -2216,6 +2218,11 @@ components:
         - APPROVED
         - REJECTED
         - PENDING
+    
+    NumberCompliance:
+      type: array
+      description: List of compliance flags.
+      example: [ "HIPPA" ]
 
     UpdateNonProfitBrand:
       type: object
