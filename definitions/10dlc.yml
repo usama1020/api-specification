@@ -1750,13 +1750,52 @@ components:
         vertical:
           type: string
           description: Business/industry segment of this campaign
-          maxLength: 20
+          enum:
+            - UNKNOWN
+            - REAL_ESTATE
+            - HEALTHCARE
+            - ENERGY
+            - ENTERTAINMENT
+            - RETAIL
+            - AGRICULTURE
+            - INSURANCE
+            - EDUCATION
+            - HOSPITALITY
+            - FINANCIAL
+            - GAMBLING
+            - CONSTRUCTION
+            - NGO
+            - MANUFACTURING
+            - GOVERNMENT
+            - TECHNOLOGY
+            - COMMUNICATION
           example:
             $ref: '#/components/examples/Campaign/value/vertical'
         usecase:
           type: string
           description: Campaign usecase
-          maxLength: 20
+          maxLength: 50
+          enum:
+            - CUSTOMER_CARE
+            - POLLING_VOTING
+            - HIGHER_EDUCATION
+            - PUBLIC_SERVICE_ANNOUNCEMENT
+            - MARKETING
+            - SECURITY_ALERT
+            - DELIVERY_NOTIFICATION
+            - ACCOUNT_NOTIFICATION
+            - 2FA
+            - FRAUD_ALERT
+            - TRIAL
+            - CHARITY
+            - POLITICAL
+            - EMERGENCY
+            - SWEEPSTAKE
+            - CONVERSATIONAL
+            - MIXED
+            - CARRIER_EXEMPT
+            - SOCIAL
+            - LOW_VOLUME
           example:
             $ref: '#/components/examples/Campaign/value/usecase'
         sub_usecases:
@@ -1764,6 +1803,28 @@ components:
           description: Campaign sub-usecases
           items:
             type: string
+            maxLength: 50
+            enum:
+              - CUSTOMER_CARE
+              - POLLING_VOTING
+              - HIGHER_EDUCATION
+              - PUBLIC_SERVICE_ANNOUNCEMENT
+              - MARKETING
+              - SECURITY_ALERT
+              - DELIVERY_NOTIFICATION
+              - ACCOUNT_NOTIFICATION
+              - 2FA
+              - FRAUD_ALERT
+              - TRIAL
+              - CHARITY
+              - POLITICAL
+              - EMERGENCY
+              - SWEEPSTAKE
+              - CONVERSATIONAL
+              - MIXED
+              - CARRIER_EXEMPT
+              - SOCIAL
+              - LOW_VOLUME
           example:
             $ref: '#/components/examples/Campaign/value/sub_usecases'
         reseller_id:
