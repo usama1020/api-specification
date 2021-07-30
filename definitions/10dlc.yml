@@ -1416,72 +1416,150 @@ components:
             $ref: '#/components/examples/BrandVonage/value/entity_type'
         display_name:
           type: string
+          maxLength: 100
+          description: Display or marketing name of the brand.
           example:
             $ref: '#/components/examples/BrandVonage/value/display_name'
         company_name:
           type: string
+          maxLength: 100
+          description: Legal company name.
           example:
             $ref: '#/components/examples/BrandVonage/value/company_name'
         ein:
           type: string
           pattern: ^([0-9]{2}[-]?[0-9]{7})$|^([0-9]{3}[-]?[0-9]{2}[-]?[0-9]{4})$
+          maxLength: 21
+          description: (Required for Non-profit) Government assigned corporate tax ID. EIN is 9-digits in U.S.A.
           example:
             $ref: '#/components/examples/BrandVonage/value/ein'
         universal_ein:
           type: string
           pattern: ^([0-9]{2}[-]?[0-9]{7})$|^([0-9]{3}[-]?[0-9]{2}[-]?[0-9]{4})$
+          maxLength: 50
+          description: Universal EIN of Brand, Read-Only
           example:
             $ref: '#/components/examples/BrandVonage/value/universal_ein'
         alt_business_id_type:
           type: string
+          maxLength: 50
+          description: Required if alt_business_id is provided.
+          enum:
+            - DUNS
+            - GIIN
+            - LEI
           example:
             $ref: '#/components/examples/BrandVonage/value/alt_business_id_type'
         alt_business_id:
           type: string
+          maxLength: 50
+          description: Required if alt_business_id_type is provided.
           example:
             $ref: '#/components/examples/BrandVonage/value/alt_business_id'
         phone:
           type: string
+          description: Valid phone number in E.164 international format without the + prefix.
           example:
             $ref: '#/components/examples/BrandVonage/value/phone'
         street:
           type: string
+          maxLength: 100
+          description: Street number and name.
           example:
             $ref: '#/components/examples/BrandVonage/value/street'
         city:
           type: string
+          maxLength: 100
+          description: City name
           example:
             $ref: '#/components/examples/BrandVonage/value/city'
         state:
           type: string
+          maxLength: 20
+          description: State. Must be 2 letters code for U.S.A.
           example:
             $ref: '#/components/examples/BrandVonage/value/state'
         postal_code:
           type: string
+          maxLength: 10
+          description: Postal codes. Use 5 digit zipcode for United States
           example:
             $ref: '#/components/examples/BrandVonage/value/postal_code'
         country:
           type: string
+          description: ISO3166-Alpha2 country code.
           example:
             $ref: '#/components/examples/BrandVonage/value/country'
         email:
           type: string
+          maxLength: 100
+          description: Valid email address of brand support contact.
           example:
             $ref: '#/components/examples/BrandVonage/value/email'
         stock_symbol:
           type: string
+          maxLength: 10
+          description: Stock Symbol - Required if entity_type=PUBLIC_PROFIT.
           example:
             $ref: '#/components/examples/BrandVonage/value/stock_symbol'
         stock_exchange:
           type: string
+          maxLength: 10
+          description: Required if entity_type=PUBLIC_PROFIT.
+          enum:
+            - NONE
+            - AMEX
+            - AMX
+            - ASX
+            - B3
+            - BME
+            - BSE
+            - FRA
+            - ICEX
+            - JSE
+            - KRX
+            - LON
+            - NASDAQ
+            - NSE
+            - NYSE
+            - OMX
+            - SEHK
+            - SSE
+            - STO
+            - SWX
+            - SZSE
+            - TSX
+            - TWSE
+            - VSE
           example:
             $ref: '#/components/examples/BrandVonage/value/stock_exchange'
         website:
           type: string
+          description: Brand website URL.
           example:
             $ref: '#/components/examples/BrandVonage/value/website'
         vertical:
           type: string
+          description: Business/industry segment of this campaign.
+          enum:
+           - UNKNOWN
+           - REAL_ESTATE
+           - HEALTHCARE
+           - ENERGY
+           - ENTERTAINMENT
+           - RETAIL
+           - AGRICULTURE
+           - INSURANCE
+           - EDUCATION
+           - HOSPITALITY
+           - FINANCIAL
+           - GAMBLING
+           - CONSTRUCTION
+           - NGO
+           - MANUFACTURING
+           - GOVERNMENT
+           - TECHNOLOGY
+           - COMMUNICATION
           example:
             $ref: '#/components/examples/BrandVonage/value/vertical'
 
@@ -1541,11 +1619,37 @@ components:
             $ref: '#/components/examples/BrandVonage/value/email'
         stock_symbol:
           type: string
-          description: Stock Symbol.
+          description: Stock Symbol - Required if entity_type=PUBLIC_PROFIT.
           example:
             $ref: '#/components/examples/BrandVonage/value/stock_symbol'
         stock_exchange:
           type: string
+          description: Required if entity_type=PUBLIC_PROFIT.
+          enum:
+            - NONE
+            - AMEX
+            - AMX
+            - ASX
+            - B3
+            - BME
+            - BSE
+            - FRA
+            - ICEX
+            - JSE
+            - KRX
+            - LON
+            - NASDAQ
+            - NSE
+            - NYSE
+            - OMX
+            - SEHK
+            - SSE
+            - STO
+            - SWX
+            - SZSE
+            - TSX
+            - TWSE
+            - VSE
           example:
             $ref: '#/components/examples/BrandVonage/value/stock_exchange'
         vertical:
