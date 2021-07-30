@@ -443,6 +443,7 @@ components:
         display_name: "Vonage"
         company_name: "Vonage"
         ein: "20-1111111"
+        universal_ein: "20-1111111"
         alt_business_id_type: "DUNS"
         alt_business_id: "150483782"
         phone: "+15556660001"
@@ -1393,12 +1394,18 @@ components:
       description: The Vonage Account ID
       type: string
       example: abcd1234
+    PrimaryAccountID:
+      description: The Vonage Primary Account ID (the parent account of account_id).
+      type: string
+      example: abcd1234
 
     BrandBase:
       type: object
       properties:
         account_id:
           $ref: '#/components/schemas/AccountID'
+        primary_account_id:
+          $ref: '#/components/schemas/PrimaryAccountID'
         entity_type:
           type: string
           enum:
@@ -1420,6 +1427,11 @@ components:
           pattern: ^([0-9]{2}[-]?[0-9]{7})$|^([0-9]{3}[-]?[0-9]{2}[-]?[0-9]{4})$
           example:
             $ref: '#/components/examples/BrandVonage/value/ein'
+        universal_ein:
+          type: string
+          pattern: ^([0-9]{2}[-]?[0-9]{7})$|^([0-9]{3}[-]?[0-9]{2}[-]?[0-9]{4})$
+          example:
+            $ref: '#/components/examples/BrandVonage/value/universal_ein'
         alt_business_id_type:
           type: string
           example:
@@ -1536,8 +1548,14 @@ components:
           example: 5
         brand_relationship:
           $ref: '#/components/schemas/BrandRelationship'
+        partner:
+          description: Flag indicating the brand or campaign belong to a partner campaign.
+          type: boolean
         shared:
           description: True when the brand is shared with the current Account ID.
+          type: boolean
+        owner:
+          description: True when the brand is owned by the requesting account.
           type: boolean
         registration_score:
           description: >-
@@ -1548,6 +1566,9 @@ components:
           readOnly: true
         status:
           description: Brand status.
+          type: string
+        reference_id:
+          description: Unique identifier for preventing duplicate brand registration into TCR.
           type: string
 
     BrandRelationship:
