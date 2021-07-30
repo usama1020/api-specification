@@ -1491,42 +1491,57 @@ components:
       properties:
         display_name:
           type: string
+          description: Display or marketing name of the brand.
           example:
             $ref: '#/components/examples/BrandVonage/value/display_name'
         website:
           type: string
+          description: Brand website URL.
           example:
             $ref: '#/components/examples/BrandVonage/value/website'
         phone:
           type: string
+          description: Valid phone number in E.164 international format without the + prefix.
           example:
             $ref: '#/components/examples/BrandVonage/value/phone'
         street:
           type: string
+          maxLength: 100
+          description: Street number and name.
           example:
             $ref: '#/components/examples/BrandVonage/value/street'
         city:
           type: string
+          maxLength: 100
+          description: City name
           example:
             $ref: '#/components/examples/BrandVonage/value/city'
         state:
           type: string
+          maxLength: 20
+          description: State. Must be 2 letters code for U.S.A.
           example:
             $ref: '#/components/examples/BrandVonage/value/state'
         postal_code:
           type: string
+          maxLength: 10
+          description: Postal codes. Use 5 digit zipcode for United States
           example:
             $ref: '#/components/examples/BrandVonage/value/postal_code'
         country:
           type: string
+          description: ISO3166-Alpha2 country code.
           example:
             $ref: '#/components/examples/BrandVonage/value/country'
         email:
           type: string
+          description: Valid email address of brand support contact.
+          maxLength: 100
           example:
             $ref: '#/components/examples/BrandVonage/value/email'
         stock_symbol:
           type: string
+          description: Stock Symbol.
           example:
             $ref: '#/components/examples/BrandVonage/value/stock_symbol'
         stock_exchange:
@@ -1534,6 +1549,7 @@ components:
           example:
             $ref: '#/components/examples/BrandVonage/value/stock_exchange'
         vertical:
+          description: Business/industry segment of this campaign.
           type: string
           example:
             $ref: '#/components/examples/BrandVonage/value/vertical'
