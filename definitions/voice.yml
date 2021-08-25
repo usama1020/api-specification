@@ -340,37 +340,38 @@ paths:
         "204":
           description: No content
 
-  "/v0.3/conversations/{conversation_uuid}/events":
-    parameters:
-      - in: path
-        name: conversation_uuid
-        schema:
-          type: string
-        required: true
-        description: UUID of the Conversation
-        example: CON-63f61863-4a51-4f6b-86e1-46edebio0391
-    post:
-      tags:
-        - Controlling Calls
-      security:
-        - bearerAuth: []
-      summary: Send an instruction to make an action on a conversation
-      description: "Send an *event* to perform an action on the conversation level (affecting all memmbers), for example, play message/audio file, or change certain member state, for example, mute a member"
-      operationId: sendEvent
-      requestBody:
-        description: Instruction to send
-        required: true
-        content:
-          application/json:
-            schema:
-              "$ref": "#/components/schemas/ConversationEventRequest"
-      responses:
-        "201":
-          description: Created
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/ConversationEventResponse"
+  # "/v0.3/conversations/{conversation_uuid}/events":
+  #   parameters:
+  #     - in: path
+  #       name: conversation_uuid
+  #       schema:
+  #         type: string
+  #       required: true
+  #       description: UUID of the Conversation
+  #       example: "CON-63f61863-4a51-4f6b-86e1-46edebio0391"
+  #   post:
+  #     tags:
+  #       - Controlling Calls
+  #     security:
+  #       - bearerAuth: []
+  #     summary: Send an instruction to make an action on a conversation
+  #     description: "Send an *event* to perform an action on the conversation level (affecting all memmbers), for example, play message/audio file, or change certain member state, for example, mute a member"
+  #     operationId: sendEvent
+  #     requestBody:
+  #       description: Instruction to send
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             "$ref": "#/components/schemas/ConversationEventRequest"
+  #     responses:
+  #       "201":
+  #         description: Created
+  #         content:
+  #           application/json:
+  #             schema:
+  #               "$ref": "#/components/schemas/ConversationEventResponse"
+  
   "/v0.3/conversations":
     get:
       operationId: getConversations
@@ -441,6 +442,7 @@ paths:
                           href:
                             type: string
                             example: "https://api.nexmo.com/v0.2/conversations?order=desc&page_size=10&cursor=069626a3de11d2ec900dff5042197bd75f1ce41dafc3f2b2481eb9151086e59aae9dba3e3a8858dc355232d499c310fbfbec43923ff657c0de8d49ffed9f7edb"
+
   "/v0.3/conversations/{conversation_id}":
     parameters:
       - $ref: "#/components/parameters/conversation_id"
@@ -576,7 +578,7 @@ components:
       properties:
         digits:
           type: string
-          example: 1713
+          example: "1713"
           description: The digits to send
 
     StartTalkRequest:
@@ -2526,7 +2528,7 @@ components:
             - _links
     event_id:
       description: Event id. This is a progressive integer
-      example: '5'
+      example: 5
       type: integer
     iso_date:
       type: string
@@ -2594,17 +2596,17 @@ components:
         destination_url:
           type: array
           items:
-            $ref: '#/components/schemas/url_v03'
+            description: The destination URL
+            type: string
+            format: url
+            example: "https://example.com/"
         format:
           type: string
           enum:
             - mp3
             - wav
             - vorbis
-    url_v03:
-      type: string
-      format: uri
-      maxLength: 2048
+
     StartRecordingResponse:
       type: object
       properties:
@@ -2614,6 +2616,7 @@ components:
           type: string
       required:
         - id
+
     record_id:
       type: string
       example: ''
