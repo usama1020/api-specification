@@ -306,7 +306,8 @@ paths:
         - Controlling Calls
       security:
         - bearerAuth: []
-      summary: Start call (leg) recording
+      summary: "Start call (leg) recording"
+      description: "Start call (leg) recording"
       operationId: startRecording
       requestBody:
         description: action to perform
@@ -327,8 +328,8 @@ paths:
         - Controlling Calls
       security:
         - bearerAuth: []
-      summary: Stop call (leg) recording
-      description: Stop call (leg) recording
+      summary: "Stop call (leg) recording"
+      description: "Stop call (leg) recording"
       operationId: stopRecording
       parameters:
         - name: beep
@@ -1514,6 +1515,7 @@ components:
                       example: 'in'
                     duration:
                       type: integer
+                      example: 0
                   required:
                     - method
                     - duration
