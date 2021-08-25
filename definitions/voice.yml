@@ -1511,6 +1511,7 @@ components:
                       type: string
                       enum:
                         - in
+                      example: 'in'
                     duration:
                       type: integer
                   required:
@@ -2201,6 +2202,7 @@ components:
                           type: string
                           enum:
                             - in
+                          example: 'in'
                         duration:
                           type: integer
                           example: 0
