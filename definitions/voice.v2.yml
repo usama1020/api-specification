@@ -22,12 +22,9 @@ paths:
     post:
       security:
         - bearerAuth: []
-      summary:
-        "$ref": "voice.yml#/paths/~1/post/summary"
-      description:
-        "$ref": "voice.yml#/paths/~1/post/description"
-      operationId:
-        "$ref": "voice.yml#/paths/~1/post/operationId"
+      summary: "Create an outbound call"
+      description: "Create an outbound call"
+      operationId: startCall
       requestBody:
         "$ref": "#/components/requestBodies/CreateCallRequestBody"
       responses:
