@@ -1395,6 +1395,7 @@ components:
                   type: array
                   items:
                     $ref: '#/components/schemas/string_uri'
+                  example: "['https://example.com/']"
               required:
                 - level
                 - loop
@@ -1582,6 +1583,7 @@ components:
               properties:
                 record_id:
                   type: string
+                  example: ''
               required:
                 - record_id
           required:
@@ -1713,11 +1715,11 @@ components:
         - $ref: '#/components/schemas/websocket_endpoint'
     leg_id:
       type: string
+      example: ''
     headers:
       type: object
     channel_type:
       description: Channel type
-      example: phone
       type: string
       enum:
         - app
@@ -1725,6 +1727,7 @@ components:
         - sip
         - websocket
         - vbc
+      example: 'app'
     phone_from_endpoint:
       type: object
       properties:
@@ -1801,6 +1804,7 @@ components:
             - type: string
               pattern: '^(ws|wss):\/\/[a-zA-Z0-9~#%@&-_?\\/.,:;)(\][]*$'
             - type: string
+          example: 'ws://'
         content-type:
           type: string
         headers:
@@ -1955,6 +1959,7 @@ components:
               type: string
               enum:
                 - 'audio:play'
+              example: 'audio:play'
             id:
               $ref: '#/components/schemas/event_id'
             timestamp:
@@ -1978,6 +1983,7 @@ components:
                       type: array
                       items:
                         $ref: '#/components/schemas/string_uri'
+                      example: "['https://example.com/']"
                     play_id:
                       type: string
                       example: ''
@@ -2056,6 +2062,7 @@ components:
               type: string
               enum:
                 - 'audio:say'
+              example: 'audio:say'
             id:
               $ref: '#/components/schemas/event_id'
             timestamp:
@@ -2196,6 +2203,7 @@ components:
                             - in
                         duration:
                           type: integer
+                          example: 0
                       required:
                         - method
                         - duration
@@ -2241,6 +2249,7 @@ components:
               type: string
               enum:
                 - 'audio:record'
+              example: 'audio:record'
             id:
               $ref: '#/components/schemas/event_id'
             timestamp:
@@ -2305,6 +2314,7 @@ components:
               type: string
               enum:
                 - 'audio:record:stop'
+              example: 'audio:record:stop'
             id:
               $ref: '#/components/schemas/event_id'
             timestamp:
@@ -2319,6 +2329,7 @@ components:
                   properties:
                     record_id:
                       type: string
+                      example: ''
                   required:
                     - record_id
                 - type: object
@@ -2347,6 +2358,7 @@ components:
               type: string
               enum:
                 - 'audio:mute:on'
+              example: 'audio:mute:on'
             id:
               $ref: '#/components/schemas/event_id'
             timestamp:
@@ -2389,6 +2401,7 @@ components:
               type: string
               enum:
                 - 'audio:mute:off'
+              example: 'audio:mute:off'
             id:
               $ref: '#/components/schemas/event_id'
             timestamp:
@@ -2474,6 +2487,7 @@ components:
               type: string
               enum:
                 - 'audio:earmuff:off'
+              example: 'audio:earmuff:off'
             id:
               $ref: '#/components/schemas/event_id'
             timestamp:
