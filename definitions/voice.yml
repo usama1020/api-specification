@@ -10,9 +10,9 @@ info:
   contact:
     name: Vonage DevRel
     email: devrel@vonage.com
-    url: "https://developer.nexmo.com/"
+    url: https://developer.nexmo.com
 servers:
-  - url: https://api.nexmo.com/
+  - url: https://api.nexmo.com
 paths:
   "/v1/calls/":
     post:
@@ -38,7 +38,7 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/CreateCallResponse"
-  "/v0.3/legs/":
+  "/v0.3/legs":
     get:
       tags:
         - Fetching Calls
