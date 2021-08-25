@@ -340,37 +340,37 @@ paths:
         "204":
           description: No content
 
-  # "/v0.3/conversations/{conversation_uuid}/events":
-  #   parameters:
-  #     - in: path
-  #       name: conversation_uuid
-  #       schema:
-  #         type: string
-  #       required: true
-  #       description: UUID of the Conversation
-  #       example: "CON-63f61863-4a51-4f6b-86e1-46edebio0391"
-  #   post:
-  #     tags:
-  #       - Controlling Calls
-  #     security:
-  #       - bearerAuth: []
-  #     summary: Send an instruction to make an action on a conversation
-  #     description: "Send an *event* to perform an action on the conversation level (affecting all memmbers), for example, play message/audio file, or change certain member state, for example, mute a member"
-  #     operationId: sendEvent
-  #     requestBody:
-  #       description: Instruction to send
-  #       required: true
-  #       content:
-  #         application/json:
-  #           schema:
-  #             "$ref": "#/components/schemas/ConversationEventRequest"
-  #     responses:
-  #       "201":
-  #         description: Created
-  #         content:
-  #           application/json:
-  #             schema:
-  #               "$ref": "#/components/schemas/ConversationEventResponse"
+  "/v0.3/conversations/{conversation_uuid}/events":
+    parameters:
+      - in: path
+        name: conversation_uuid
+        schema:
+          type: string
+        required: true
+        description: UUID of the Conversation
+        example: "CON-63f61863-4a51-4f6b-86e1-46edebio0391"
+    post:
+      tags:
+        - Controlling Calls
+      security:
+        - bearerAuth: []
+      summary: Send an instruction to make an action on a conversation
+      description: "Send an *event* to perform an action on the conversation level (affecting all memmbers), for example, play message/audio file, or change certain member state, for example, mute a member"
+      operationId: sendEvent
+      requestBody:
+        description: Instruction to send
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/ConversationEventRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ConversationEventResponse"
   
   "/v0.3/conversations":
     get:
@@ -1371,8 +1371,56 @@ components:
         - Zeina
         - Zhiyu
         - Zuzana
+
     ConversationEventRequest:
       oneOf:
+        - title: 'audio:play'
+          x-tab-id: audio-play
+          allOf: 
+            - $ref: "#/components/schemas/ConversationEventRequestAudioPlay"
+        - title: 'audio:play:stop'
+          x-tab-id: audio-play-stop
+          allOf: 
+            - $ref: "#/components/schemas/ConversationEventRequestAudioPlayStop"
+        - title: 'audio:say'
+          x-tab-id: audio-say
+          allOf: 
+            - $ref: "#/components/schemas/ConversationEventRequestAudioSay"
+        - title: 'audio:say:stop'
+          x-tab-id: audio-say-stop
+          allOf: 
+            - $ref: "#/components/schemas/ConversationEventRequestAudioSayStop"
+        - title: 'audio:dtmf'
+          x-tab-id: audio-dtmf
+          allOf:
+            - $ref: "#/components/schemas/ConversationEventRequestAudioDtmf"
+        - title: 'audio:record'
+          x-tab-id: audio-record
+          allOf:
+            - $ref: "#/components/schemas/ConversationEventRequestAudioRecord"
+        - title: 'audio:record:stop'
+          x-tab-id: audio-record-stop
+          allOf:
+            - $ref: "#/components/schemas/ConversationEventRequestAudioRecordStop"
+        - title: 'audio:mute:on'
+          x-tab-id: audio-mute-on
+          allOf:
+            - $ref: "#/components/schemas/ConversationEventRequestAudioMuteOn"
+        - title: 'audio:mute:off'
+          x-tab-id: audio-mute-off
+          allOf:
+            - $ref: "#/components/schemas/ConversationEventRequestAudioMuteOff"
+        - title: 'audio:earmuff:on'
+          x-tab-id: audio-earmuff-on
+          allOf:
+            - $ref: "#/components/schemas/ConversationEventRequestAudioEarmuffOn"
+        - title: 'audio:earmuff:off'
+          x-tab-id: audio-earmuff-off
+          allOf:
+            - $ref: "#/components/schemas/ConversationEventRequestAudioEarmuffOff"
+
+    ConversationEventRequestAudioPlay:
+      allOf:
         - type: object
           properties:
             type:
@@ -1405,6 +1453,9 @@ components:
                 - stream_url
           required:
             - type
+    
+    ConversationEventRequestAudioPlayStop:
+      allOf:
         - type: object
           properties:
             type:
@@ -1426,6 +1477,9 @@ components:
                 - play_id
           required:
             - type
+
+    ConversationEventRequestAudioSay:
+      allOf:
         - type: object
           properties:
             type:
@@ -1464,6 +1518,9 @@ components:
                 - text
           required:
             - type
+
+    ConversationEventRequestAudioSayStop:
+      allOf:
         - type: object
           properties:
             type:
@@ -1485,6 +1542,9 @@ components:
                 - say_id
           required:
             - type
+
+    ConversationEventRequestAudioDtmf:
+      allOf:
         - type: object
           properties:
             type:
@@ -1535,6 +1595,9 @@ components:
                       type: integer
           required:
             - type
+
+    ConversationEventRequestAudioRecord:
+      allOf:
         - type: object
           properties:
             type:
@@ -1572,6 +1635,9 @@ components:
                   maximum: 32
           required:
             - type
+
+    ConversationEventRequestAudioRecordStop:
+      allOf:
         - type: object
           properties:
             type:
@@ -1593,6 +1659,9 @@ components:
                 - record_id
           required:
             - type
+    
+    ConversationEventRequestAudioMuteOn:
+      allOf:
         - type: object
           properties:
             type:
@@ -1613,6 +1682,9 @@ components:
                 - rtc_id
           required:
             - type
+
+    ConversationEventRequestAudioMuteOff:
+      allOf:
         - type: object
           properties:
             type:
@@ -1633,6 +1705,9 @@ components:
                 - rtc_id
           required:
             - type
+
+    ConversationEventRequestAudioEarmuffOn:
+      allOf:
         - type: object
           properties:
             type:
@@ -1653,6 +1728,9 @@ components:
                 - rtc_id
           required:
             - type
+    
+    ConversationEventRequestAudioEarmuffOff:
+      allOf:
         - type: object
           properties:
             type:
@@ -1673,6 +1751,8 @@ components:
                 - rtc_id
           required:
             - type
+
+    
     member_id:
       type: string
     nullable_member_id:
@@ -1954,7 +2034,54 @@ components:
       
     ConversationEventResponse:
       oneOf:
-        - type: object
+    #     - title: 'audio:play'
+    #       x-tab-id: audio-play
+    #       allOf: 
+    #         - $ref: "#/components/schemas/ConversationEventResponseAudioPlay"
+    #     - title: 'audio:play:stop'
+    #       x-tab-id: audio-play-stop
+    #       allOf: 
+    #         - $ref: "#/components/schemas/ConversationEventResponseAudioPlayStop"
+    #     - title: 'audio:say'
+    #       x-tab-id: audio-say
+    #       allOf: 
+    #         - $ref: "#/components/schemas/ConversationEventResponsetAudioSay"
+    #     - title: 'audio:say:stop'
+    #       x-tab-id: audio-say-stop
+    #       allOf: 
+    #         - $ref: "#/components/schemas/ConversationEventResponseAudioSayStop"
+    #     - title: 'audio:dtmf'
+    #       x-tab-id: audio-dtmf
+    #       allOf:
+    #         - $ref: "#/components/schemas/ConversationEventResponseAudioDtmf"
+    #     - title: 'audio:record'
+    #       x-tab-id: audio-record
+    #       allOf:
+    #         - $ref: "#/components/schemas/ConversationEventResponseAudioRecord"
+    #     - title: 'audio:record:stop'
+    #       x-tab-id: audio-record-stop
+    #       allOf:
+    #         - $ref: "#/components/schemas/ConversationEventResponseAudioRecordStop"
+    #     - title: 'audio:mute:on'
+    #       x-tab-id: audio-mute-on
+    #       allOf:
+    #         - $ref: "#/components/schemas/ConversationEventResponseAudioMuteOn"
+    #     - title: 'audio:mute:off'
+    #       x-tab-id: audio-mute-off
+    #       allOf:
+    #         - $ref: "#/components/schemas/ConversationEventResponseAudioMuteOff"
+    #     - title: 'audio:earmuff:on'
+    #       x-tab-id: audio-earmuff-on
+    #       allOf:
+    #         - $ref: "#/components/schemas/ConversationEventResponseAudioEarmuffOn"
+    #     - title: 'audio:earmuff:off'
+    #       x-tab-id: audio-earmuff-off
+    #       allOf:
+    #         - $ref: "#/components/schemas/ConversationEventResponseAudioEarmuffOff"
+    
+    # ConversationEventResponseAudioPlay:
+        - title: 'test'
+          type: object
           properties:
             to:
               $ref: '#/components/schemas/member_id'
