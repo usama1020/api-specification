@@ -1376,6 +1376,7 @@ components:
               type: string
               enum:
                 - 'audio:play'
+              example: 'audio:play'
             to:
               $ref: '#/components/schemas/member_id'
             from:
@@ -1405,6 +1406,7 @@ components:
               type: string
               enum:
                 - 'audio:play:stop'
+              example: 'audio:play:stop'
             to:
               $ref: '#/components/schemas/member_id'
             from:
@@ -1414,6 +1416,7 @@ components:
               properties:
                 play_id:
                   type: string
+                  example: ''
               required:
                 - play_id
           required:
@@ -1664,6 +1667,7 @@ components:
       format: double
       minimum: -1
       maximum: 1
+      example: 0
     string_uri:
       description: String URI
       example: 'https://example.com/'
