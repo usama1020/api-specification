@@ -312,6 +312,7 @@ components:
         - type: object
           required:
             - workflow
+            - brand
           description: Request a PIN be sent to a user
           properties:
             workflow:
@@ -380,6 +381,7 @@ components:
                 ]
           required:
             - workflow
+            - brand
 
     NewPSD2Request:
       allOf:
