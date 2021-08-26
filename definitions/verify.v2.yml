@@ -239,15 +239,16 @@ components:
       content: 
         application/json:
           schema:
-            oneOf:
-              - title: PIN Verification
-                x-tab-id: PINVerification
-                allOf:
-                  - $ref: '#/components/schemas/NewPINRequest'
-              - title: PSD2 Verification
-                x-tab-id: PSD2Verification
-                allOf:
-                  - $ref: '#/components/schemas/NewPSD2Request'
+            $ref: '#/components/schemas/NewPINRequest'
+            # oneOf:
+            #   - title: PIN Verification
+            #     x-tab-id: PINVerification
+            #     allOf:
+            #       - $ref: '#/components/schemas/NewPINRequest'
+            #   - title: PSD2 Verification
+            #     x-tab-id: PSD2Verification
+            #     allOf:
+            #       - $ref: '#/components/schemas/NewPSD2Request'
   parameters:
     request_id:
       name: request_id
@@ -263,43 +264,122 @@ components:
       description: If the `client-ref` is set when the request is sent, it will be included in the callbacks
       example: my-personal-reference
 
-    Country:
+    # Country:
+    #   type: string
+    #   description: If you do not provide the `to.number` in international format or you are not sure if `to.number` is correctly formatted, specify the two-character country code in `country`. Verify will then format the number for you.
+    #   pattern: '^[A-Z]{2}'
+    #   example: US
+
+    Brand:
       type: string
-      description: If you do not provide the `to.number` in international format or you are not sure if `to.number` is correctly formatted, specify the two-character country code in `country`. Verify will then format the number for you.
-      pattern: '^[A-Z]{2}'
-      example: US
+      description: The brand that is sending the verification request.
+      example: "ACME, Inc"
 
     NewRequestBase:
       type: object
       properties:
-        to:
-          type: array
-          items:
-            $ref: '#/components/schemas/To'
-        sender:
-          $ref: '#/components/schemas/Sender'
-        country:
-          $ref: '#/components/schemas/Country'
-        language:
+        # to:
+        #   type: array
+        #   items:
+        #     $ref: '#/components/schemas/To'
+        # sender:
+        #   $ref: '#/components/schemas/Sender'
+        # country:
+        #   $ref: '#/components/schemas/Country'
+        brand:
+          $ref: '#/components/schemas/Brand'
+        locale:
           $ref: 'common/common_data.yml#/components/schemas/Language'
-        next_event_wait:
-          $ref: '#/components/schemas/NextEventWait'
-        client-ref:
+        channel_timeout:
+          $ref: '#/components/schemas/ChannelTimeout'
+        client_ref:
           $ref: '#/components/schemas/ClientRef'
+        pin_length:
+          $ref: '#/components/schemas/PINLength'
+        # pin_expiry:
+        #   $ref: '#/components/schemas/PINExpiry'
 
     NewPINRequest:
+      oneOf:
+        - $ref: '#/components/schemas/NewPINRequestWorkflowSMS'
+        - $ref: '#/components/schemas/NewPINRequestWorkflowWhatsApp'
+
+    NewPINRequestWorkflowSMS:
+      title: SMS
+      x-tab-id: WorkflowSMS
+      allOf:
+        - $ref: '#/components/schemas/NewRequestBase'
+        - type: object
+          required:
+            - workflow
+          description: Request a PIN be sent to a user
+          properties:
+            workflow:
+              type: array
+              items:
+                type: object
+                required:
+                  - channel
+                  - to
+                properties:
+                  channel:
+                    type: string
+                    description: "The channel"
+                    enum: 
+                      - sms
+                    example: "sms"
+                  to:
+                    $ref: '#/components/schemas/To'
+              example: [
+                {
+                  "channel": "sms",
+                  "to": "447700900000"
+                }
+              ]
+
+
+    NewPINRequestWorkflowWhatsApp:
+      title: WhatsApp
+      x-tab-id: WorkflowWhatsApp
       allOf:
         - $ref: '#/components/schemas/NewRequestBase'
         - type: object
           description: Request a PIN be sent to a user
           properties:
-            pin_length:
-              $ref: '#/components/schemas/PINLength'
-            pin_expiry:
-              $ref: '#/components/schemas/PINExpiry'
+            workflow:
+              type: array
+              items:
+                type: object
+                properties:
+                  channel:
+                    type: string
+                    enum: 
+                      - whatsapp
+                    example: whatsapp
+                  to:
+                    $ref: '#/components/schemas/To'
+                  from:
+                    type: string
+                    minLength: 1
+                    maxLength: 50
+                    example: '447700900000'
+                    description: The phone number the verification is coming from, in the [E.164](https://en.wikipedia.org/wiki/E.164) format. Don't use a leading + or 00 when entering a phone number, start with the country code, for example, 447700900000.
+                  template:
+                    type: string
+                    example: abc:123:verify
+                required:
+                  - channel
+                  - to
+              example: [
+                  {
+                    "channel": "whatsapp",
+                    "to": "447700900000",
+                    "from": "447700900000",
+                    "template": "abc:123:verify"
+                  }
+                ]
           required:
-            - to
-            - sender
+            - workflow
 
     NewPSD2Request:
       allOf:
@@ -307,15 +387,11 @@ components:
         - type: object
           description: Request a PIN be sent to a user
           properties:
-            pin_length:
-              $ref: '#/components/schemas/PINLength'
-            pin_expiry:
-              $ref: '#/components/schemas/PINExpiry'
             amount:
               type: string
               description: "Amount to be verified"
               example: "2.50"
-            current:
+            currency:
               type: string
               description: ISO 4217 currency code to represent the amount in
               pattern: '^[A-Z]{3}$'
@@ -326,7 +402,7 @@ components:
             - sender
             - amount
 
-    NextEventWait:
+    ChannelTimeout:
       type: integer
       description: Specifies the wait time in seconds between attempts to delivery the verification code
       minimum: 60
@@ -334,20 +410,20 @@ components:
       default: 300
       example: 300
 
-    MSISDN:
+    To:
       type: string
       minLength: 1
       maxLength: 50
       example: '447700900000'
       description: The phone number to contact, in the [E.164](https://en.wikipedia.org/wiki/E.164) format. Don't use a leading + or 00 when entering a phone number, start with the country code, for example, 447700900000.
 
-    PINExpiry:
-      type: integer
-      description: How long the generated PIN code is valid for
-      minimum: 60
-      maximum: 3600
-      default: 300
-      example: 300
+    # PINExpiry:
+    #   type: integer
+    #   description: How long the generated PIN code is valid for
+    #   minimum: 60
+    #   maximum: 3600
+    #   default: 300
+    #   example: 300
 
     PINLength:
       type: integer
@@ -363,57 +439,57 @@ components:
       description: 'The ID of the request'
       example: '0123456789abcdef0123456789abcdef'
 
-    Sender:
-      type: string
-      description: Identify the originator of this message to the message recipient. Restrictions may apply.
-      minLength: 2
-      maxLength: 16
-      example: 'ACME, Inc'
+    # Sender:
+    #   type: string
+    #   description: Identify the originator of this message to the message recipient. Restrictions may apply.
+    #   minLength: 2
+    #   maxLength: 16
+    #   example: 'ACME, Inc'
 
-    To:
-      description: List of contact options to attempt to send a 
-      oneOf:
-        - $ref: '#/components/schemas/ToTelephone'
-        - $ref: '#/components/schemas/ToFacebook'
+    # To:
+    #   description: List of contact options to attempt to send a 
+    #   oneOf:
+    #     - $ref: '#/components/schemas/ToTelephone'
+    #     - $ref: '#/components/schemas/ToFacebook'
 
-    ToTelephone:
-      type: object
-      required:
-        - type
-        - number
-      properties:
-        type:
-          type: string
-          description: The type of telephone-number-based message you would like to send
-          example: 'sms'
-          enum:
-            - sms
-            - viber_service_msg
-            - voice
-            - whatsapp
-        number:
-          $ref: '#/components/schemas/MSISDN'
-        pin:
-          $ref: '#/components/schemas/PIN'
+    # ToTelephone:
+    #   type: object
+    #   required:
+    #     - type
+    #     - number
+    #   properties:
+    #     type:
+    #       type: string
+    #       description: The type of telephone-number-based message you would like to send
+    #       example: 'sms'
+    #       enum:
+    #         - sms
+    #         - viber_service_msg
+    #         - voice
+    #         - whatsapp
+    #     number:
+    #       $ref: '#/components/schemas/MSISDN'
+    #     pin:
+    #       $ref: '#/components/schemas/PIN'
 
-    ToFacebook:
-      type: object
-      required:
-        - type
-        - account_id
-      properties:
-        type:
-          type: string
-          description: The type of Facebook-account-based message you would like to send
-          example: 'facebook'
-          enum:
-            - facebook
-        account_id:
-          type: string
-          description: Facebook Recipient ID
-          example: "1254477777772919"
-        pin:
-          $ref: '#/components/schemas/PIN'
+    # ToFacebook:
+    #   type: object
+    #   required:
+    #     - type
+    #     - account_id
+    #   properties:
+    #     type:
+    #       type: string
+    #       description: The type of Facebook-account-based message you would like to send
+    #       example: 'facebook'
+    #       enum:
+    #         - facebook
+    #     account_id:
+    #       type: string
+    #       description: Facebook Recipient ID
+    #       example: "1254477777772919"
+    #     pin:
+    #       $ref: '#/components/schemas/PIN'
 
     VerifyResource:
       required:
@@ -517,8 +593,8 @@ components:
       example:
         invalid-parameters:
           type: 'https://www.nexmo.com/messages/Errors#InvalidParams'
-          title: 'Missing `to` parameter'
-          detail: 'The `to` parameter is required and must be an array'
+          title: 'Missing `workflow` parameter'
+          detail: 'The `workflow` parameter is required and must be an array'
           instance: abcd
 
   securitySchemes:
