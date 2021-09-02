@@ -650,8 +650,6 @@ components:
         - title: Custom
           x-tab-id: Custom
           type: object
-          required:
-            - custom
           properties:
             message_type:
               type: string
@@ -662,6 +660,7 @@ components:
             custom:
               type: object
               description: A custom payload, which is passed directly to WhatsApp for certain features such as templates and interactive messages
+
     Reply:
       allOf:
         - $ref: "#/components/schemas/baseMessageType"
