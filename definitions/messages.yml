@@ -1,8 +1,8 @@
 openapi: "3.0.0"
 info:
-  version: 1.0.0
+  version: 1.0.1
   title: Messages API
-  description: 'The Messages API is a new API that consolidates all messaging channels. It encapsulates a user (developer) from having to use multiple APIs to interact with our various channels such as SMS, MMS, Viber, Facebook Messenger, etc. The API normalises information across all channels to abstracted to, from and content. This API is currently in Beta.'
+  description: 'The Messages API consolidates and normalises exchanges across all messaging channels. It allows you to use a single API to interact with our various channels such as SMS, MMS, WhatsApp, Viber and Facebook Messenger'
   contact:
     name: Nexmo DevRel
     email: devrel@nexmo.com
@@ -57,7 +57,28 @@ paths:
                                 type: string
                                 description: 'Additional text to accompany the image.'
                                 minLength: 1
-                                maxLength: 3000
+                                maxLength: 2000
+                                example: 'Additional text to accompany the image.'
+                      - $ref: '#/components/schemas/channelOptionsMms'
+                    - allOf:                                           
+                      - $ref: '#/components/schemas/vCard'
+                      - properties:
+                          vcard:
+                            required:
+                              - url
+                            properties:
+                              url:
+                                type: string
+                                description: |
+                                  The URL of the vCard attachment.
+
+                                  Supports `.vcf` only.
+                                example: 'https://example.com/contact.vcf'
+                              caption:
+                                type: string
+                                description: 'Additional text to accompany the vCard.'
+                                minLength: 1
+                                maxLength: 2000
                                 example: 'Additional text to accompany the image.'
                       - $ref: '#/components/schemas/channelOptionsMms'
                 - title: WhatsApp
@@ -162,6 +183,12 @@ paths:
                                 type: string
                                 example: en-US
                                 description: 'The [BCP 47](https://en.wikipedia.org/wiki/IETF_language_tag) language of the template. Vonage will translate the BCP 47 format to the [WhatsApp equivalent](https://developers.facebook.com/docs/whatsapp/message-templates/creation#translations). For examples `en-GB` will be auto-translate to en_GB.'
+                    - allOf:
+                      - required:
+                        - message_type
+                      - $ref: '#/components/schemas/Custom'
+                      - $ref: '#/components/schemas/channelOptionsWhatsapp'
+
                 - title: Messenger
                   x-tab-id: Messenger
                   oneOf:
@@ -333,7 +360,7 @@ paths:
               summary: Message Status
               operationId: message-status
               x-example-path: '/webhooks/message-status'
-              description: 'Webhooks to inform about events happening to the message at communication level (has it been delivered, rejected by the provider...).'
+              description: 'Webhooks provide information about events happening to the message such as whether it has been sent, delivered or rejected by the provider.'
               requestBody:
                 required: true
                 content:
@@ -365,9 +392,13 @@ x-webhooks:
                   - $ref: '#/components/schemas/inboundMessageSMS'                                       
                   - title: MMS
                     x-tab-id: MMS
-                    allOf:
-                    - $ref: '#/components/schemas/inboundMessageMMS'
-                    - $ref: '#/components/schemas/Image'
+                    oneOf:
+                      - allOf:
+                        - $ref: '#/components/schemas/inboundMessageMMS'
+                        - $ref: '#/components/schemas/Image'
+                      - allOf:
+                        - $ref: '#/components/schemas/inboundMessageMMS'
+                        - $ref: '#/components/schemas/vCard'
                   - title: WhatsApp
                     x-tab-id: WhatsApp
                     oneOf:
@@ -386,6 +417,9 @@ x-webhooks:
                       - allOf:
                         - $ref: "#/components/schemas/inboundWhatsAppMessageCommon"
                         - $ref: "#/components/schemas/Audio"
+                      - allOf:
+                        - $ref: "#/components/schemas/inboundWhatsAppMessageCommon"
+                        - $ref: "#/components/schemas/Reply"
                       - allOf:
                         - $ref: "#/components/schemas/inboundWhatsAppMessageCommon"
                         - $ref: "#/components/schemas/Unsupported"
@@ -514,6 +548,31 @@ components:
                     > Note: Only supports video codec H.264 and audio codec AAC
                   format: url
                   example: 'https://example.com/video.mp4'
+    vCard:
+       allOf:
+        - $ref: "#/components/schemas/baseMessageType"
+        - title: vCard
+          x-tab-id: vCard
+          type: object
+          required:
+            - image
+          properties:
+            message_type:
+              type: string
+              enum:
+                - image
+              example: image
+              description: The type of message to send. You must provide `vcard` in this field
+            image:
+              type: object
+              required:
+                - url
+              properties:
+                url:
+                  format: url
+                  description: The publicly accessible URL of the vCard attachment. Supported types are .vcf only
+                  example: https://example.com/conatact.vcf
+                  type: string
     Unsupported:
       allOf:
         - $ref: "#/components/schemas/baseMessageType"
@@ -585,6 +644,30 @@ components:
                   description: The parameters are an array of strings. The first value being {{1}} in the template.
                   items:
                     type: string
+    Custom:
+      allOf:
+        - $ref: "#/components/schemas/baseMessageType"
+        - title: Custom
+          x-tab-id: Custom
+          type: object
+          required:
+            - custom
+          properties:
+            message_type:
+              type: string
+              enum:
+                - custom
+              example: custom
+              description: The type of message to send. You must provide `custom` in this field
+            custom:
+              type: object
+              description: A custom payload, which is passed directly to WhatsApp for certain features such as templates and interactive messages
+    Reply:
+      allOf:
+        - $ref: "#/components/schemas/baseMessageType"
+        - title: Reply
+          x-tab-id: Reply
+          type: object
     Text:
       allOf:
         - $ref: "#/components/schemas/baseMessageType"
@@ -1346,6 +1429,37 @@ components:
           $ref: "#/components/schemas/FromNumber"
         timestamp:
           $ref: "#/components/schemas/Timestamp"
+        profile:
+          $ref: "#/components/schemas/Profile"
+        context:
+          $ref: "#/components/schemas/Context"
+        provider_message:
+          type: string
+          description: A message from the channel provider, which may contain a description, error codes or other information
+            
+    Profile:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: The WhatsApp number's displayed profile name
+          example: Jane Smith
+    Context:
+      type: object
+      required:
+        - message_uuid
+        - message_from
+      properties:
+        message_uuid:
+          type: string
+          example: aaaaaaaa-bbbb-cccc-dddd-0123456789ab
+          description: The UUID of the message being replied to
+        message_from:
+          type: string
+          example: '447700900000'
+          description: The phone number of the **original sender** of the message being replied to in the [E.164](https://en.wikipedia.org/wiki/E.164) format. 
     Usage:
       type: object
       properties:
