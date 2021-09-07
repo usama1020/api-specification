@@ -2034,53 +2034,8 @@ components:
       
     ConversationEventResponse:
       oneOf:
-    #     - title: 'audio:play'
-    #       x-tab-id: audio-play
-    #       allOf: 
-    #         - $ref: "#/components/schemas/ConversationEventResponseAudioPlay"
-    #     - title: 'audio:play:stop'
-    #       x-tab-id: audio-play-stop
-    #       allOf: 
-    #         - $ref: "#/components/schemas/ConversationEventResponseAudioPlayStop"
-    #     - title: 'audio:say'
-    #       x-tab-id: audio-say
-    #       allOf: 
-    #         - $ref: "#/components/schemas/ConversationEventResponsetAudioSay"
-    #     - title: 'audio:say:stop'
-    #       x-tab-id: audio-say-stop
-    #       allOf: 
-    #         - $ref: "#/components/schemas/ConversationEventResponseAudioSayStop"
-    #     - title: 'audio:dtmf'
-    #       x-tab-id: audio-dtmf
-    #       allOf:
-    #         - $ref: "#/components/schemas/ConversationEventResponseAudioDtmf"
-    #     - title: 'audio:record'
-    #       x-tab-id: audio-record
-    #       allOf:
-    #         - $ref: "#/components/schemas/ConversationEventResponseAudioRecord"
-    #     - title: 'audio:record:stop'
-    #       x-tab-id: audio-record-stop
-    #       allOf:
-    #         - $ref: "#/components/schemas/ConversationEventResponseAudioRecordStop"
-    #     - title: 'audio:mute:on'
-    #       x-tab-id: audio-mute-on
-    #       allOf:
-    #         - $ref: "#/components/schemas/ConversationEventResponseAudioMuteOn"
-    #     - title: 'audio:mute:off'
-    #       x-tab-id: audio-mute-off
-    #       allOf:
-    #         - $ref: "#/components/schemas/ConversationEventResponseAudioMuteOff"
-    #     - title: 'audio:earmuff:on'
-    #       x-tab-id: audio-earmuff-on
-    #       allOf:
-    #         - $ref: "#/components/schemas/ConversationEventResponseAudioEarmuffOn"
-    #     - title: 'audio:earmuff:off'
-    #       x-tab-id: audio-earmuff-off
-    #       allOf:
-    #         - $ref: "#/components/schemas/ConversationEventResponseAudioEarmuffOff"
-    
-    # ConversationEventResponseAudioPlay:
-        - title: 'test'
+        - description: audio-play
+          x-tab-id: audio-play
           type: object
           properties:
             to:
@@ -2140,7 +2095,9 @@ components:
             - id
             - timestamp
             - _links
-        - type: object
+        - description: audio:play:stop
+          x-tab-id: audio-play-stop
+          type: object
           properties:
             to:
               $ref: '#/components/schemas/member_id'
@@ -2184,7 +2141,9 @@ components:
             - id
             - timestamp
             - _links
-        - type: object
+        - description: audio:say
+          x-tab-id: audio-say
+          type: object
           properties:
             to:
               $ref: '#/components/schemas/member_id'
@@ -2249,7 +2208,9 @@ components:
             - id
             - timestamp
             - _links
-        - type: object
+        - description: audio:say:stop
+          x-tab-id: audio-say-stop
+          type: object
           properties:
             to:
               $ref: '#/components/schemas/member_id'
@@ -2293,7 +2254,9 @@ components:
             - id
             - timestamp
             - _links
-        - type: object
+        - description: audio:dtmf
+          x-tab-id: audio-dtmf
+          type: object
           properties:
             to:
               $ref: '#/components/schemas/member_id'
@@ -2372,7 +2335,9 @@ components:
             - id
             - timestamp
             - _links
-        - type: object
+        - description: audio:record
+          x-tab-id: audio-record
+          type: object
           properties:
             to:
               $ref: '#/components/schemas/member_id'
@@ -2437,7 +2402,9 @@ components:
             - id
             - timestamp
             - _links
-        - type: object
+        - description: audio:record:stop
+          x-tab-id: audio-record-stop
+          type: object
           properties:
             to:
               $ref: '#/components/schemas/member_id'
@@ -2481,7 +2448,9 @@ components:
             - id
             - timestamp
             - _links
-        - type: object
+        - description: audio:mute:on
+          x-tab-id: audio-mute-on
+          type: object
           properties:
             to:
               $ref: '#/components/schemas/member_id'
@@ -2524,7 +2493,9 @@ components:
             - id
             - timestamp
             - _links
-        - type: object
+        - description: audio:mute:off
+          x-tab-id: audio-mute-off
+          type: object
           properties:
             to:
               $ref: '#/components/schemas/member_id'
@@ -2567,7 +2538,9 @@ components:
             - id
             - timestamp
             - _links
-        - type: object
+        - description: audio:earmuff:on
+          x-tab-id: audio-earmuff-on
+          type: object
           properties:
             to:
               $ref: '#/components/schemas/member_id'
@@ -2610,7 +2583,9 @@ components:
             - id
             - timestamp
             - _links
-        - type: object
+        - description: audio:earmuff:off
+          x-tab-id: audio-earmuff-off
+          type: object
           properties:
             to:
               $ref: '#/components/schemas/member_id'
